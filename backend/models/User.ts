@@ -6,6 +6,8 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: "user" | "admin";
+  xp: number;
+  level: number;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -15,12 +17,12 @@ const userSchema: Schema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true, // nom obligatoire
+      required: true,
     },
     email: {
       type: String,
       required: true,
-      unique: true, // vérifie si l'email est unique
+      unique: true,
     },
     password: {
       type: String,
@@ -28,16 +30,23 @@ const userSchema: Schema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin"], // vérifie si l'utilisateur est admin ou user
-      default: "user", // par défaut, c'est un utilisateur normal
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    xp: {
+      type: Number,
+      default: 0,
+    },
+    level: {
+      type: Number,
+      default: 1,
     },
   },
   {
-    timestamps: true, // ajoute automatiquement les champs "createdAt" et "updatedAt"
+    timestamps: true,
   }
 );
 
-// Middleware avant de sauvegarder un utilisateur : hachage du mot de passe
 userSchema.pre<IUser>("save", async function (next) {
   if (!this.isModified("password")) return next();
 
@@ -46,7 +55,6 @@ userSchema.pre<IUser>("save", async function (next) {
   next();
 });
 
-// Méthode pour comparer les mots de passe
 userSchema.methods.comparePassword = async function (
   candidatePassword: string
 ): Promise<boolean> {
