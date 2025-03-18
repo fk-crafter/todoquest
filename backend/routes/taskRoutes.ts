@@ -61,8 +61,12 @@ router.put(
   protect,
   async (req: AuthRequest, res: Response): Promise<void> => {
     try {
+      const { taskId } = req.params;
+      const userId = req.user?.id!;
+
+      // vérifie si la tâche existe et n'est pas déjà complétée
       const task = await prisma.task.findUnique({
-        where: { id: req.params.taskId },
+        where: { id: taskId },
       });
 
       if (!task) {
@@ -75,45 +79,52 @@ router.put(
         return;
       }
 
-      // Mettre à jour la tâche en tant que complétée
+      // marque la tâche comme complétée et ajoute la date d'achèvement
       await prisma.task.update({
-        where: { id: task.id },
-        data: { completed: true },
+        where: { id: taskId },
+        data: { completed: true, completedAt: new Date() },
       });
 
-      // Ajouter l'XP à l'utilisateur
+      // récupère l'utilisateur
       const user = await prisma.user.findUnique({
-        where: { id: req.user?.id! },
+        where: { id: userId },
       });
 
-      if (user) {
-        let xpGained = 10;
-
-        if (user.level <= 5) {
-          xpGained = 50;
-        } else if (user.level <= 10) {
-          xpGained = 25;
-        } else if (user.level <= 20) {
-          xpGained = 15;
-        } else {
-          xpGained = 10;
-        }
-
-        let newXP = user.xp + xpGained;
-        let newLevel = user.level;
-
-        if (newXP >= 100) {
-          newLevel += 1;
-          newXP = 0;
-        }
-
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { xp: newXP, level: newLevel },
-        });
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
       }
 
-      res.status(200).json({ message: "Task completed and XP added" });
+      // calcule l'XP en fonction du niveau
+      let xpGained =
+        user.level <= 5
+          ? 50
+          : user.level <= 10
+          ? 25
+          : user.level <= 20
+          ? 15
+          : 10;
+      let newXP = user.xp + xpGained;
+      let newLevel = user.level;
+
+      // vérifie si l'utilisateur passe au niveau suivant
+      if (newXP >= 100) {
+        newLevel += 1;
+        newXP = 0;
+      }
+
+      // met à jour les stats du joueur
+      await prisma.user.update({
+        where: { id: userId },
+        data: { xp: newXP, level: newLevel },
+      });
+
+      res.status(200).json({
+        message: "Task completed and XP added",
+        xpGained,
+        newXP,
+        newLevel,
+      });
     } catch (error) {
       res.status(500).json({ message: "Server error" });
     }
