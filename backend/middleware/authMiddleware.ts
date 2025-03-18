@@ -1,6 +1,6 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
-import User from "../models/User";
+import { PrismaClient } from "@prisma/client";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -12,6 +12,8 @@ export interface AuthRequest extends Request {
     level: number;
   };
 }
+
+const prisma = new PrismaClient();
 
 const protect = async (
   req: AuthRequest,
@@ -37,7 +39,7 @@ const protect = async (
         return;
       }
 
-      const user = await User.findById(decoded.id).select("-password");
+      const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
       if (!user) {
         res.status(401).json({ message: "User not found" });
@@ -45,7 +47,7 @@ const protect = async (
       }
 
       req.user = {
-        id: user._id.toString(),
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,

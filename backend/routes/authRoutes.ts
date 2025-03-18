@@ -1,16 +1,9 @@
 import express, { Request, Response } from "express";
-import User from "../models/User";
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const router = express.Router();
-
-interface IUser {
-  _id: string;
-  name: string;
-  email: string;
-  password: string;
-  xp: number;
-  level: number;
-}
+const prisma = new PrismaClient();
 
 // @route   POST /api/auth/register
 // @desc    Inscription d'un utilisateur
@@ -24,20 +17,28 @@ router.post("/register", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const existingUser: IUser | null = await User.findOne({ email });
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       res.status(400).json({ message: "This email is already used" });
       return;
     }
 
-    // Création du nouvel utilisateur avec XP = 0 et Level = 1
-    const newUser = new User({ name, email, password, xp: 0, level: 1 });
-    await newUser.save();
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        xp: 0,
+        level: 1,
+      },
+    });
 
     res.status(201).json({
       message: "User created successfully",
       user: {
-        _id: newUser._id,
+        id: newUser.id,
         name: newUser.name,
         email: newUser.email,
         xp: newUser.xp,

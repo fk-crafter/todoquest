@@ -1,9 +1,9 @@
 import express, { Request, Response } from "express";
-import Task from "../models/Task";
-import User from "../models/User";
+import { PrismaClient } from "@prisma/client";
 import protect, { AuthRequest } from "../middleware/authMiddleware";
 
 const router = express.Router();
+const prisma = new PrismaClient();
 
 // @route   POST /api/tasks
 // @desc    Créer une nouvelle tâche
@@ -20,10 +20,12 @@ router.post(
         return;
       }
 
-      const newTask = await Task.create({
-        userId: req.user?.id,
-        title,
-        description,
+      const newTask = await prisma.task.create({
+        data: {
+          userId: req.user?.id!,
+          title,
+          description,
+        },
       });
 
       res.status(201).json(newTask);
@@ -41,7 +43,9 @@ router.get(
   protect,
   async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      const tasks = await Task.find({ userId: req.user?.id });
+      const tasks = await prisma.task.findMany({
+        where: { userId: req.user?.id! },
+      });
       res.status(200).json(tasks);
     } catch (error) {
       res.status(500).json({ message: "Server error" });
@@ -57,7 +61,9 @@ router.put(
   protect,
   async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      const task = await Task.findById(req.params.taskId);
+      const task = await prisma.task.findUnique({
+        where: { id: req.params.taskId },
+      });
 
       if (!task) {
         res.status(404).json({ message: "Task not found" });
@@ -69,10 +75,17 @@ router.put(
         return;
       }
 
-      task.completed = true;
-      await task.save();
+      // Mettre à jour la tâche en tant que complétée
+      await prisma.task.update({
+        where: { id: task.id },
+        data: { completed: true },
+      });
 
-      const user = await User.findById(req.user?.id);
+      // Ajouter l'XP à l'utilisateur
+      const user = await prisma.user.findUnique({
+        where: { id: req.user?.id! },
+      });
+
       if (user) {
         let xpGained = 10;
 
@@ -86,19 +99,21 @@ router.put(
           xpGained = 10;
         }
 
-        user.xp += xpGained;
+        let newXP = user.xp + xpGained;
+        let newLevel = user.level;
 
-        if (user.xp >= 100) {
-          user.level += 1;
-          user.xp = 0;
+        if (newXP >= 100) {
+          newLevel += 1;
+          newXP = 0;
         }
 
-        await user.save();
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { xp: newXP, level: newLevel },
+        });
       }
 
-      res
-        .status(200)
-        .json({ message: "Task completed and XP added", task, user });
+      res.status(200).json({ message: "Task completed and XP added" });
     } catch (error) {
       res.status(500).json({ message: "Server error" });
     }
@@ -113,14 +128,16 @@ router.delete(
   protect,
   async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      const task = await Task.findById(req.params.taskId);
+      const task = await prisma.task.findUnique({
+        where: { id: req.params.taskId },
+      });
 
       if (!task) {
         res.status(404).json({ message: "Task not found" });
         return;
       }
 
-      await Task.deleteOne({ _id: req.params.taskId });
+      await prisma.task.delete({ where: { id: task.id } });
 
       res.status(200).json({ message: "Task deleted successfully" });
     } catch (error) {

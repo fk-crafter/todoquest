@@ -1,21 +1,11 @@
 import express, { Request, Response } from "express";
-import User from "../models/User";
-import Task from "../models/Task";
-import jwt from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import protect from "../middleware/authMiddleware";
 
 const router = express.Router();
-
-interface IUser {
-  _id: string;
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-  xp: number;
-  level: number;
-}
+const prisma = new PrismaClient();
 
 // @route   GET /api/users/:id
 // @desc    Récupérer les infos d’un utilisateur
@@ -25,11 +15,16 @@ router.get(
   protect,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const user = await User.findById(req.params.id).select("-password");
+      const user = await prisma.user.findUnique({
+        where: { id: req.params.id },
+        select: { id: true, name: true, email: true, xp: true, level: true },
+      });
+
       if (!user) {
         res.status(404).json({ message: "User not found" });
         return;
       }
+
       res.json(user);
     } catch (error) {
       res.status(500).json({ message: "Server error" });
@@ -44,7 +39,7 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
-    const user: IUser | null = await User.findOne({ email });
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       res.status(401).json({ message: "Email or password incorrect" });
       return;
@@ -56,7 +51,7 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, {
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: "7d",
     });
 
@@ -64,7 +59,7 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
       message: "Connection successful",
       token,
       user: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         xp: user.xp,
@@ -84,15 +79,17 @@ router.get(
   protect,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await prisma.user.findUnique({
+        where: { id: req.params.id },
+      });
+
       if (!user) {
         res.status(404).json({ message: "User not found" });
         return;
       }
 
-      const completedTasks = await Task.countDocuments({
-        userId: user._id,
-        completed: true,
+      const completedTasks = await prisma.task.count({
+        where: { userId: user.id, completed: true },
       });
 
       res.status(200).json({
@@ -114,15 +111,18 @@ router.delete(
   protect,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await prisma.user.findUnique({
+        where: { id: req.params.id },
+      });
 
       if (!user) {
         res.status(404).json({ message: "User not found" });
         return;
       }
 
-      await User.deleteOne({ _id: user._id });
-      res.json({ message: "User deleted successfully" });
+      await prisma.user.delete({ where: { id: user.id } });
+
+      res.status(200).json({ message: "User deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Server error" });
     }
