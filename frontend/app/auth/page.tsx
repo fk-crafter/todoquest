@@ -12,9 +12,12 @@ export default function AuthPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
     const result = await signIn("credentials", {
       redirect: false,
       email,
@@ -22,7 +25,7 @@ export default function AuthPage() {
     });
 
     if (result?.error) {
-      console.error(result.error);
+      setError(result.error);
     } else {
       router.push("/progress");
     }
@@ -31,6 +34,8 @@ export default function AuthPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Authentification</h1>
+
+      {error && <p className="text-red-500 font-bold">Compte non reconnu</p>}
 
       <form
         onSubmit={handleSubmit}
