@@ -50,10 +50,13 @@ export default function Hero() {
         Transforme tes tâches en aventures !
       </p>
       <button
-        onClick={() => router.push("/auth")}
+        onClick={() => {
+          playSound();
+          setTimeout(() => router.push("/auth"), 200);
+        }}
         className="mt-6 px-6 py-3 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg border-[3px] border-black shadow-[3px_3px_0px_black] active:translate-x-[2px] active:translate-y-[2px] flex items-center gap-2"
       >
-        <Rocket size={20} /> Start the Adventure
+        <Rocket size={20} /> Démarrer l'aventure
       </button>
     </main>
   );

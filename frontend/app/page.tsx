@@ -1,5 +1,4 @@
 import Hero from "@/components/Hero";
-import TaskManager from "@/components/TaskManager";
 
 export default function Home() {
   return (
