@@ -20,10 +20,13 @@ export default function TasksPage() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
+
   useEffect(() => {
     if (!session || !session.user) return;
     fetchTasks();
-    fetchUserData(); // Rafraîchir les données utilisateur au chargement
+    fetchUserData();
   }, [session]);
 
   const fetchTasks = async () => {
@@ -56,11 +59,8 @@ export default function TasksPage() {
 
       const data = await res.json();
 
-      // Vérifie que session et user existent avant d'affecter
-      if (session && session.user) {
-        session.user.xp = data.xp;
-        session.user.level = data.level;
-      }
+      setXp(data.xp);
+      setLevel(data.level);
     } catch (error) {
       console.error("Error fetching user data", error);
     }
@@ -96,7 +96,7 @@ export default function TasksPage() {
   };
 
   const completeTask = async (taskId: string) => {
-    if (!session || !session.user) return; // Vérifie que session et user existent
+    if (!session || !session.user) return;
 
     try {
       const res = await fetch(
@@ -113,11 +113,8 @@ export default function TasksPage() {
 
       const data = await res.json();
 
-      // Vérifie que data contient bien newXP et newLevel avant d'affecter
-      if (data.newXP !== undefined && data.newLevel !== undefined) {
-        session.user.xp = data.newXP;
-        session.user.level = data.newLevel;
-      }
+      setXp(data.newXP);
+      setLevel(data.newLevel);
 
       fetchTasks();
     } catch (error) {
@@ -152,7 +149,7 @@ export default function TasksPage() {
     <div className="flex flex-col items-center justify-center min-h-screen p-6">
       <h1 className="text-3xl font-bold mb-6">Vos Tâches</h1>
       <p className="text-lg font-semibold">
-        XP: {session.user.xp} | Niveau: {session.user.level}
+        XP: {xp} | Niveau: {level}
       </p>
 
       <form
