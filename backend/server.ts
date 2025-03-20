@@ -35,5 +35,5 @@ app.use(
 
 const PORT: number = Number(process.env.PORT) || 5001;
 app.listen(PORT, () => {
-  console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+  console.log(`✨Serveur démarré sur le port ${PORT}`);
 });
