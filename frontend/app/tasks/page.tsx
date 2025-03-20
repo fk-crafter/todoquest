@@ -21,8 +21,9 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!session) return;
+    if (!session || !session.user) return;
     fetchTasks();
+    fetchUserData(); // Rafraîchir les données utilisateur au chargement
   }, [session]);
 
   const fetchTasks = async () => {
@@ -37,6 +38,31 @@ export default function TasksPage() {
       setTasks(data);
     } catch (error) {
       console.error("Error fetching tasks", error);
+    }
+  };
+
+  const fetchUserData = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${session?.user.id}/stats`,
+        {
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      const data = await res.json();
+
+      // Vérifie que session et user existent avant d'affecter
+      if (session && session.user) {
+        session.user.xp = data.xp;
+        session.user.level = data.level;
+      }
+    } catch (error) {
+      console.error("Error fetching user data", error);
     }
   };
 
@@ -70,14 +96,29 @@ export default function TasksPage() {
   };
 
   const completeTask = async (taskId: string) => {
+    if (!session || !session.user) return; // Vérifie que session et user existent
+
     try {
-      await fetch(
+      const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks/${taskId}/complete`,
         {
           method: "PUT",
-          headers: { Authorization: `Bearer ${session?.accessToken}` },
+          headers: { Authorization: `Bearer ${session.accessToken}` },
         }
       );
+
+      if (!res.ok) {
+        throw new Error("Failed to complete task");
+      }
+
+      const data = await res.json();
+
+      // Vérifie que data contient bien newXP et newLevel avant d'affecter
+      if (data.newXP !== undefined && data.newLevel !== undefined) {
+        session.user.xp = data.newXP;
+        session.user.level = data.newLevel;
+      }
+
       fetchTasks();
     } catch (error) {
       console.error("Error completing task", error);
