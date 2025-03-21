@@ -23,6 +23,9 @@ export default function TasksPage() {
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
 
+  const completedTasks = tasks.filter((task) => task.completed);
+  const incompleteTasks = tasks.filter((task) => !task.completed);
+
   useEffect(() => {
     if (!session || !session.user) return;
     fetchTasks();
@@ -146,70 +149,97 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6">
-      <h1 className="text-3xl font-bold mb-6">Vos Tâches</h1>
-      <p className="text-lg font-semibold">
-        XP: {xp} | Niveau: {level}
-      </p>
+    <div className="flex flex-col md:flex-row items-start justify-center min-h-screen p-6 gap-8">
+      <div className="w-full md:w-1/2">
+        <h1 className="text-3xl font-bold mb-4">Vos Tâches</h1>
+        <p className="text-lg font-semibold mb-4">
+          XP: {xp} | Niveau: {level}
+        </p>
 
-      <form
-        onSubmit={addTask}
-        className="flex flex-col gap-4 mt-6 w-full max-w-md"
-      >
-        <input
-          type="text"
-          placeholder="Titre de la tâche"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="p-2 rounded bg-gray-700 text-white w-full"
-          required
-        />
-        <textarea
-          placeholder="Description (optionnel)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="p-2 resize-none rounded bg-gray-700 text-white w-full"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="p-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold w-full"
-        >
-          {loading ? "Ajout..." : "Ajouter la tâche"} <Plus size={18} />
-        </button>
-      </form>
+        <form onSubmit={addTask} className="flex flex-col gap-4 w-full">
+          <input
+            type="text"
+            placeholder="Titre de la tâche"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="p-2 rounded bg-gray-700 text-white w-full"
+            required
+          />
+          <textarea
+            placeholder="Description (optionnel)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="p-2 resize-none rounded bg-gray-700 text-white w-full"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="p-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold w-full flex items-center justify-center gap-2"
+          >
+            {loading ? "Ajout..." : "Ajouter la tâche"} <Plus size={18} />
+          </button>
+        </form>
 
-      <div className="mt-6 w-full max-w-md">
-        {tasks.length === 0 ? (
-          <p className="text-gray-400">Aucune tâche pour l'instant.</p>
-        ) : (
-          tasks.map((task) => (
-            <div
-              key={task.id}
-              className="flex items-center justify-between bg-gray-800 p-4 rounded-lg mt-2"
-            >
-              <div>
-                <h2 className="font-bold text-white">{task.title}</h2>
-                {task.description && (
-                  <p className="text-gray-400 text-sm">{task.description}</p>
-                )}
-              </div>
-              <div className="flex gap-2">
-                {!task.completed && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-2">À faire</h2>
+          {incompleteTasks.length === 0 ? (
+            <p className="text-gray-400">Aucune tâche en cours.</p>
+          ) : (
+            incompleteTasks.map((task) => (
+              <div
+                key={task.id}
+                className="flex items-center justify-between bg-gray-800 p-4 rounded-lg mt-2"
+              >
+                <div>
+                  <h2 className="font-bold text-white">{task.title}</h2>
+                  {task.description && (
+                    <p className="text-gray-400 text-sm">{task.description}</p>
+                  )}
+                </div>
+                <div className="flex gap-2">
                   <button
                     onClick={() => completeTask(task.id)}
                     className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
                   >
                     <Check size={20} />
                   </button>
-                )}
-                <button
-                  onClick={() => deleteTask(task.id)}
-                  className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
-                >
-                  <Trash size={20} />
-                </button>
+                  <button
+                    onClick={() => deleteTask(task.id)}
+                    className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
+                  >
+                    <Trash size={20} />
+                  </button>
+                </div>
               </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="w-full md:w-1/2">
+        <h2 className="text-xl font-semibold mb-4">Tâches complétées</h2>
+        {completedTasks.length === 0 ? (
+          <p className="text-gray-400">
+            Aucune tâche complétée pour l'instant.
+          </p>
+        ) : (
+          completedTasks.map((task) => (
+            <div
+              key={task.id}
+              className="bg-green-800 p-4 rounded-lg mb-2 text-white flex justify-between items-center"
+            >
+              <div>
+                <h3 className="font-bold">{task.title}</h3>
+                {task.description && (
+                  <p className="text-sm text-gray-300">{task.description}</p>
+                )}
+              </div>
+              <button
+                onClick={() => deleteTask(task.id)}
+                className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
+              >
+                <Trash size={20} />
+              </button>
             </div>
           ))
         )}
