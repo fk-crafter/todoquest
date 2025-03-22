@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Check, Plus, Trash } from "lucide-react";
+import { Check, Plus, Trash, ArrowLeft } from "lucide-react";
 
 interface Task {
   id: string;
@@ -151,6 +151,14 @@ export default function TasksPage() {
   return (
     <div className="flex flex-col md:flex-row items-start justify-center min-h-screen p-6 gap-8">
       <div className="w-full md:w-1/2">
+        <button
+          onClick={() => router.back()}
+          className="mb-4 text-sm text-blue-400 hover:underline flex items-center gap-2"
+        >
+          <ArrowLeft size={18} />
+          Retour
+        </button>
+
         <h1 className="text-3xl font-bold mb-4">Vos Tâches</h1>
         <p className="text-lg font-semibold mb-4">
           XP: {xp} | Niveau: {level}
