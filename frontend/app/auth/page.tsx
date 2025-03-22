@@ -31,6 +31,11 @@ export default function AuthPage() {
     }
   };
 
+  const playSound = () => {
+    const clickAudio = new Audio("/click-sound.wav");
+    clickAudio.play();
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Authentification</h1>
@@ -58,6 +63,7 @@ export default function AuthPage() {
           required
         />
         <button
+          onClick={playSound}
           type="submit"
           className="p-2 bg-blue-500 hover:bg-blue-600 rounded text-white font-bold w-full"
         >
@@ -67,13 +73,19 @@ export default function AuthPage() {
 
       <div className="flex flex-col gap-2 mt-4 w-80">
         <button
-          onClick={() => signIn("github")}
+          onClick={() => {
+            playSound();
+            signIn("github");
+          }}
           className="flex items-center justify-center gap-2 p-2 bg-gray-900 hover:bg-gray-700 text-white rounded w-full"
         >
           <FaGithub size={20} /> Connexion avec GitHub
         </button>
         <button
-          onClick={() => signIn("google")}
+          onClick={() => {
+            playSound();
+            signIn("google");
+          }}
           className="flex items-center justify-center gap-2 p-2 bg-orange-300 hover:bg-orange-400 text-white rounded w-full"
         >
           <FcGoogle size={20} /> Connexion avec Google
@@ -83,7 +95,10 @@ export default function AuthPage() {
       <p className="mt-4 text-gray-300">
         Pas de compte ?{" "}
         <span
-          onClick={() => router.push("/register")}
+          onClick={() => {
+            playSound();
+            router.push("/register");
+          }}
           className="text-blue-400 cursor-pointer hover:underline"
         >
           Créer un compte
@@ -91,7 +106,10 @@ export default function AuthPage() {
       </p>
 
       <button
-        onClick={() => router.push("/")}
+        onClick={() => {
+          playSound();
+          router.push("/");
+        }}
         className="mt-6 flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white text-lg font-bold rounded-lg shadow-md transition-all"
       >
         <ArrowLeft size={24} /> Retour à l'accueil

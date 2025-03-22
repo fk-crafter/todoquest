@@ -23,6 +23,11 @@ export default function ProgressPage() {
     router.push("/");
   };
 
+  const playSound = () => {
+    const clickAudio = new Audio("/click-sound.wav");
+    clickAudio.play();
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-3xl font-bold mb-6">
@@ -35,14 +40,20 @@ export default function ProgressPage() {
       </p>
 
       <button
-        onClick={() => router.push("/tasks")}
+        onClick={() => {
+          playSound();
+          router.push("/tasks");
+        }}
         className="mt-6 flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-lg shadow-md transition-all"
       >
         Accéder à la liste des tâches <ArrowRight size={24} />
       </button>
 
       <button
-        onClick={handleLogout}
+        onClick={() => {
+          playSound();
+          handleLogout();
+        }}
         className="mt-4 flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-lg font-bold rounded-lg shadow-md transition-all"
       >
         Se déconnecter <LogOut size={24} />

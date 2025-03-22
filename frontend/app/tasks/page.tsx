@@ -141,6 +141,11 @@ export default function TasksPage() {
     }
   };
 
+  const playSound = () => {
+    const clickAudio = new Audio("/click-sound.wav");
+    clickAudio.play();
+  };
+
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -153,7 +158,10 @@ export default function TasksPage() {
     <div className="flex flex-col md:flex-row items-start justify-center min-h-screen p-6 gap-8">
       <div className="w-full md:w-1/2">
         <button
-          onClick={() => router.back()}
+          onClick={() => {
+            playSound();
+            router.back();
+          }}
           className="mb-4 text-sm text-blue-400 hover:underline flex items-center gap-2"
         >
           <ArrowLeft size={18} />

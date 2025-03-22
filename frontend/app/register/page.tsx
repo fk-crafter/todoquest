@@ -45,6 +45,11 @@ export default function RegisterPage() {
     }
   };
 
+  const playSound = () => {
+    const clickAudio = new Audio("/click-sound.wav");
+    clickAudio.play();
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Créer un compte</h1>
@@ -80,6 +85,7 @@ export default function RegisterPage() {
           required
         />
         <button
+          onClick={playSound}
           type="submit"
           disabled={loading}
           className="p-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold w-full"
@@ -91,7 +97,10 @@ export default function RegisterPage() {
       <p className="mt-4 text-gray-300">
         Vous avez déjà un compte ?{" "}
         <span
-          onClick={() => router.push("/auth")}
+          onClick={() => {
+            playSound();
+            router.push("/auth");
+          }}
           className="text-blue-400 cursor-pointer hover:underline"
         >
           Connexion
