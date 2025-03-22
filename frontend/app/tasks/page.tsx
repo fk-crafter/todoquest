@@ -135,6 +135,7 @@ export default function TasksPage() {
         }
       );
       fetchTasks();
+      fetchUserData();
     } catch (error) {
       console.error("Error deleting task", error);
     }

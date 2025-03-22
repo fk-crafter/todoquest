@@ -64,7 +64,6 @@ router.put(
       const { taskId } = req.params;
       const userId = req.user?.id!;
 
-      // vérifie si la tâche existe et n'est pas déjà complétée
       const task = await prisma.task.findUnique({
         where: { id: taskId },
       });
@@ -79,13 +78,6 @@ router.put(
         return;
       }
 
-      // marque la tâche comme complétée et ajoute la date d'achèvement
-      await prisma.task.update({
-        where: { id: taskId },
-        data: { completed: true, completedAt: new Date() },
-      });
-
-      // récupère l'utilisateur
       const user = await prisma.user.findUnique({
         where: { id: userId },
       });
@@ -95,7 +87,6 @@ router.put(
         return;
       }
 
-      // calcule l'XP en fonction du niveau
       let xpGained =
         user.level <= 5
           ? 50
@@ -104,19 +95,30 @@ router.put(
           : user.level <= 20
           ? 15
           : 10;
+
       let newXP = user.xp + xpGained;
       let newLevel = user.level;
 
-      // vérifie si l'utilisateur passe au niveau suivant
       if (newXP >= 100) {
         newLevel += 1;
         newXP = 0;
       }
 
-      // met à jour les stats du joueur
+      await prisma.task.update({
+        where: { id: taskId },
+        data: {
+          completed: true,
+          completedAt: new Date(),
+          gainedXp: xpGained,
+        },
+      });
+
       await prisma.user.update({
-        where: { id: userId },
-        data: { xp: newXP, level: newLevel },
+        where: { id: user.id },
+        data: {
+          xp: newXP,
+          level: newLevel,
+        },
       });
 
       res.status(200).json({
@@ -132,7 +134,7 @@ router.put(
 );
 
 // @route   DELETE /api/tasks/:taskId
-// @desc    Supprimer une tâche
+// @desc    Supprimer une tâche (et restituer les XP si complétée)
 // @access  Privé (authentifié)
 router.delete(
   "/:taskId",
@@ -148,10 +150,45 @@ router.delete(
         return;
       }
 
+      if (task.completed) {
+        const user = await prisma.user.findUnique({
+          where: { id: task.userId },
+        });
+
+        if (!user) {
+          res.status(404).json({ message: "User not found" });
+          return;
+        }
+
+        const xpToRestore = task.gainedXp ?? 0;
+        let newXP = user.xp - xpToRestore;
+        let newLevel = user.level;
+
+        while (newXP < 0 && newLevel > 1) {
+          newLevel -= 1;
+          newXP += 100;
+        }
+
+        if (newLevel === 1 && newXP < 0) {
+          newXP = 0;
+        }
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            xp: newXP,
+            level: newLevel,
+          },
+        });
+      }
+
       await prisma.task.delete({ where: { id: task.id } });
 
-      res.status(200).json({ message: "Task deleted successfully" });
+      res
+        .status(200)
+        .json({ message: "Task deleted and XP restored if completed" });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ message: "Server error" });
     }
   }
