@@ -75,16 +75,17 @@ export default function AuthPage() {
         <button
           onClick={() => {
             playSound();
-            signIn("github");
+            signIn("github", { callbackUrl: "/progress" });
           }}
           className="flex items-center justify-center gap-2 p-2 bg-gray-900 hover:bg-gray-700 text-white rounded w-full"
         >
           <FaGithub size={20} /> Connexion avec GitHub
         </button>
+
         <button
           onClick={() => {
             playSound();
-            signIn("google");
+            signIn("google", { callbackUrl: "/progress" });
           }}
           className="flex items-center justify-center gap-2 p-2 bg-orange-300 hover:bg-orange-400 text-white rounded w-full"
         >
