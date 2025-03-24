@@ -49,10 +49,10 @@ export default function TasksPage() {
   }, [isNewUser, session]);
 
   const tutorialMessages = [
-    "Bienvenue dans TodoQuest ! 🧙‍♂️",
-    "Ici tu peux créer des tâches comme des quêtes à accomplir.",
-    "À chaque tâche complétée, tu gagnes de l'XP et tu montes en niveau !",
-    "Quand tu es prêt, commence par ajouter ta première tâche ⚔️",
+    "Ô vaillant héros, sois le bienvenu dans TodoQuest, terre d'ordre et de bravoure.",
+    "Transforme tes corvées en épopées : chaque tâche est une quête en devenir.",
+    "Triomphe d’elles pour gagner de l'expérience et élever ton rang parmi les élus.",
+    "Saisis ta plume, trace ta destinée — ta première quête t’attend",
   ];
 
   const fetchTasks = async () => {
@@ -181,29 +181,34 @@ export default function TasksPage() {
   return (
     <div className="flex flex-col md:flex-row items-start justify-center min-h-screen p-6 gap-8">
       {showTutorial && (
-        <div className="fixed bottom-6 left-6 bg-white text-black p-4 rounded-lg shadow-lg z-50 border-2 border-black max-w-sm w-full">
-          <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
-          <button
-            onClick={() => {
-              playSound();
-              if (tutorialStep < tutorialMessages.length - 1) {
-                setTutorialStep(tutorialStep + 1);
-              } else {
-                setShowTutorial(false);
-                localStorage.setItem(
-                  `todoquest_tutorial_seen_${session.user.id}`,
-                  "true"
-                );
-              }
-            }}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            {tutorialStep < tutorialMessages.length - 1
-              ? "Suivant"
-              : "Terminer"}
-          </button>
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-end gap-4 p-6">
+          <div className="w-24 h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat" />
+
+          <div className="bg-white text-black p-4 rounded-lg shadow-lg border-2 border-black max-w-sm w-full">
+            <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
+            <button
+              onClick={() => {
+                playSound();
+                if (tutorialStep < tutorialMessages.length - 1) {
+                  setTutorialStep(tutorialStep + 1);
+                } else {
+                  setShowTutorial(false);
+                  localStorage.setItem(
+                    `todoquest_tutorial_seen_${session.user.id}`,
+                    "true"
+                  );
+                }
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              {tutorialStep < tutorialMessages.length - 1
+                ? "Suivant"
+                : "Terminer"}
+            </button>
+          </div>
         </div>
       )}
+
       <div className="w-full md:w-1/2">
         <button
           onClick={() => {
