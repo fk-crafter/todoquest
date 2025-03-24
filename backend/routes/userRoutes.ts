@@ -92,10 +92,13 @@ router.get(
         where: { userId: user.id, completed: true },
       });
 
+      const isNew = user.level === 1 && user.xp === 0 && completedTasks === 0;
+
       res.status(200).json({
         xp: user.xp,
         level: user.level,
         completedTasks,
+        isNew,
       });
     } catch (error) {
       res.status(500).json({ message: "Server error" });
