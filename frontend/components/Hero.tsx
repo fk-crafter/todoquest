@@ -37,10 +37,9 @@ export default function Hero() {
     <main className="flex flex-col items-center justify-center min-h-screen bg-[url('/pixel-bg.gif')] bg-contain bg-no-repeat bg-center relative">
       <button
         onClick={toggleMusic}
-        className="absolute top-4 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg flex items-center gap-2 border border-gray-600"
+        className="fixed top-4 right-4 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg flex items-center gap-2 border border-gray-600 z-50"
       >
         {isPlaying ? <MicOff size={20} /> : <Music size={20} />}
-        {isPlaying ? "stop" : "play"}
       </button>
 
       <h1 className="text-4xl font-bold text-blue-400 drop-shadow-[2px_2px_0px_black] flex items-center gap-2">

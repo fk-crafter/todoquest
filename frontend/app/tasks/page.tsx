@@ -26,6 +26,8 @@ export default function TasksPage() {
   const completedTasks = tasks.filter((task) => task.completed);
   const incompleteTasks = tasks.filter((task) => !task.completed);
 
+  const xpProgressPercent = Math.min((xp / 100) * 100, 100);
+
   useEffect(() => {
     if (!session || !session.user) return;
     fetchTasks();
@@ -169,9 +171,18 @@ export default function TasksPage() {
         </button>
 
         <h1 className="text-3xl font-bold mb-4">Vos Tâches</h1>
-        <p className="text-lg font-semibold mb-4">
-          XP: {xp} | Niveau: {level}
-        </p>
+        <div className="mb-4">
+          <p className="text-lg font-semibold">
+            XP: {xp} | Niveau: {level}
+          </p>
+          <div className="w-full bg-gray-600 rounded-full h-4 mt-2 overflow-hidden">
+            <div
+              className="bg-green-500 h-4 transition-all duration-500"
+              style={{ width: `${xpProgressPercent}%` }}
+            ></div>
+          </div>
+          <p className="text-sm text-gray-300 mt-1 text-right">{xp} / 100 XP</p>
+        </div>
 
         <form onSubmit={addTask} className="flex flex-col gap-4 w-full">
           <input
