@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,8 +37,10 @@ export default function RegisterPage() {
         throw new Error(data.message || "Registration failed");
       }
 
-      alert("Account created successfully!");
-      router.push("/auth");
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        router.push("/auth");
+      }, 3000);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -51,7 +54,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
+    <div className="flex flex-col items-center justify-center min-h-screen relative">
       <h1 className="text-3xl font-bold mb-6">Créer un compte</h1>
 
       {error && <p className="text-red-400">{error}</p>}
@@ -106,6 +109,20 @@ export default function RegisterPage() {
           Connexion
         </span>
       </p>
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg w-full max-w-md text-center border border-gray-600">
+            <h2 className="text-2xl font-bold mb-4 text-green-400">
+              Inscription réussie !
+            </h2>
+            <p className="mb-2 leading-relaxed">Ton compte a bien été créé.</p>
+            <p className="text-sm text-gray-400 italic">
+              Redirection en cours...
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
