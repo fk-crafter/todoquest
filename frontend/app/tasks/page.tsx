@@ -20,12 +20,13 @@ export default function TasksPage() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
-
-  const [showTutorial, setShowTutorial] = useState(false);
-  const [tutorialStep, setTutorialStep] = useState(0);
+  const [levelUpMessage, setLevelUpMessage] = useState<string | null>(null);
 
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
+
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialStep, setTutorialStep] = useState(0);
 
   const completedTasks = tasks.filter((task) => task.completed);
   const incompleteTasks = tasks.filter((task) => !task.completed);
@@ -85,8 +86,9 @@ export default function TasksPage() {
 
       const data = await res.json();
 
-      setXp(data.xp);
-      setLevel(data.level);
+      setXp(data.newXP);
+      setLevel(data.newLevel);
+
       setIsNewUser(data.isNew);
     } catch (error) {
       console.error("Error fetching user data", error);
@@ -140,6 +142,12 @@ export default function TasksPage() {
 
       const data = await res.json();
 
+      if (data.newLevel > level) {
+        setLevelUpMessage(
+          `Félicitations ! Vous avez atteint le niveau ${data.newLevel} !`
+        );
+      }
+
       setXp(data.newXP);
       setLevel(data.newLevel);
 
@@ -178,8 +186,23 @@ export default function TasksPage() {
     );
   }
 
+  useEffect(() => {
+    if (levelUpMessage) {
+      const timer = setTimeout(() => {
+        setLevelUpMessage(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [levelUpMessage]);
+
   return (
     <div className="flex flex-col md:flex-row items-start justify-center min-h-screen p-6 gap-8">
+      {levelUpMessage && (
+        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black px-6 py-3 rounded-lg shadow-lg z-50 border-2 border-black animate-pulse">
+          {levelUpMessage}
+        </div>
+      )}
       {showTutorial && (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-end gap-4 p-6">
           <div className="w-24 h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat" />
