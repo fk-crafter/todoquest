@@ -6,10 +6,13 @@ import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { ArrowLeft } from "lucide-react";
+import { useAudio } from "@/context/AudioContext";
 
 export default function AuthPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const { stopMusic } = useAudio();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,6 +26,13 @@ export default function AuthPage() {
       email,
       password,
     });
+
+    if (result?.error) {
+      setError(result.error);
+    } else {
+      stopMusic();
+      router.push("/progress");
+    }
 
     if (result?.error) {
       setError(result.error);

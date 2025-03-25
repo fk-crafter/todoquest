@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Press_Start_2P } from "next/font/google";
 import "./globals.css";
 import SessionWrapper from "@/components/SessionWrapper";
+import { AudioProvider } from "@/context/AudioContext";
+import MusicToggleButton from "@/components/MusicToggleButton";
 
 const pressStart = Press_Start_2P({
   subsets: ["latin"],
@@ -24,7 +26,10 @@ export default function RootLayout({
       <body
         className={`${pressStart.variable} bg-gray-900 text-white min-h-screen font-press`}
       >
-        <SessionWrapper>{children}</SessionWrapper>
+        <AudioProvider>
+          <MusicToggleButton />
+          <SessionWrapper>{children}</SessionWrapper>
+        </AudioProvider>
       </body>
     </html>
   );

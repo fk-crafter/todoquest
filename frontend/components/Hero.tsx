@@ -1,32 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Gamepad2, Rocket, Music, MicOff } from "lucide-react";
+import { Gamepad2, Rocket } from "lucide-react";
+import { useAudio } from "@/context/AudioContext";
 
 export default function Hero() {
   const router = useRouter();
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  useEffect(() => {
-    audioRef.current = new Audio("/title-sound.wav");
-    audioRef.current.loop = true;
-    audioRef.current.volume = 0.5;
-  }, []);
-
-  const toggleMusic = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current
-          .play()
-          .catch((err) => console.log("Autoplay blocked:", err));
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
+  const { isPlaying, toggleMusic } = useAudio();
 
   const playSound = () => {
     const clickAudio = new Audio("/click-sound.wav");
@@ -35,13 +15,6 @@ export default function Hero() {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-[url('/pixel-bg.gif')] bg-contain bg-no-repeat bg-center relative">
-      <button
-        onClick={toggleMusic}
-        className="fixed top-4 right-4 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg flex items-center gap-2 border border-gray-600 z-50"
-      >
-        {isPlaying ? <MicOff size={20} /> : <Music size={20} />}
-      </button>
-
       <h1 className="text-4xl font-bold text-blue-400 drop-shadow-[2px_2px_0px_black] flex items-center gap-2">
         <Gamepad2 size={32} /> TodoQuest
       </h1>

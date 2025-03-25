@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Check, Plus, Trash, ArrowLeft, Menu, X } from "lucide-react";
+import { useAudio } from "@/context/AudioContext";
 
 interface Task {
   id: string;
@@ -33,6 +34,12 @@ export default function TasksPage() {
   const incompleteTasks = tasks.filter((task) => !task.completed);
 
   const xpProgressPercent = Math.min((xp / 100) * 100, 100);
+
+  const { setMusicSource } = useAudio();
+
+  useEffect(() => {
+    setMusicSource("/progress.mp3");
+  }, []);
 
   useEffect(() => {
     if (!session || !session.user) return;
