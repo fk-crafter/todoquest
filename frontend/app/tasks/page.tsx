@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Check, Plus, Trash, ArrowLeft } from "lucide-react";
+import { Check, Plus, Trash, ArrowLeft, Menu, X } from "lucide-react";
 
 interface Task {
   id: string;
@@ -20,13 +20,14 @@ export default function TasksPage() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
-  const [levelUpMessage, setLevelUpMessage] = useState<string | null>(null);
-
-  const [xp, setXp] = useState(0);
-  const [level, setLevel] = useState(1);
 
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
 
   const completedTasks = tasks.filter((task) => task.completed);
   const incompleteTasks = tasks.filter((task) => !task.completed);
@@ -39,7 +40,7 @@ export default function TasksPage() {
     fetchUserData();
   }, [session]);
 
-  useEffect(() => {
+  useEffect(() => 
     if (
       isNewUser &&
       session?.user?.id &&
@@ -86,9 +87,8 @@ export default function TasksPage() {
 
       const data = await res.json();
 
-      setXp(data.newXP);
-      setLevel(data.newLevel);
-
+      setXp(data.xp);
+      setLevel(data.level);
       setIsNewUser(data.isNew);
     } catch (error) {
       console.error("Error fetching user data", error);
@@ -142,12 +142,6 @@ export default function TasksPage() {
 
       const data = await res.json();
 
-      if (data.newLevel > level) {
-        setLevelUpMessage(
-          `Félicitations ! Vous avez atteint le niveau ${data.newLevel} !`
-        );
-      }
-
       setXp(data.newXP);
       setLevel(data.newLevel);
 
@@ -186,125 +180,206 @@ export default function TasksPage() {
     );
   }
 
-  useEffect(() => {
-    if (levelUpMessage) {
-      const timer = setTimeout(() => {
-        setLevelUpMessage(null);
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [levelUpMessage]);
-
   return (
-    <div className="flex flex-col md:flex-row items-start justify-center min-h-screen p-6 gap-8">
-      {levelUpMessage && (
-        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black px-6 py-3 rounded-lg shadow-lg z-50 border-2 border-black animate-pulse">
-          {levelUpMessage}
-        </div>
-      )}
-      {showTutorial && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-end gap-4 p-6">
-          <div className="w-24 h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat" />
+    <div className="flex min-h-screen">
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className="fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded"
+      >
+        <Menu size={24} />
+      </button>
+      {sidebarOpen && (
+        <>
+          <div
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          />
 
-          <div className="bg-white text-black p-4 rounded-lg shadow-lg border-2 border-black max-w-sm w-full">
-            <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
+          <div className="fixed top-0 left-0 h-full w-64 bg-gray-900 text-white p-6 z-50 shadow-lg">
             <button
-              onClick={() => {
-                playSound();
-                if (tutorialStep < tutorialMessages.length - 1) {
-                  setTutorialStep(tutorialStep + 1);
-                } else {
-                  setShowTutorial(false);
-                  localStorage.setItem(
-                    `todoquest_tutorial_seen_${session.user.id}`,
-                    "true"
-                  );
-                }
-              }}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={() => setSidebarOpen(false)}
+              className="absolute top-4 right-4 text-white hover:text-red-400"
             >
-              {tutorialStep < tutorialMessages.length - 1
-                ? "Suivant"
-                : "Terminer"}
+              <X size={24} />
             </button>
+            <div className="flex flex-col justify-between h-full">
+              <div>
+                <h1 className="text-2xl font-bold mb-8 pt-5"> TodoQuest</h1>
+                <nav className="flex flex-col gap-4">
+                  <button
+                    onClick={() => {
+                      router.push("/tasks");
+                      setSidebarOpen(false);
+                    }}
+                    className="hover:text-green-400 text-left"
+                  >
+                    ✅ Tâches
+                  </button>
+                  <button
+                    onClick={() => {
+                      router.push("/profile");
+                      setSidebarOpen(false);
+                    }}
+                    className="hover:text-green-400 text-left"
+                  >
+                    🧝 Profil
+                  </button>
+                  <button
+                    onClick={() => {
+                      router.push("/settings");
+                      setSidebarOpen(false);
+                    }}
+                    className="hover:text-green-400 text-left"
+                  >
+                    ⚙️ Paramètres
+                  </button>
+                </nav>
+              </div>
+
+              <button
+                onClick={() => {
+                  router.back();
+                  setSidebarOpen(false);
+                }}
+                className="text-sm text-gray-400 hover:text-white flex items-center gap-2"
+              >
+                <ArrowLeft size={16} /> Retour
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
 
-      <div className="w-full md:w-1/2">
-        <button
-          onClick={() => {
-            playSound();
-            router.back();
-          }}
-          className="mb-4 text-sm text-blue-400 hover:underline flex items-center gap-2"
-        >
-          <ArrowLeft size={18} />
-          Retour
-        </button>
+      <main className="w-full p-6 mt-12">
+        <div className="flex flex-col md:flex-row items-start justify-center min-h-screen gap-8">
+          {showTutorial && (
+            <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-end gap-4 p-6">
+              <div className="w-24 h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat" />
 
-        <h1 className="text-3xl font-bold mb-4">Vos Tâches</h1>
-        <div className="mb-4">
-          <p className="text-lg font-semibold">
-            XP: {xp} | Niveau: {level}
-          </p>
-          <div className="w-full bg-gray-600 rounded-full h-4 mt-2 overflow-hidden">
-            <div
-              className="bg-green-500 h-4 transition-all duration-500"
-              style={{ width: `${xpProgressPercent}%` }}
-            ></div>
-          </div>
-          <p className="text-sm text-gray-300 mt-1 text-right">{xp} / 100 XP</p>
-        </div>
+              <div className="bg-white text-black p-4 rounded-lg shadow-lg border-2 border-black max-w-sm w-full">
+                <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
+                <button
+                  onClick={() => {
+                    playSound();
+                    if (tutorialStep < tutorialMessages.length - 1) {
+                      setTutorialStep(tutorialStep + 1);
+                    } else {
+                      setShowTutorial(false);
+                      localStorage.setItem(
+                        `todoquest_tutorial_seen_${session.user.id}`,
+                        "true"
+                      );
+                    }
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  {tutorialStep < tutorialMessages.length - 1
+                    ? "Suivant"
+                    : "Terminer"}
+                </button>
+              </div>
+            </div>
+          )}
 
-        <form onSubmit={addTask} className="flex flex-col gap-4 w-full">
-          <input
-            type="text"
-            placeholder="Titre de la tâche"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="p-2 rounded bg-gray-700 text-white w-full"
-            required
-          />
-          <textarea
-            placeholder="Description (optionnel)"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="p-2 resize-none rounded bg-gray-700 text-white w-full"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="p-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold w-full flex items-center justify-center gap-2"
-          >
-            {loading ? "Ajout..." : "Ajouter la tâche"} <Plus size={18} />
-          </button>
-        </form>
+          <div className="w-full md:w-1/2">
+            <h1 className="text-3xl font-bold mb-4">Vos Tâches</h1>
+            <div className="mb-4">
+              <p className="text-lg font-semibold">
+                XP: {xp} | Niveau: {level}
+              </p>
+              <div className="w-full bg-gray-600 rounded-full h-4 mt-2 overflow-hidden">
+                <div
+                  className="bg-green-500 h-4 transition-all duration-500"
+                  style={{ width: `${xpProgressPercent}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-gray-300 mt-1 text-right">
+                {xp} / 100 XP
+              </p>
+            </div>
 
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">À faire</h2>
-          {incompleteTasks.length === 0 ? (
-            <p className="text-gray-400">Aucune tâche en cours.</p>
-          ) : (
-            incompleteTasks.map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center justify-between bg-gray-800 p-4 rounded-lg mt-2"
+            <form onSubmit={addTask} className="flex flex-col gap-4 w-full">
+              <input
+                type="text"
+                placeholder="Titre de la tâche"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="p-2 rounded bg-gray-700 text-white w-full"
+                required
+              />
+              <textarea
+                placeholder="Description (optionnel)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="p-2 resize-none rounded bg-gray-700 text-white w-full"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="p-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold w-full flex items-center justify-center gap-2"
               >
-                <div>
-                  <h2 className="font-bold text-white">{task.title}</h2>
-                  {task.description && (
-                    <p className="text-gray-400 text-sm">{task.description}</p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => completeTask(task.id)}
-                    className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                {loading ? "Ajout..." : "Ajouter la tâche"} <Plus size={18} />
+              </button>
+            </form>
+
+            <div className="mt-6">
+              <h2 className="text-xl font-semibold mb-2">À faire</h2>
+              {incompleteTasks.length === 0 ? (
+                <p className="text-gray-400">Aucune tâche en cours.</p>
+              ) : (
+                incompleteTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="flex items-center justify-between bg-gray-800 p-4 rounded-lg mt-2"
                   >
-                    <Check size={20} />
-                  </button>
+                    <div>
+                      <h2 className="font-bold text-white">{task.title}</h2>
+                      {task.description && (
+                        <p className="text-gray-400 text-sm">
+                          {task.description}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => completeTask(task.id)}
+                        className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                      >
+                        <Check size={20} />
+                      </button>
+                      <button
+                        onClick={() => deleteTask(task.id)}
+                        className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
+                      >
+                        <Trash size={20} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="w-full md:w-1/2">
+            <h2 className="text-xl font-semibold mb-4">Tâches complétées</h2>
+            {completedTasks.length === 0 ? (
+              <p className="text-gray-400">
+                Aucune tâche complétée pour l'instant.
+              </p>
+            ) : (
+              completedTasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="bg-green-800 p-4 rounded-lg mb-2 text-white flex justify-between items-center"
+                >
+                  <div>
+                    <h3 className="font-bold">{task.title}</h3>
+                    {task.description && (
+                      <p className="text-sm text-gray-300">
+                        {task.description}
+                      </p>
+                    )}
+                  </div>
                   <button
                     onClick={() => deleteTask(task.id)}
                     className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
@@ -312,40 +387,11 @@ export default function TasksPage() {
                     <Trash size={20} />
                   </button>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
-      </div>
-
-      <div className="w-full md:w-1/2">
-        <h2 className="text-xl font-semibold mb-4">Tâches complétées</h2>
-        {completedTasks.length === 0 ? (
-          <p className="text-gray-400">
-            Aucune tâche complétée pour l'instant.
-          </p>
-        ) : (
-          completedTasks.map((task) => (
-            <div
-              key={task.id}
-              className="bg-green-800 p-4 rounded-lg mb-2 text-white flex justify-between items-center"
-            >
-              <div>
-                <h3 className="font-bold">{task.title}</h3>
-                {task.description && (
-                  <p className="text-sm text-gray-300">{task.description}</p>
-                )}
-              </div>
-              <button
-                onClick={() => deleteTask(task.id)}
-                className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
-              >
-                <Trash size={20} />
-              </button>
-            </div>
-          ))
-        )}
-      </div>
+      </main>
     </div>
   );
 }
