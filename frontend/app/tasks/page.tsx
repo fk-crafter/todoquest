@@ -40,7 +40,7 @@ export default function TasksPage() {
     fetchUserData();
   }, [session]);
 
-  useEffect(() => 
+  useEffect(() => {
     if (
       isNewUser &&
       session?.user?.id &&
