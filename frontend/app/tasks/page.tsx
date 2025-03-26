@@ -3,7 +3,17 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Check, Plus, Trash, ArrowLeft, Menu, X } from "lucide-react";
+import {
+  Check,
+  Plus,
+  Trash,
+  ArrowLeft,
+  Menu,
+  X,
+  Sword,
+  ScrollText,
+  Settings2,
+} from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 
 interface Task {
@@ -38,7 +48,7 @@ export default function TasksPage() {
   const { setMusicSource } = useAudio();
 
   useEffect(() => {
-    setMusicSource("/progress.mp3");
+    setMusicSource("/tasks.wav");
   }, []);
 
   useEffect(() => {
@@ -212,33 +222,35 @@ export default function TasksPage() {
             <div className="flex flex-col justify-between h-full">
               <div>
                 <h1 className="text-2xl font-bold mb-8 pt-5"> TodoQuest</h1>
-                <nav className="flex flex-col gap-4">
+                <nav className="flex flex-col gap-4 text-sm">
                   <button
                     onClick={() => {
                       router.push("/tasks");
                       setSidebarOpen(false);
                     }}
-                    className="hover:text-green-400 text-left"
+                    className="hover:text-green-400 text-left flex items-center gap-2 cursor-pointer"
                   >
-                    ✅ Tâches
+                    <Sword size={18} /> Quêtes perso
                   </button>
+
                   <button
                     onClick={() => {
                       router.push("/profile");
                       setSidebarOpen(false);
                     }}
-                    className="hover:text-green-400 text-left"
+                    className="hover:text-green-400 text-left flex items-center gap-2 cursor-pointer"
                   >
-                    🧝 Profil
+                    <ScrollText size={18} /> Fiche de Héros
                   </button>
+
                   <button
                     onClick={() => {
                       router.push("/settings");
                       setSidebarOpen(false);
                     }}
-                    className="hover:text-green-400 text-left"
+                    className="hover:text-green-400 text-left flex items-center gap-2 cursor-pointer"
                   >
-                    ⚙️ Paramètres
+                    <Settings2 size={18} /> Sanctuaire des réglages
                   </button>
                 </nav>
               </div>

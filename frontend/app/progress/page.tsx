@@ -3,17 +3,42 @@
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, LogOut } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAudio } from "@/context/AudioContext";
 
 export default function ProgressPage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const { setMusicSource } = useAudio();
+  const { setMusicSource, isPlaying, toggleMusic } = useAudio();
+  const [userStats, setUserStats] = useState({ xp: 0, level: 1 });
 
   useEffect(() => {
-    setMusicSource("/progress.mp3");
-  }, []);
+    setMusicSource("/tasks.wav");
+
+    if (!isPlaying) {
+      toggleMusic();
+    }
+
+    const fetchStats = async () => {
+      if (!session?.user?.id || !session?.accessToken) return;
+
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${session.user.id}/stats`,
+          {
+            headers: { Authorization: `Bearer ${session.accessToken}` },
+          }
+        );
+
+        const data = await res.json();
+        setUserStats({ xp: data.xp, level: data.level });
+      } catch (err) {
+        console.error("Erreur récupération stats:", err);
+      }
+    };
+
+    fetchStats();
+  }, [session]);
 
   if (!session) {
     return (
@@ -42,8 +67,8 @@ export default function ProgressPage() {
       </h1>
       <p className="text-xl ">Votre progression</p>
       <p className="text-lg">
-        XP: <span className="font-bold">{session.user.xp}</span> | Niveau:{" "}
-        <span className="font-bold">{session.user.level}</span>
+        XP: <span className="font-bold">{userStats.xp}</span> | Niveau:{" "}
+        <span className="font-bold">{userStats.level}</span>
       </p>
 
       <button

@@ -9,7 +9,7 @@ export default function MusicToggleButton() {
   return (
     <button
       onClick={toggleMusic}
-      className="fixed top-4 right-4 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg flex items-center gap-2 border border-gray-600 z-50"
+      className="fixed top-4 cursor-pointer right-4 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg flex items-center gap-2 border border-gray-600 z-50"
     >
       {isPlaying ? <MicOff size={20} /> : <Music size={20} />}
     </button>
