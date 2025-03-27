@@ -88,16 +88,21 @@ router.get(
         return;
       }
 
-      const completedTasks = await prisma.task.count({
+      const tasksCreated = await prisma.task.count({
+        where: { userId: user.id },
+      });
+
+      const tasksCompleted = await prisma.task.count({
         where: { userId: user.id, completed: true },
       });
 
-      const isNew = user.level === 1 && user.xp === 0 && completedTasks === 0;
+      const isNew = user.level === 1 && user.xp === 0 && tasksCompleted === 0;
 
       res.status(200).json({
         xp: user.xp,
         level: user.level,
-        completedTasks,
+        tasksCreated,
+        tasksCompleted,
         isNew,
       });
     } catch (error) {
