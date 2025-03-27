@@ -201,7 +201,7 @@ export default function TasksPage() {
     <div className="flex min-h-screen">
       <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded"
+        className="fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded cursor-pointer"
       >
         <Menu size={24} />
       </button>
@@ -215,7 +215,7 @@ export default function TasksPage() {
           <div className="fixed top-0 left-0 h-full w-64 bg-gray-900 text-white p-6 z-50 shadow-lg">
             <button
               onClick={() => setSidebarOpen(false)}
-              className="absolute top-4 right-4 text-white hover:text-red-400"
+              className="absolute top-4 right-4 text-white hover:text-red-400 cursor-pointer"
             >
               <X size={24} />
             </button>
@@ -260,7 +260,7 @@ export default function TasksPage() {
                   router.back();
                   setSidebarOpen(false);
                 }}
-                className="text-sm text-gray-400 hover:text-white flex items-center gap-2"
+                className="text-sm text-gray-400 hover:text-white flex items-center gap-2 cursor-pointer"
               >
                 <ArrowLeft size={16} /> Retour
               </button>
@@ -290,7 +290,7 @@ export default function TasksPage() {
                       );
                     }
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
                 >
                   {tutorialStep < tutorialMessages.length - 1
                     ? "Suivant"
@@ -335,7 +335,7 @@ export default function TasksPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="p-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold w-full flex items-center justify-center gap-2"
+                className="p-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold w-full flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? "Ajout..." : "Ajouter la tâche"} <Plus size={18} />
               </button>
@@ -362,13 +362,13 @@ export default function TasksPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => completeTask(task.id)}
-                        className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                        className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg cursor-pointer"
                       >
                         <Check size={20} />
                       </button>
                       <button
                         onClick={() => deleteTask(task.id)}
-                        className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
+                        className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg cursor-pointer"
                       >
                         <Trash size={20} />
                       </button>
@@ -401,7 +401,7 @@ export default function TasksPage() {
                   </div>
                   <button
                     onClick={() => deleteTask(task.id)}
-                    className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
+                    className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg cursor-pointer"
                   >
                     <Trash size={20} />
                   </button>
