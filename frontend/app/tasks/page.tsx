@@ -43,6 +43,8 @@ export default function TasksPage() {
   const completedTasks = tasks.filter((task) => task.completed);
   const incompleteTasks = tasks.filter((task) => !task.completed);
 
+  const [levelUpMessage, setLevelUpMessage] = useState("");
+
   const xpProgressPercent = Math.min((xp / 100) * 100, 100);
 
   const { setMusicSource } = useAudio();
@@ -159,6 +161,21 @@ export default function TasksPage() {
 
       const data = await res.json();
 
+      if (data.newLevel > level) {
+        playLevelUpSound();
+        setLevelUpMessage(
+          `🎉 Félicitations ! Vous avez atteint le niveau ${data.newLevel} !`
+        );
+        setTimeout(() => setLevelUpMessage(""), 5000);
+      }
+
+      if (data.newLevel > level) {
+        setLevelUpMessage(
+          `🎉 Félicitations ! Vous avez atteint le niveau ${data.newLevel} !`
+        );
+        setTimeout(() => setLevelUpMessage(""), 5000);
+      }
+
       setXp(data.newXP);
       setLevel(data.newLevel);
 
@@ -196,6 +213,11 @@ export default function TasksPage() {
       </div>
     );
   }
+
+  const playLevelUpSound = () => {
+    const audio = new Audio("/lvl-up.mp3");
+    audio.play();
+  };
 
   return (
     <div className="flex min-h-screen">
@@ -269,6 +291,11 @@ export default function TasksPage() {
         </>
       )}
 
+      {levelUpMessage && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-500 text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black ">
+          {levelUpMessage}
+        </div>
+      )}
       <main className="w-full p-6 mt-12">
         <div className="flex flex-col md:flex-row items-start justify-center min-h-screen gap-8">
           {showTutorial && (
