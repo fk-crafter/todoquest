@@ -215,7 +215,7 @@ export default function TasksPage() {
   }
 
   const playLevelUpSound = () => {
-    const audio = new Audio("/lvl-up.mp3");
+    const audio = new Audio("/lvlup.mp3");
     audio.play();
   };
 
