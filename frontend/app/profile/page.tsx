@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Menu, X, ArrowLeft } from "lucide-react";
+import Sidebar from "@/components/Sidebar";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -12,7 +12,6 @@ export default function ProfilePage() {
   const [level, setLevel] = useState(1);
   const [tasksCreated, setTasksCreated] = useState(0);
   const [tasksCompleted, setTasksCompleted] = useState(0);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const getHeroTitle = (level: number) => {
     if (level < 5) return "Novice du To-Do";
@@ -62,55 +61,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen p-6 flex flex-col items-center bg-gray-900 text-white">
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded cursor-pointer"
-      >
-        <Menu size={24} />
-      </button>
-      {sidebarOpen && (
-        <>
-          <div
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          />
-
-          <div className="fixed top-0 left-0 h-full w-64 bg-gray-900 text-white p-6 z-50 shadow-lg">
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="absolute top-4 right-4 text-white hover:text-red-400 cursor-pointer"
-            >
-              <X size={24} />
-            </button>
-            <div className="flex flex-col justify-between h-full">
-              <div>
-                <h1 className="text-2xl font-bold mb-8 pt-5">Fiche de Héros</h1>
-                <nav className="flex flex-col gap-4 text-sm">
-                  <button
-                    onClick={() => {
-                      router.push("/success");
-                      setSidebarOpen(false);
-                    }}
-                    className="hover:text-green-400 text-left flex items-center gap-2 cursor-pointer"
-                  >
-                    🏆 Succès
-                  </button>
-                </nav>
-              </div>
-
-              <button
-                onClick={() => {
-                  router.back();
-                  setSidebarOpen(false);
-                }}
-                className="text-sm text-gray-400 hover:text-white flex items-center gap-2 cursor-pointer"
-              >
-                <ArrowLeft size={16} /> Retour
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+      <Sidebar />
 
       <h1 className="text-4xl font-bold mb-6">Fiche de Héros</h1>
 

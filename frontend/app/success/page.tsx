@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import Sidebar from "@/components/Sidebar";
 
 export default function SuccessPage() {
   const { data: session } = useSession();
@@ -78,13 +79,7 @@ export default function SuccessPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6 flex flex-col items-center">
-      <button
-        onClick={() => router.back()}
-        className="self-start mb-4 flex items-center gap-2 text-gray-400 hover:text-white cursor-pointer transition"
-      >
-        <ArrowLeft size={20} />
-        Retour
-      </button>
+      <Sidebar />
 
       <h1 className="text-3xl font-bold mb-6">Succès déverrouillés</h1>
 

@@ -3,18 +3,9 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import {
-  Check,
-  Plus,
-  Trash,
-  ArrowLeft,
-  Menu,
-  X,
-  Sword,
-  ScrollText,
-  Settings2,
-} from "lucide-react";
+import { Check, Plus, Trash } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
+import Sidebar from "@/components/Sidebar";
 
 interface Task {
   id: string;
@@ -34,8 +25,6 @@ export default function TasksPage() {
 
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
-
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
@@ -215,82 +204,13 @@ export default function TasksPage() {
   }
 
   const playLevelUpSound = () => {
-    const audio = new Audio("/lvlup.mp3");
+    const audio = new Audio("/lvl-up.mp3");
     audio.play();
   };
 
   return (
     <div className="flex min-h-screen">
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded cursor-pointer"
-      >
-        <Menu size={24} />
-      </button>
-      {sidebarOpen && (
-        <>
-          <div
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          />
-
-          <div className="fixed top-0 left-0 h-full w-64 bg-gray-900 text-white p-6 z-50 shadow-lg">
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="absolute top-4 right-4 text-white hover:text-red-400 cursor-pointer"
-            >
-              <X size={24} />
-            </button>
-            <div className="flex flex-col justify-between h-full">
-              <div>
-                <h1 className="text-2xl font-bold mb-8 pt-5"> TodoQuest</h1>
-                <nav className="flex flex-col gap-4 text-sm">
-                  <button
-                    onClick={() => {
-                      router.push("/tasks");
-                      setSidebarOpen(false);
-                    }}
-                    className="hover:text-green-400 text-left flex items-center gap-2 cursor-pointer"
-                  >
-                    <Sword size={18} /> Quêtes perso
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      router.push("/profile");
-                      setSidebarOpen(false);
-                    }}
-                    className="hover:text-green-400 text-left flex items-center gap-2 cursor-pointer"
-                  >
-                    <ScrollText size={18} /> Fiche de Héros
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      router.push("/settings");
-                      setSidebarOpen(false);
-                    }}
-                    className="hover:text-green-400 text-left flex items-center gap-2 cursor-pointer"
-                  >
-                    <Settings2 size={18} /> Sanctuaire des réglages
-                  </button>
-                </nav>
-              </div>
-
-              <button
-                onClick={() => {
-                  router.back();
-                  setSidebarOpen(false);
-                }}
-                className="text-sm text-gray-400 hover:text-white flex items-center gap-2 cursor-pointer"
-              >
-                <ArrowLeft size={16} /> Retour
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-
+      <Sidebar />
       {levelUpMessage && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-500 text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black ">
           {levelUpMessage}
