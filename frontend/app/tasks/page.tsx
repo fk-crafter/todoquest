@@ -438,11 +438,11 @@ export default function TasksPage() {
                     {task.description && (
                       <p className="text-sm text-gray-300">
                         {task.description}
-                        {(task as any).timeSpent != null && (
-                          <p className="text-sm text-gray-200 italic mt-1">
-                            ⏱ Temps passé : {(task as any).timeSpent} min
-                          </p>
-                        )}
+                      </p>
+                    )}
+                    {(task as any).timeSpent != null && (
+                      <p className="text-sm text-gray-200 italic mt-1">
+                        ⏱ Temps passé : {(task as any).timeSpent} min
                       </p>
                     )}
                   </div>
