@@ -36,7 +36,27 @@ export default function TasksPage() {
 
   const xpProgressPercent = Math.min((xp / 100) * 100, 100);
 
+  const [showTimeModal, setShowTimeModal] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [timeInput, setTimeInput] = useState("");
+
   const { setMusicSource } = useAudio();
+
+  const handleOpenTimeModal = (taskId: string) => {
+    setSelectedTaskId(taskId);
+    setTimeInput("");
+    setShowTimeModal(true);
+  };
+
+  const handleConfirmTime = async () => {
+    const timeSpent = parseInt(timeInput);
+    if (isNaN(timeSpent) || timeSpent < 0) {
+      alert("Temps invalide !");
+      return;
+    }
+    await completeTaskWithTime(selectedTaskId!, timeSpent);
+    setShowTimeModal(false);
+  };
 
   useEffect(() => {
     setMusicSource("/tasks.wav");
@@ -135,18 +155,30 @@ export default function TasksPage() {
   const completeTask = async (taskId: string) => {
     if (!session || !session.user) return;
 
+    const timeInput = prompt(
+      "Combien de temps as-tu mis pour cette tâche ? (en minutes)"
+    );
+    const timeSpent = parseInt(timeInput ?? "0");
+
+    if (isNaN(timeSpent) || timeSpent < 0) {
+      alert("Temps invalide. Essaie un nombre positif !");
+      return;
+    }
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks/${taskId}/complete`,
         {
           method: "PUT",
-          headers: { Authorization: `Bearer ${session.accessToken}` },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+          body: JSON.stringify({ timeSpent }),
         }
       );
 
-      if (!res.ok) {
-        throw new Error("Failed to complete task");
-      }
+      if (!res.ok) throw new Error("Failed to complete task");
 
       const data = await res.json();
 
@@ -158,16 +190,8 @@ export default function TasksPage() {
         setTimeout(() => setLevelUpMessage(""), 5000);
       }
 
-      if (data.newLevel > level) {
-        setLevelUpMessage(
-          `🎉 Félicitations ! Vous avez atteint le niveau ${data.newLevel} !`
-        );
-        setTimeout(() => setLevelUpMessage(""), 5000);
-      }
-
       setXp(data.newXP);
       setLevel(data.newLevel);
-
       fetchTasks();
     } catch (error) {
       console.error("Error completing task", error);
@@ -208,12 +232,78 @@ export default function TasksPage() {
     audio.play();
   };
 
+  const completeTaskWithTime = async (taskId: string, timeSpent: number) => {
+    if (!session || !session.user) return;
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks/${taskId}/complete`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+          body: JSON.stringify({ timeSpent }),
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to complete task");
+
+      const data = await res.json();
+
+      if (data.newLevel > level) {
+        playLevelUpSound();
+        setLevelUpMessage(
+          `🎉 Félicitations ! Vous avez atteint le niveau ${data.newLevel} !`
+        );
+        setTimeout(() => setLevelUpMessage(""), 5000);
+      }
+
+      setXp(data.newXP);
+      setLevel(data.newLevel);
+      fetchTasks();
+    } catch (error) {
+      console.error("Error completing task", error);
+    }
+  };
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
       {levelUpMessage && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-500 text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black ">
           {levelUpMessage}
+        </div>
+      )}
+      {showTimeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm border-2 border-black">
+            <h2 className="text-xl font-bold mb-4 text-black">
+              Temps passé sur la tâche
+            </h2>
+            <input
+              type="number"
+              value={timeInput}
+              onChange={(e) => setTimeInput(e.target.value)}
+              placeholder="Temps (en minutes)"
+              className="w-full p-2 rounded border border-gray-400 text-black mb-4"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowTimeModal(false)}
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleConfirmTime}
+                className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
+              >
+                Valider
+              </button>
+            </div>
+          </div>
         </div>
       )}
       <main className="w-full p-6 mt-12">
@@ -301,14 +391,19 @@ export default function TasksPage() {
                     <div>
                       <h2 className="font-bold text-white">{task.title}</h2>
                       {task.description && (
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-sm text-gray-300">
                           {task.description}
+                        </p>
+                      )}
+                      {(task as any).timeSpent != null && (
+                        <p className="text-sm text-black italic mt-1">
+                          ⏱ Temps passé : {(task as any).timeSpent} min
                         </p>
                       )}
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => completeTask(task.id)}
+                        onClick={() => handleOpenTimeModal(task.id)}
                         className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg cursor-pointer"
                       >
                         <Check size={20} />
@@ -343,6 +438,11 @@ export default function TasksPage() {
                     {task.description && (
                       <p className="text-sm text-gray-300">
                         {task.description}
+                        {(task as any).timeSpent != null && (
+                          <p className="text-sm text-gray-200 italic mt-1">
+                            ⏱ Temps passé : {(task as any).timeSpent} min
+                          </p>
+                        )}
                       </p>
                     )}
                   </div>

@@ -26,10 +26,11 @@ model Task {
   title       String
   description String?
   xp          Int      @default(10)
-  gainedXp    Int?     
+  gainedXp    Int?
   completed   Boolean  @default(false)
   completedAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  timeSpent   Int?     
   user        User     @relation(fields: [userId], references: [id])
 }

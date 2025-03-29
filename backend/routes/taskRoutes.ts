@@ -62,6 +62,7 @@ router.put(
   async (req: AuthRequest, res: Response): Promise<void> => {
     try {
       const { taskId } = req.params;
+      const { timeSpent } = req.body;
       const userId = req.user?.id!;
 
       const task = await prisma.task.findUnique({
@@ -110,6 +111,7 @@ router.put(
           completed: true,
           completedAt: new Date(),
           gainedXp: xpGained,
+          timeSpent: timeSpent ?? null,
         },
       });
 

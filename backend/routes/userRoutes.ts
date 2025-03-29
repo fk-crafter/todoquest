@@ -137,4 +137,29 @@ router.delete(
   }
 );
 
+// @route   GET /api/users/:id/time-spent
+// @desc    Total du temps passé sur les tâches complétées
+// @access  Privé (authentifié)
+router.get(
+  "/:id/time-spent",
+  protect,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const tasks = await prisma.task.findMany({
+        where: { userId: req.params.id, completed: true },
+        select: { timeSpent: true },
+      });
+
+      const totalMinutes = tasks.reduce(
+        (sum, task) => sum + (task.timeSpent ?? 0),
+        0
+      );
+
+      res.status(200).json({ totalMinutes });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+);
+
 export default router;
