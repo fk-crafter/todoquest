@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+// On a retiré useRouter car il ne servait pas
 import { Check, Plus, Trash } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import Sidebar from "@/components/Sidebar";
@@ -12,17 +12,19 @@ interface Task {
   title: string;
   description?: string;
   completed: boolean;
+  timeSpent?: number; // On l'a ajouté ici pour que TypeScript soit content
 }
 
 export default function TasksPage() {
   const { data: session } = useSession();
-  const router = useRouter();
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [isNewUser, setIsNewUser] = useState(false);
+  // On a retiré setIsNewUser car on ne s'en sert pas pour l'instant
+  const [isNewUser] = useState(false);
 
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
@@ -34,7 +36,6 @@ export default function TasksPage() {
   const incompleteTasks = tasks.filter((task) => !task.completed);
 
   const [levelUpMessage, setLevelUpMessage] = useState("");
-
   const xpProgressPercent = Math.min((xp / 100) * 100, 100);
 
   const [showTimeModal, setShowTimeModal] = useState(false);
@@ -43,31 +44,55 @@ export default function TasksPage() {
 
   const { setMusicSource } = useAudio();
 
-  const handleOpenTimeModal = (taskId: string) => {
-    setSelectedTaskId(taskId);
-    setTimeInput("");
-    setShowTimeModal(true);
-  };
-
-  const handleConfirmTime = async () => {
-    const timeSpent = parseInt(timeInput);
-    if (isNaN(timeSpent) || timeSpent < 0) {
-      alert("Temps invalide !");
-      return;
-    }
-    await completeTaskWithTime(selectedTaskId!, timeSpent);
-    setShowTimeModal(false);
-  };
-
+  // --- AUDIO ---
   useEffect(() => {
     setMusicSource("/tasks.wav");
-  }, []);
+  }, [setMusicSource]); // Dépendance propre
 
-  useEffect(() => {
-    if (!session || !session.user) return;
-    fetchTasks();
-    fetchUserData();
+  // --- FETCH DATA (Avec useCallback pour stabiliser les fonctions) ---
+  const fetchTasks = useCallback(async () => {
+    if (!session?.accessToken) return;
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks`,
+        {
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+        }
+      );
+      const data = await res.json();
+      setTasks(data);
+    } catch (error) {
+      console.error("Error fetching tasks", error);
+    }
   }, [session]);
+
+  const fetchUserData = useCallback(async () => {
+    if (!session?.accessToken) return;
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+        {
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch user data");
+      const data = await res.json();
+
+      setXp(data.xp);
+      setLevel(data.level);
+    } catch (error) {
+      console.error("Error fetching user data", error);
+    }
+  }, [session]);
+
+  // --- INIT DATA ---
+  useEffect(() => {
+    if (session?.accessToken) {
+      fetchTasks();
+      fetchUserData();
+    }
+  }, [session, fetchTasks, fetchUserData]); // Toutes les dépendances sont là !
 
   useEffect(() => {
     if (
@@ -86,43 +111,7 @@ export default function TasksPage() {
     "Saisis ta plume, trace ta destinée — ta première quête t’attend",
   ];
 
-  const fetchTasks = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks`,
-        {
-          headers: { Authorization: `Bearer ${session?.accessToken}` },
-        }
-      );
-      const data = await res.json();
-      setTasks(data);
-    } catch (error) {
-      console.error("Error fetching tasks", error);
-    }
-  };
-
-  const fetchUserData = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-        {
-          headers: { Authorization: `Bearer ${session?.accessToken}` },
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch user data");
-      }
-
-      const data = await res.json();
-
-      setXp(data.xp);
-      setLevel(data.level);
-    } catch (error) {
-      console.error("Error fetching user data", error);
-    }
-  };
-
+  // --- ACTIONS ---
   const addTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -152,22 +141,6 @@ export default function TasksPage() {
     }
   };
 
-  const completeTask = async (taskId: string) => {
-    if (!session || !session.user) return;
-
-    const timeInput = prompt(
-      "Combien de temps as-tu mis pour cette tâche ? (en minutes)"
-    );
-    const timeSpent = parseInt(timeInput ?? "0");
-
-    if (isNaN(timeSpent) || timeSpent < 0) {
-      alert("Temps invalide. Essaie un nombre positif !");
-      return;
-    }
-
-    await completeTaskWithTime(taskId, timeSpent);
-  };
-
   const deleteTask = async (taskId: string) => {
     try {
       await fetch(
@@ -184,18 +157,22 @@ export default function TasksPage() {
     }
   };
 
-  const playSound = () => {
-    const clickAudio = new Audio("/click-sound.wav");
-    clickAudio.play();
+  // --- COMPLETION LOGIC ---
+  const handleOpenTimeModal = (taskId: string) => {
+    setSelectedTaskId(taskId);
+    setTimeInput("");
+    setShowTimeModal(true);
   };
 
-  if (!session) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-3xl font-bold">Veuillez vous connecter</h1>
-      </div>
-    );
-  }
+  const handleConfirmTime = async () => {
+    const timeSpent = parseInt(timeInput);
+    if (isNaN(timeSpent) || timeSpent < 0) {
+      alert("Temps invalide !");
+      return;
+    }
+    await completeTaskWithTime(selectedTaskId!, timeSpent);
+    setShowTimeModal(false);
+  };
 
   const playLevelUpSound = () => {
     const audio = new Audio("/lvl-up.mp3");
@@ -241,6 +218,20 @@ export default function TasksPage() {
     }
   };
 
+  const playSound = () => {
+    const clickAudio = new Audio("/click-sound.wav");
+    clickAudio.play();
+  };
+
+  // --- RENDER ---
+  if (!session) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <h1 className="text-3xl font-bold">Veuillez vous connecter</h1>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -281,35 +272,7 @@ export default function TasksPage() {
       )}
       <main className="w-full p-6 mt-12">
         <div className="flex flex-col md:flex-row items-start justify-center min-h-screen gap-8">
-          {showTutorial && (
-            <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-end gap-4 p-6">
-              <div className="w-24 h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat" />
-
-              <div className="bg-white text-black p-4 rounded-lg shadow-lg border-2 border-black max-w-sm w-full">
-                <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
-                <button
-                  onClick={() => {
-                    playSound();
-                    if (tutorialStep < tutorialMessages.length - 1) {
-                      setTutorialStep(tutorialStep + 1);
-                    } else {
-                      setShowTutorial(false);
-                      localStorage.setItem(
-                        `todoquest_tutorial_seen_${session.user.id}`,
-                        "true"
-                      );
-                    }
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
-                >
-                  {tutorialStep < tutorialMessages.length - 1
-                    ? "Suivant"
-                    : "Terminer"}
-                </button>
-              </div>
-            </div>
-          )}
-
+          {/* Section Gauche : Ajout & Liste à faire */}
           <div className="w-full md:w-1/2">
             <h1 className="text-3xl font-bold mb-4">Vos Tâches</h1>
             <div className="mb-4">
@@ -368,9 +331,10 @@ export default function TasksPage() {
                           {task.description}
                         </p>
                       )}
-                      {(task as any).timeSpent != null && (
+                      {/* Plus besoin de 'as any' car l'interface est correcte */}
+                      {task.timeSpent != null && (
                         <p className="text-sm text-black italic mt-1">
-                          ⏱ Temps passé : {(task as any).timeSpent} min
+                          ⏱ Temps passé : {task.timeSpent} min
                         </p>
                       )}
                     </div>
@@ -394,11 +358,12 @@ export default function TasksPage() {
             </div>
           </div>
 
+          {/* Section Droite : Tâches terminées */}
           <div className="w-full md:w-1/2">
             <h2 className="text-xl font-semibold mb-4">Tâches complétées</h2>
             {completedTasks.length === 0 ? (
               <p className="text-gray-400">
-                Aucune tâche complétée pour l'instant.
+                Aucune tâche complétée pour l&apos;instant.
               </p>
             ) : (
               completedTasks.map((task) => (
@@ -413,9 +378,9 @@ export default function TasksPage() {
                         {task.description}
                       </p>
                     )}
-                    {(task as any).timeSpent != null && (
+                    {task.timeSpent != null && (
                       <p className="text-sm text-gray-200 italic mt-1">
-                        ⏱ Temps passé : {(task as any).timeSpent} min
+                        ⏱ Temps passé : {task.timeSpent} min
                       </p>
                     )}
                   </div>

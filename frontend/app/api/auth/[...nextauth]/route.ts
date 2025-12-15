@@ -1,9 +1,10 @@
-import NextAuth from "next-auth";
+import NextAuth, { AuthOptions, Session, User } from "next-auth";
+import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
@@ -65,7 +66,7 @@ export const authOptions = {
     signIn: "/auth",
   },
   callbacks: {
-    async jwt({ token, user }: { token: any; user: any }) {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
@@ -76,10 +77,12 @@ export const authOptions = {
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: any }) {
-      session.user.id = token.id;
-      session.user.xp = token.xp;
-      session.user.level = token.level;
+    async session({ session, token }: { session: Session; token: JWT }) {
+      if (session.user) {
+        session.user.id = token.id;
+        session.user.xp = token.xp;
+        session.user.level = token.level;
+      }
       session.accessToken = token.accessToken;
       return session;
     },

@@ -17,7 +17,7 @@ export default function TaskManager() {
       <div className="w-full max-w-md p-4 bg-gray-800 rounded-lg shadow-md">
         <h2 className="text-xl font-bold mb-2">Liste des tâches</h2>
         {tasks.length === 0 ? (
-          <p className="text-gray-400">Aucune tâche pour l'instant.</p>
+          <p className="text-gray-400">Aucune tâche pour l&apos;instant.</p>
         ) : (
           <ul className="list-disc list-inside text-white">
             {tasks.map((task, index) => (

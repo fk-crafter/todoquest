@@ -2,11 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { Gamepad2, Rocket } from "lucide-react";
-import { useAudio } from "@/context/AudioContext";
 
 export default function Hero() {
   const router = useRouter();
-  const { isPlaying, toggleMusic } = useAudio();
 
   const playSound = () => {
     const clickAudio = new Audio("/click-sound.wav");
@@ -28,7 +26,7 @@ export default function Hero() {
         }}
         className="mt-6 px-6 py-3 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg border-[3px] border-black shadow-[3px_3px_0px_black] active:translate-x-[2px] active:translate-y-[2px] flex items-center gap-2"
       >
-        <Rocket size={20} /> Démarrer l'aventure
+        <Rocket size={20} /> Démarrer l&apos;aventure
       </button>
     </main>
   );

@@ -18,7 +18,9 @@ export default function ProgressPage() {
     if (!isPlaying) {
       toggleMusic();
     }
+  }, []);
 
+  useEffect(() => {
     const fetchStats = async () => {
       if (!session?.user?.id || !session?.accessToken) return;
 

@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
-  const router = useRouter();
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
   const [tasksCreated, setTasksCreated] = useState(0);
@@ -23,33 +21,32 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    if (!session || !session.user) return;
+    const fetchProfileData = async () => {
+      if (!session || !session.user) return;
+
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+          {
+            headers: { Authorization: `Bearer ${session.accessToken}` },
+          }
+        );
+
+        if (!res.ok) throw new Error("Failed to fetch profile data");
+
+        const data = await res.json();
+
+        setXp(data.xp);
+        setLevel(data.level);
+        setTasksCreated(data.stats.totalTasks);
+        setTasksCompleted(data.stats.completedTasks);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données du héros", error);
+      }
+    };
+
     fetchProfileData();
   }, [session]);
-
-  const fetchProfileData = async () => {
-    if (!session || !session.user) return;
-
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-        {
-          headers: { Authorization: `Bearer ${session.accessToken}` },
-        }
-      );
-
-      if (!res.ok) throw new Error("Failed to fetch profile data");
-
-      const data = await res.json();
-
-      setXp(data.xp);
-      setLevel(data.level);
-      setTasksCreated(data.stats.totalTasks);
-      setTasksCompleted(data.stats.completedTasks);
-    } catch (error) {
-      console.error("Erreur lors du chargement des données du héros", error);
-    }
-  };
 
   if (!session) {
     return (

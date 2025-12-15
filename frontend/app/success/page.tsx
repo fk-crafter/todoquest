@@ -2,41 +2,39 @@
 
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 
 export default function SuccessPage() {
   const { data: session } = useSession();
-  const router = useRouter();
-  const [xp, setXp] = useState(0);
+
   const [level, setLevel] = useState(1);
   const [tasksCreated, setTasksCreated] = useState(0);
   const [tasksCompleted, setTasksCompleted] = useState(0);
 
   useEffect(() => {
-    if (!session || !session.user) return;
+    const fetchData = async () => {
+      if (!session || !session.user) return;
+
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+          {
+            headers: { Authorization: `Bearer ${session.accessToken}` },
+          }
+        );
+
+        const data = await res.json();
+
+        setLevel(data.level);
+        setTasksCreated(data.stats.totalTasks);
+        setTasksCompleted(data.stats.completedTasks);
+      } catch (error) {
+        console.error("Erreur chargement des succès", error);
+      }
+    };
+
     fetchData();
   }, [session]);
-
-  const fetchData = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-        {
-          headers: { Authorization: `Bearer ${session?.accessToken}` },
-        }
-      );
-
-      const data = await res.json();
-
-      setXp(data.xp);
-      setLevel(data.level);
-      setTasksCreated(data.stats.totalTasks);
-      setTasksCompleted(data.stats.completedTasks);
-    } catch (error) {
-      console.error("Erreur chargement des succès", error);
-    }
-  };
 
   const achievements = [
     {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSession, signIn } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
@@ -9,7 +9,6 @@ import { ArrowLeft } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 
 export default function AuthPage() {
-  const { data: session } = useSession();
   const router = useRouter();
   const { stopMusic } = useAudio();
 
@@ -117,7 +116,7 @@ export default function AuthPage() {
         }}
         className="mt-6 flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white text-lg font-bold rounded-lg shadow-md transition-all"
       >
-        <ArrowLeft size={24} /> Retour à l'accueil
+        <ArrowLeft size={24} /> Retour à l&apos;accueil
       </button>
     </div>
   );
