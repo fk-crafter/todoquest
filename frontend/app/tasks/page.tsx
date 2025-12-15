@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-// On a retiré useRouter car il ne servait pas
 import { Check, Plus, Trash } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import Sidebar from "@/components/Sidebar";
@@ -12,7 +11,7 @@ interface Task {
   title: string;
   description?: string;
   completed: boolean;
-  timeSpent?: number; // On l'a ajouté ici pour que TypeScript soit content
+  timeSpent?: number;
 }
 
 export default function TasksPage() {
@@ -22,12 +21,6 @@ export default function TasksPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // On a retiré setIsNewUser car on ne s'en sert pas pour l'instant
-  const [isNewUser] = useState(false);
-
-  const [showTutorial, setShowTutorial] = useState(false);
-  const [tutorialStep, setTutorialStep] = useState(0);
 
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
@@ -44,12 +37,20 @@ export default function TasksPage() {
 
   const { setMusicSource } = useAudio();
 
-  // --- AUDIO ---
   useEffect(() => {
     setMusicSource("/tasks.wav");
-  }, [setMusicSource]); // Dépendance propre
+  }, [setMusicSource]);
 
-  // --- FETCH DATA (Avec useCallback pour stabiliser les fonctions) ---
+  const playSound = () => {
+    const clickAudio = new Audio("/click-sound.wav");
+    clickAudio.play();
+  };
+
+  const playLevelUpSound = () => {
+    const audio = new Audio("/lvl-up.mp3");
+    audio.play();
+  };
+
   const fetchTasks = useCallback(async () => {
     if (!session?.accessToken) return;
     try {
@@ -86,34 +87,16 @@ export default function TasksPage() {
     }
   }, [session]);
 
-  // --- INIT DATA ---
   useEffect(() => {
     if (session?.accessToken) {
       fetchTasks();
       fetchUserData();
     }
-  }, [session, fetchTasks, fetchUserData]); // Toutes les dépendances sont là !
+  }, [session, fetchTasks, fetchUserData]);
 
-  useEffect(() => {
-    if (
-      isNewUser &&
-      session?.user?.id &&
-      !localStorage.getItem(`todoquest_tutorial_seen_${session.user.id}`)
-    ) {
-      setShowTutorial(true);
-    }
-  }, [isNewUser, session]);
-
-  const tutorialMessages = [
-    "Ô vaillant héros, sois le bienvenu dans TodoQuest, terre d'ordre et de bravoure.",
-    "Transforme tes corvées en épopées : chaque tâche est une quête en devenir.",
-    "Triomphe d’elles pour gagner de l'expérience et élever ton rang parmi les élus.",
-    "Saisis ta plume, trace ta destinée — ta première quête t’attend",
-  ];
-
-  // --- ACTIONS ---
   const addTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    playSound();
     setLoading(true);
 
     try {
@@ -142,6 +125,7 @@ export default function TasksPage() {
   };
 
   const deleteTask = async (taskId: string) => {
+    playSound();
     try {
       await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks/${taskId}`,
@@ -157,8 +141,8 @@ export default function TasksPage() {
     }
   };
 
-  // --- COMPLETION LOGIC ---
   const handleOpenTimeModal = (taskId: string) => {
+    playSound();
     setSelectedTaskId(taskId);
     setTimeInput("");
     setShowTimeModal(true);
@@ -172,11 +156,6 @@ export default function TasksPage() {
     }
     await completeTaskWithTime(selectedTaskId!, timeSpent);
     setShowTimeModal(false);
-  };
-
-  const playLevelUpSound = () => {
-    const audio = new Audio("/lvl-up.mp3");
-    audio.play();
   };
 
   const completeTaskWithTime = async (taskId: string, timeSpent: number) => {
@@ -208,6 +187,8 @@ export default function TasksPage() {
           `🎉 Félicitations ! Vous avez atteint le niveau ${newLevel} !`
         );
         setTimeout(() => setLevelUpMessage(""), 5000);
+      } else {
+        playSound();
       }
 
       setXp(newXP);
@@ -218,12 +199,6 @@ export default function TasksPage() {
     }
   };
 
-  const playSound = () => {
-    const clickAudio = new Audio("/click-sound.wav");
-    clickAudio.play();
-  };
-
-  // --- RENDER ---
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -272,7 +247,6 @@ export default function TasksPage() {
       )}
       <main className="w-full p-6 mt-12">
         <div className="flex flex-col md:flex-row items-start justify-center min-h-screen gap-8">
-          {/* Section Gauche : Ajout & Liste à faire */}
           <div className="w-full md:w-1/2">
             <h1 className="text-3xl font-bold mb-4">Vos Tâches</h1>
             <div className="mb-4">
@@ -331,7 +305,6 @@ export default function TasksPage() {
                           {task.description}
                         </p>
                       )}
-                      {/* Plus besoin de 'as any' car l'interface est correcte */}
                       {task.timeSpent != null && (
                         <p className="text-sm text-black italic mt-1">
                           ⏱ Temps passé : {task.timeSpent} min
@@ -358,7 +331,6 @@ export default function TasksPage() {
             </div>
           </div>
 
-          {/* Section Droite : Tâches terminées */}
           <div className="w-full md:w-1/2">
             <h2 className="text-xl font-semibold mb-4">Tâches complétées</h2>
             {completedTasks.length === 0 ? (

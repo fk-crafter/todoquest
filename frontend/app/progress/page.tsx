@@ -18,6 +18,7 @@ export default function ProgressPage() {
     if (!isPlaying) {
       toggleMusic();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
