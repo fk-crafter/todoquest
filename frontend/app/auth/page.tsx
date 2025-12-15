@@ -28,15 +28,9 @@ export default function AuthPage() {
     });
 
     if (result?.error) {
-      setError(result.error);
+      setError("Email ou mot de passe incorrect");
     } else {
       stopMusic();
-      router.push("/progress");
-    }
-
-    if (result?.error) {
-      setError(result.error);
-    } else {
       router.push("/progress");
     }
   };

@@ -20,20 +20,21 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+
         try {
-          const res = await fetch(
-            `${process.env.BACKEND_URL}/api/users/login`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                email: credentials?.email,
-                password: credentials?.password,
-              }),
-            }
-          );
+          const backendUrl = process.env.BACKEND_URL || "http://localhost:5001";
+
+          const res = await fetch(`${backendUrl}/api/auth/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            }),
+          });
 
           const data = await res.json();
 
@@ -41,14 +42,18 @@ export const authOptions = {
             throw new Error(data.message || "Login failed");
           }
 
-          return {
-            id: data.user.id,
-            name: data.user.name,
-            email: data.user.email,
-            xp: data.user.xp,
-            level: data.user.level,
-            token: data.token,
-          };
+          if (data && data.access_token) {
+            return {
+              id: data.user.id,
+              name: data.user.name,
+              email: data.user.email,
+              xp: data.user.xp,
+              level: data.user.level,
+              accessToken: data.access_token,
+            };
+          }
+
+          return null;
         } catch (error) {
           console.error("Login error:", error);
           return null;
@@ -67,7 +72,7 @@ export const authOptions = {
         token.email = user.email;
         token.xp = user.xp;
         token.level = user.level;
-        token.accessToken = user.token;
+        token.accessToken = user.accessToken;
       }
       return token;
     },

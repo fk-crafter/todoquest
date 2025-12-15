@@ -32,7 +32,7 @@ export default function ProfilePage() {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${session.user.id}/stats`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
         {
           headers: { Authorization: `Bearer ${session.accessToken}` },
         }
@@ -44,8 +44,8 @@ export default function ProfilePage() {
 
       setXp(data.xp);
       setLevel(data.level);
-      setTasksCreated(data.tasksCreated);
-      setTasksCompleted(data.tasksCompleted);
+      setTasksCreated(data.stats.totalTasks);
+      setTasksCompleted(data.stats.completedTasks);
     } catch (error) {
       console.error("Erreur lors du chargement des données du héros", error);
     }

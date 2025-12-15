@@ -24,7 +24,7 @@ export default function ProgressPage() {
 
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${session.user.id}/stats`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
           {
             headers: { Authorization: `Bearer ${session.accessToken}` },
           }

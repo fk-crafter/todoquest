@@ -21,6 +21,7 @@ export default function TasksPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
+
   const [isNewUser, setIsNewUser] = useState(false);
 
   const [showTutorial, setShowTutorial] = useState(false);
@@ -103,7 +104,7 @@ export default function TasksPage() {
   const fetchUserData = async () => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${session?.user.id}/stats`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
         {
           headers: { Authorization: `Bearer ${session?.accessToken}` },
         }
@@ -117,7 +118,6 @@ export default function TasksPage() {
 
       setXp(data.xp);
       setLevel(data.level);
-      setIsNewUser(data.isNew);
     } catch (error) {
       console.error("Error fetching user data", error);
     }
@@ -165,37 +165,7 @@ export default function TasksPage() {
       return;
     }
 
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks/${taskId}/complete`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.accessToken}`,
-          },
-          body: JSON.stringify({ timeSpent }),
-        }
-      );
-
-      if (!res.ok) throw new Error("Failed to complete task");
-
-      const data = await res.json();
-
-      if (data.newLevel > level) {
-        playLevelUpSound();
-        setLevelUpMessage(
-          `🎉 Félicitations ! Vous avez atteint le niveau ${data.newLevel} !`
-        );
-        setTimeout(() => setLevelUpMessage(""), 5000);
-      }
-
-      setXp(data.newXP);
-      setLevel(data.newLevel);
-      fetchTasks();
-    } catch (error) {
-      console.error("Error completing task", error);
-    }
+    await completeTaskWithTime(taskId, timeSpent);
   };
 
   const deleteTask = async (taskId: string) => {
@@ -252,16 +222,19 @@ export default function TasksPage() {
 
       const data = await res.json();
 
-      if (data.newLevel > level) {
+      const newLevel = data.userStats.level;
+      const newXP = data.userStats.xp;
+
+      if (newLevel > level) {
         playLevelUpSound();
         setLevelUpMessage(
-          `🎉 Félicitations ! Vous avez atteint le niveau ${data.newLevel} !`
+          `🎉 Félicitations ! Vous avez atteint le niveau ${newLevel} !`
         );
         setTimeout(() => setLevelUpMessage(""), 5000);
       }
 
-      setXp(data.newXP);
-      setLevel(data.newLevel);
+      setXp(newXP);
+      setLevel(newLevel);
       fetchTasks();
     } catch (error) {
       console.error("Error completing task", error);
