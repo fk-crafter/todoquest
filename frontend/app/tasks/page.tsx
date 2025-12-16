@@ -29,7 +29,10 @@ export default function TasksPage() {
   const incompleteTasks = tasks.filter((task) => !task.completed);
 
   const [levelUpMessage, setLevelUpMessage] = useState("");
-  const xpProgressPercent = Math.min((xp / 100) * 100, 100);
+
+  const xpToNextLevel = 100 + level * 50;
+
+  const xpProgressPercent = Math.min((xp / xpToNextLevel) * 100, 100);
 
   const [showTimeModal, setShowTimeModal] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
@@ -260,7 +263,7 @@ export default function TasksPage() {
                 ></div>
               </div>
               <p className="text-sm text-gray-300 mt-1 text-right">
-                {xp} / 100 XP
+                {xp} / {xpToNextLevel} XP
               </p>
             </div>
 

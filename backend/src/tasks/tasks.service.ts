@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -9,6 +10,16 @@ import { CreateTaskDto } from './dto/create-task.dto';
 @Injectable()
 export class TasksService {
   constructor(private prisma: PrismaService) {}
+
+  private getXpCap(level: number): number {
+    return 100 + level * 50;
+  }
+
+  private calculateXpGain(timeSpent: number): number {
+    const baseXp = 50;
+    const bonusXp = Math.floor(timeSpent / 5);
+    return baseXp + bonusXp;
+  }
 
   async create(userId: string, dto: CreateTaskDto) {
     return this.prisma.task.create({
@@ -38,17 +49,16 @@ export class TasksService {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('Utilisateur introuvable');
 
-    let xpGained = 10;
-    if (user.level <= 5) xpGained = 50;
-    else if (user.level <= 10) xpGained = 25;
-    else if (user.level <= 20) xpGained = 15;
+    const xpGained = this.calculateXpGain(timeSpent);
 
     let newXP = user.xp + xpGained;
     let newLevel = user.level;
+    let xpCap = this.getXpCap(newLevel);
 
-    if (newXP >= 100) {
-      newLevel += 1;
-      newXP = newXP - 100;
+    while (newXP >= xpCap) {
+      newXP -= xpCap;
+      newLevel++;
+      xpCap = this.getXpCap(newLevel);
     }
 
     const [updatedTask, updatedUser] = await this.prisma.$transaction([
@@ -76,6 +86,7 @@ export class TasksService {
       userStats: {
         level: updatedUser.level,
         xp: updatedUser.xp,
+        xpToNextLevel: this.getXpCap(updatedUser.level),
         gainedXp: xpGained,
         levelUp: newLevel > user.level,
       },
@@ -103,7 +114,8 @@ export class TasksService {
 
     while (newXP < 0 && newLevel > 1) {
       newLevel -= 1;
-      newXP += 100;
+      const prevLevelCap = this.getXpCap(newLevel);
+      newXP += prevLevelCap;
     }
 
     if (newLevel === 1 && newXP < 0) {
@@ -124,5 +136,3 @@ export class TasksService {
     return { message: 'Tâche supprimée et XP ajustée' };
   }
 }
-
-import { UnauthorizedException } from '@nestjs/common';
