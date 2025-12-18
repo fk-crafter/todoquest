@@ -212,25 +212,25 @@ export default function TasksPage() {
     switch (diff) {
       case "EASY":
         return (
-          <span className="text-xs bg-green-900 text-green-300 px-2 py-1 rounded border border-green-700">
+          <span className="text-[10px] md:text-xs bg-green-900 text-green-300 px-2 py-1 rounded border border-green-700 whitespace-nowrap">
             Facile (+10 XP)
           </span>
         );
       case "MEDIUM":
         return (
-          <span className="text-xs bg-yellow-900 text-yellow-300 px-2 py-1 rounded border border-yellow-700">
+          <span className="text-[10px] md:text-xs bg-yellow-900 text-yellow-300 px-2 py-1 rounded border border-yellow-700 whitespace-nowrap">
             Moyen (+30 XP)
           </span>
         );
       case "HARD":
         return (
-          <span className="text-xs bg-orange-900 text-orange-300 px-2 py-1 rounded border border-orange-700">
+          <span className="text-[10px] md:text-xs bg-orange-900 text-orange-300 px-2 py-1 rounded border border-orange-700 whitespace-nowrap">
             Difficile (+50 XP)
           </span>
         );
       case "EPIC":
         return (
-          <span className="text-xs bg-purple-900 text-purple-300 px-2 py-1 rounded border border-purple-700">
+          <span className="text-[10px] md:text-xs bg-purple-900 text-purple-300 px-2 py-1 rounded border border-purple-700 whitespace-nowrap">
             Épique (+100 XP)
           </span>
         );
@@ -251,12 +251,12 @@ export default function TasksPage() {
     <div className="flex min-h-screen">
       <Sidebar />
       {levelUpMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-500 text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black ">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-500 text-black font-bold px-4 py-3 md:px-6 rounded-xl shadow-lg border-2 border-black w-[90%] md:w-auto text-center">
           {levelUpMessage}
         </div>
       )}
       {showTimeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm border-2 border-black">
             <h2 className="text-xl font-bold mb-4 text-black">
               Temps passé sur la tâche
@@ -288,12 +288,14 @@ export default function TasksPage() {
           </div>
         </div>
       )}
-      <main className="w-full p-6 mt-12">
-        <div className="flex flex-col md:flex-row items-start justify-center min-h-screen gap-8">
+
+      <main className="w-full p-4 md:p-6 mt-12 md:mt-12 mb-16 md:mb-0">
+        <div className="flex flex-col md:flex-row items-start justify-center min-h-screen gap-6 md:gap-8">
           <div className="w-full md:w-1/2">
-            <h1 className="text-3xl font-bold mb-4">Vos Tâches</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-4">Vos Tâches</h1>
+
             <div className="mb-4">
-              <p className="text-lg font-semibold">
+              <p className="text-base md:text-lg font-semibold">
                 XP: {xp} | Niveau: {level}
               </p>
               <div className="w-full bg-gray-600 rounded-full h-4 mt-2 overflow-hidden">
@@ -302,14 +304,14 @@ export default function TasksPage() {
                   style={{ width: `${xpProgressPercent}%` }}
                 ></div>
               </div>
-              <p className="text-sm text-gray-300 mt-1 text-right">
+              <p className="text-xs md:text-sm text-gray-300 mt-1 text-right">
                 {xp} / {xpToNextLevel} XP
               </p>
             </div>
 
             <form
               onSubmit={addTask}
-              className="flex flex-col gap-4 w-full bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700"
+              className="flex flex-col gap-3 md:gap-4 w-full bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700"
             >
               <input
                 type="text"
@@ -323,21 +325,21 @@ export default function TasksPage() {
                 placeholder="Description (optionnel)"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="p-2 resize-none rounded bg-gray-700 text-white w-full border border-gray-600"
+                className="p-2 resize-none rounded bg-gray-700 text-white w-full border border-gray-600 h-20 md:h-auto"
               />
 
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-semibold text-gray-300">
                   Difficulté & Récompense :
                 </label>
-                <div className="flex gap-2 flex-wrap">
+                <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap">
                   {(["EASY", "MEDIUM", "HARD", "EPIC"] as Difficulty[]).map(
                     (d) => (
                       <button
                         key={d}
                         type="button"
                         onClick={() => setDifficulty(d)}
-                        className={`flex-1 py-2 px-1 rounded text-xs md:text-sm font-bold border transition-all ${
+                        className={`py-3 md:py-2 px-1 rounded text-xs md:text-sm font-bold border transition-all md:flex-1 ${
                           difficulty === d
                             ? d === "EASY"
                               ? "bg-green-600 border-green-400 text-white"
@@ -365,7 +367,7 @@ export default function TasksPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="p-3 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold w-full flex items-center justify-center gap-2 cursor-pointer transition-colors mt-2"
+                className="p-3 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold w-full flex items-center justify-center gap-2 cursor-pointer transition-colors mt-2 text-sm md:text-base"
               >
                 {loading ? "Ajout..." : "Ajouter la tâche"} <Plus size={18} />
               </button>
@@ -379,17 +381,17 @@ export default function TasksPage() {
                 incompleteTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-center justify-between bg-gray-800 p-4 rounded-lg mt-2 border-l-4 border-l-blue-500"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-800 p-4 rounded-lg mt-2 border-l-4 border-l-blue-500 gap-3 sm:gap-0"
                   >
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h2 className="font-bold text-white text-lg">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h2 className="font-bold text-white text-lg break-words">
                           {task.title}
                         </h2>
                         {getDifficultyBadge(task.difficulty)}
                       </div>
                       {task.description && (
-                        <p className="text-sm text-gray-300">
+                        <p className="text-sm text-gray-300 break-words">
                           {task.description}
                         </p>
                       )}
@@ -399,7 +401,7 @@ export default function TasksPage() {
                         </p>
                       )}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 self-end sm:self-center">
                       <button
                         onClick={() => handleOpenTimeModal(task.id)}
                         className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg cursor-pointer transition-colors"
@@ -431,15 +433,15 @@ export default function TasksPage() {
                   key={task.id}
                   className="bg-green-900 bg-opacity-40 p-4 rounded-lg mb-2 text-white flex justify-between items-center border border-green-800"
                 >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-bold line-through text-gray-400">
+                  <div className="flex-1 mr-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-bold line-through text-gray-400 break-all">
                         {task.title}
                       </h3>
                       {getDifficultyBadge(task.difficulty)}
                     </div>
                     {task.description && (
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 break-words">
                         {task.description}
                       </p>
                     )}
@@ -451,7 +453,7 @@ export default function TasksPage() {
                   </div>
                   <button
                     onClick={() => deleteTask(task.id)}
-                    className="p-2 bg-red-900 bg-opacity-60 hover:bg-red-700 text-white rounded-lg cursor-pointer"
+                    className="p-2 bg-red-900 bg-opacity-60 hover:bg-red-700 text-white rounded-lg cursor-pointer flex-shrink-0"
                   >
                     <Trash size={20} />
                   </button>
