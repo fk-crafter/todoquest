@@ -6,19 +6,29 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { Difficulty } from '@prisma/client';
 
 @Injectable()
 export class TasksService {
   constructor(private prisma: PrismaService) {}
 
   private getXpCap(level: number): number {
-    return 100 + level * 50;
+    return level * 25;
   }
 
-  private calculateXpGain(timeSpent: number): number {
-    const baseXp = 50;
-    const bonusXp = Math.floor(timeSpent / 5);
-    return baseXp + bonusXp;
+  private calculateXpGain(difficulty: Difficulty): number {
+    switch (difficulty) {
+      case Difficulty.EASY:
+        return 10;
+      case Difficulty.MEDIUM:
+        return 30;
+      case Difficulty.HARD:
+        return 50;
+      case Difficulty.EPIC:
+        return 100;
+      default:
+        return 10;
+    }
   }
 
   async create(userId: string, dto: CreateTaskDto) {
@@ -27,6 +37,7 @@ export class TasksService {
         userId,
         title: dto.title,
         description: dto.description,
+        difficulty: dto.difficulty || Difficulty.EASY,
       },
     });
   }
@@ -49,7 +60,7 @@ export class TasksService {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('Utilisateur introuvable');
 
-    const xpGained = this.calculateXpGain(timeSpent);
+    const xpGained = this.calculateXpGain(task.difficulty);
 
     let newXP = user.xp + xpGained;
     let newLevel = user.level;

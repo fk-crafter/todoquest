@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsEnum } from 'class-validator';
+import { Difficulty } from '@prisma/client';
 
 export class CreateTaskDto {
   @IsString()
@@ -8,4 +9,8 @@ export class CreateTaskDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsEnum(Difficulty)
+  @IsOptional()
+  difficulty?: Difficulty;
 }

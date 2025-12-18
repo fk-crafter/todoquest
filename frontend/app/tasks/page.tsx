@@ -6,12 +6,15 @@ import { Check, Plus, Trash } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import Sidebar from "@/components/Sidebar";
 
+type Difficulty = "EASY" | "MEDIUM" | "HARD" | "EPIC";
+
 interface Task {
   id: string;
   title: string;
   description?: string;
   completed: boolean;
   timeSpent?: number;
+  difficulty: Difficulty;
 }
 
 export default function TasksPage() {
@@ -20,6 +23,8 @@ export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [difficulty, setDifficulty] = useState<Difficulty>("EASY");
+
   const [loading, setLoading] = useState(false);
 
   const [xp, setXp] = useState(0);
@@ -30,7 +35,7 @@ export default function TasksPage() {
 
   const [levelUpMessage, setLevelUpMessage] = useState("");
 
-  const xpToNextLevel = 100 + level * 50;
+  const xpToNextLevel = level * 25;
 
   const xpProgressPercent = Math.min((xp / xpToNextLevel) * 100, 100);
 
@@ -111,7 +116,7 @@ export default function TasksPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${session?.accessToken}`,
           },
-          body: JSON.stringify({ title, description }),
+          body: JSON.stringify({ title, description, difficulty }),
         }
       );
 
@@ -119,6 +124,7 @@ export default function TasksPage() {
 
       setTitle("");
       setDescription("");
+      setDifficulty("EASY");
       fetchTasks();
     } catch (error) {
       console.error("Error adding task", error);
@@ -202,6 +208,37 @@ export default function TasksPage() {
     }
   };
 
+  const getDifficultyBadge = (diff: Difficulty) => {
+    switch (diff) {
+      case "EASY":
+        return (
+          <span className="text-xs bg-green-900 text-green-300 px-2 py-1 rounded border border-green-700">
+            Facile (+10 XP)
+          </span>
+        );
+      case "MEDIUM":
+        return (
+          <span className="text-xs bg-yellow-900 text-yellow-300 px-2 py-1 rounded border border-yellow-700">
+            Moyen (+30 XP)
+          </span>
+        );
+      case "HARD":
+        return (
+          <span className="text-xs bg-orange-900 text-orange-300 px-2 py-1 rounded border border-orange-700">
+            Difficile (+50 XP)
+          </span>
+        );
+      case "EPIC":
+        return (
+          <span className="text-xs bg-purple-900 text-purple-300 px-2 py-1 rounded border border-purple-700">
+            Épique (+100 XP)
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -224,6 +261,9 @@ export default function TasksPage() {
             <h2 className="text-xl font-bold mb-4 text-black">
               Temps passé sur la tâche
             </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Cela servira pour vos statistiques.
+            </p>
             <input
               type="number"
               value={timeInput}
@@ -267,25 +307,65 @@ export default function TasksPage() {
               </p>
             </div>
 
-            <form onSubmit={addTask} className="flex flex-col gap-4 w-full">
+            <form
+              onSubmit={addTask}
+              className="flex flex-col gap-4 w-full bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700"
+            >
               <input
                 type="text"
                 placeholder="Titre de la tâche"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="p-2 rounded bg-gray-700 text-white w-full"
+                className="p-2 rounded bg-gray-700 text-white w-full border border-gray-600"
                 required
               />
               <textarea
                 placeholder="Description (optionnel)"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="p-2 resize-none rounded bg-gray-700 text-white w-full"
+                className="p-2 resize-none rounded bg-gray-700 text-white w-full border border-gray-600"
               />
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-gray-300">
+                  Difficulté & Récompense :
+                </label>
+                <div className="flex gap-2 flex-wrap">
+                  {(["EASY", "MEDIUM", "HARD", "EPIC"] as Difficulty[]).map(
+                    (d) => (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => setDifficulty(d)}
+                        className={`flex-1 py-2 px-1 rounded text-xs md:text-sm font-bold border transition-all ${
+                          difficulty === d
+                            ? d === "EASY"
+                              ? "bg-green-600 border-green-400 text-white"
+                              : d === "MEDIUM"
+                              ? "bg-yellow-600 border-yellow-400 text-white"
+                              : d === "HARD"
+                              ? "bg-orange-600 border-orange-400 text-white"
+                              : "bg-purple-600 border-purple-400 text-white"
+                            : "bg-gray-700 border-gray-600 text-gray-400 hover:bg-gray-600"
+                        }`}
+                      >
+                        {d === "EASY"
+                          ? "Facile (10 XP)"
+                          : d === "MEDIUM"
+                          ? "Moyen (30 XP)"
+                          : d === "HARD"
+                          ? "Difficile (50 XP)"
+                          : "Épique (100 XP)"}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+
               <button
                 type="submit"
                 disabled={loading}
-                className="p-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold w-full flex items-center justify-center gap-2 cursor-pointer"
+                className="p-3 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold w-full flex items-center justify-center gap-2 cursor-pointer transition-colors mt-2"
               >
                 {loading ? "Ajout..." : "Ajouter la tâche"} <Plus size={18} />
               </button>
@@ -299,10 +379,15 @@ export default function TasksPage() {
                 incompleteTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-center justify-between bg-gray-800 p-4 rounded-lg mt-2"
+                    className="flex items-center justify-between bg-gray-800 p-4 rounded-lg mt-2 border-l-4 border-l-blue-500"
                   >
                     <div>
-                      <h2 className="font-bold text-white">{task.title}</h2>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h2 className="font-bold text-white text-lg">
+                          {task.title}
+                        </h2>
+                        {getDifficultyBadge(task.difficulty)}
+                      </div>
                       {task.description && (
                         <p className="text-sm text-gray-300">
                           {task.description}
@@ -317,13 +402,13 @@ export default function TasksPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleOpenTimeModal(task.id)}
-                        className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg cursor-pointer"
+                        className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg cursor-pointer transition-colors"
                       >
                         <Check size={20} />
                       </button>
                       <button
                         onClick={() => deleteTask(task.id)}
-                        className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg cursor-pointer"
+                        className="p-2 bg-red-600 hover:bg-red-500 text-white rounded-lg cursor-pointer transition-colors"
                       >
                         <Trash size={20} />
                       </button>
@@ -344,24 +429,29 @@ export default function TasksPage() {
               completedTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="bg-green-800 p-4 rounded-lg mb-2 text-white flex justify-between items-center"
+                  className="bg-green-900 bg-opacity-40 p-4 rounded-lg mb-2 text-white flex justify-between items-center border border-green-800"
                 >
                   <div>
-                    <h3 className="font-bold">{task.title}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold line-through text-gray-400">
+                        {task.title}
+                      </h3>
+                      {getDifficultyBadge(task.difficulty)}
+                    </div>
                     {task.description && (
-                      <p className="text-sm text-gray-300">
+                      <p className="text-sm text-gray-500">
                         {task.description}
                       </p>
                     )}
                     {task.timeSpent != null && (
-                      <p className="text-sm text-gray-200 italic mt-1">
+                      <p className="text-sm text-gray-400 italic mt-1">
                         ⏱ Temps passé : {task.timeSpent} min
                       </p>
                     )}
                   </div>
                   <button
                     onClick={() => deleteTask(task.id)}
-                    className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg cursor-pointer"
+                    className="p-2 bg-red-900 bg-opacity-60 hover:bg-red-700 text-white rounded-lg cursor-pointer"
                   >
                     <Trash size={20} />
                   </button>

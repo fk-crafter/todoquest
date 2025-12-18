@@ -27,7 +27,7 @@ model Task {
   title       String
   description String?
   xp          Int       @default(10)
-  gainedXp    Int?      // XP gagnée une fois terminée
+  gainedXp    Int?  
   
   completed   Boolean   @default(false)
   completedAt DateTime?
@@ -36,6 +36,15 @@ model Task {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  difficulty  Difficulty @default(EASY)
+
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  EPIC
 }
