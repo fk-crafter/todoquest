@@ -41,7 +41,7 @@ export default function AuthPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Authentification</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">Authentification</h1>
 
       {error && <p className="text-red-500 font-bold">Compte non reconnu</p>}
 
