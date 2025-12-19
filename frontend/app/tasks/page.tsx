@@ -25,6 +25,10 @@ export default function TasksPage() {
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>("EASY");
 
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialStep, setTutorialStep] = useState(0);
+
   const [loading, setLoading] = useState(false);
 
   const [xp, setXp] = useState(0);
@@ -45,6 +49,14 @@ export default function TasksPage() {
 
   const { setMusicSource } = useAudio();
 
+  const tutorialMessages = [
+    "Ô vaillant héros, sois le bienvenu dans TodoQuest, terre d'ordre et de bravoure.",
+    "Transforme tes corvées en épopées : chaque tâche est une quête en devenir.",
+    "Choisis la difficulté de ta quête pour gagner plus d'expérience !",
+    "Triomphe d’elles pour gagner de l'expérience et élever ton rang parmi les élus.",
+    "Saisis ta plume, trace ta destinée — ta première quête t’attend",
+  ];
+
   useEffect(() => {
     setMusicSource("/tasks.wav");
   }, [setMusicSource]);
@@ -58,6 +70,16 @@ export default function TasksPage() {
     const audio = new Audio("/lvl-up.mp3");
     audio.play();
   };
+
+  useEffect(() => {
+    if (
+      isNewUser &&
+      session?.user?.id &&
+      !localStorage.getItem(`todoquest_tutorial_seen_${session.user.id}`)
+    ) {
+      setShowTutorial(true);
+    }
+  }, [isNewUser, session]);
 
   const fetchTasks = useCallback(async () => {
     if (!session?.accessToken) return;
@@ -90,6 +112,10 @@ export default function TasksPage() {
 
       setXp(data.xp);
       setLevel(data.level);
+
+      if (data.level === 1 && data.xp === 0) {
+        setIsNewUser(true);
+      }
     } catch (error) {
       console.error("Error fetching user data", error);
     }
@@ -285,6 +311,37 @@ export default function TasksPage() {
                 Valider
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showTutorial && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-end gap-4 p-6 justify-center md:justify-start">
+          <div className="hidden md:block w-24 h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat" />
+
+          <div className="bg-white text-black p-4 rounded-lg shadow-lg border-2 border-black max-w-sm w-full">
+            <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
+            <button
+              onClick={() => {
+                playSound();
+                if (tutorialStep < tutorialMessages.length - 1) {
+                  setTutorialStep(tutorialStep + 1);
+                } else {
+                  setShowTutorial(false);
+                  if (session?.user?.id) {
+                    localStorage.setItem(
+                      `todoquest_tutorial_seen_${session.user.id}`,
+                      "true"
+                    );
+                  }
+                }
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer w-full md:w-auto"
+            >
+              {tutorialStep < tutorialMessages.length - 1
+                ? "Suivant"
+                : "Terminer"}
+            </button>
           </div>
         </div>
       )}
