@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Volume2, VolumeX, Trash2, LogOut, Save } from "lucide-react";
+import { Volume2, VolumeX, Trash2, LogOut } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import { useAudio } from "@/context/AudioContext";
 
@@ -11,9 +11,8 @@ export default function SettingsPage() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  const { isPlaying, toggleMusic } = useAudio();
+  const { isPlaying, toggleMusic, volume, setVolume } = useAudio();
 
-  const [volume, setVolume] = useState(50);
   const [notifications, setNotifications] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -90,20 +89,18 @@ export default function SettingsPage() {
 
           <div className="flex items-center gap-4">
             {volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
+
             <input
               type="range"
               min="0"
               max="100"
-              value={volume}
-              onChange={(e) => setVolume(parseInt(e.target.value))}
+              value={volume * 100}
+              onChange={(e) => setVolume(parseInt(e.target.value) / 100)}
               className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
             />
-            <span className="w-8 text-right">{volume}%</span>
+
+            <span className="w-8 text-right">{Math.round(volume * 100)}%</span>
           </div>
-          <p className="text-xs text-gray-500 mt-2 italic">
-            (Le slider de volume est visuel pour l'instant, nécessite une mise à
-            jour du Context Audio)
-          </p>
         </div>
 
         <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
@@ -146,8 +143,7 @@ export default function SettingsPage() {
               "Suppression..."
             ) : (
               <>
-                {" "}
-                <Trash2 size={20} /> Supprimer mon compte{" "}
+                <Trash2 size={20} /> Supprimer mon compte
               </>
             )}
           </button>

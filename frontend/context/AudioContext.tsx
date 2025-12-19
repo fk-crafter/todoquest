@@ -4,9 +4,11 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 type AudioContextType = {
   isPlaying: boolean;
+  volume: number;
   toggleMusic: () => void;
   stopMusic: () => void;
   setMusicSource: (src: string) => void;
+  setVolume: (vol: number) => void;
 };
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -16,6 +18,8 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [source, setSource] = useState("/title-sound.wav");
 
+  const [volume, setVolume] = useState(0.5);
+
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -24,7 +28,7 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
 
     const audio = new Audio(source);
     audio.loop = true;
-    audio.volume = 0.5;
+    audio.volume = volume;
     audioRef.current = audio;
 
     if (isPlaying) {
@@ -39,17 +43,23 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [source]);
 
-  const toggleMusic = () => {
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
+
+  useEffect(() => {
     if (!audioRef.current) return;
 
     if (isPlaying) {
-      audioRef.current.pause();
+      audioRef.current.play().catch((err) => console.log("Play error", err));
     } else {
-      audioRef.current
-        .play()
-        .catch((err) => console.log("Autoplay blocked:", err));
+      audioRef.current.pause();
     }
+  }, [isPlaying]);
 
+  const toggleMusic = () => {
     setIsPlaying(!isPlaying);
   };
 
@@ -62,12 +72,20 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const setMusicSource = (src: string) => {
+    if (source === src) return;
     setSource(src);
   };
 
   return (
     <AudioContext.Provider
-      value={{ isPlaying, toggleMusic, stopMusic, setMusicSource }}
+      value={{
+        isPlaying,
+        toggleMusic,
+        stopMusic,
+        setMusicSource,
+        volume,
+        setVolume,
+      }}
     >
       {children}
     </AudioContext.Provider>
