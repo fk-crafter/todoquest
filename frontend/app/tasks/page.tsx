@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { Check, Plus, Trash } from "lucide-react";
+import { Check, Plus, Trash, Pencil, X } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import Sidebar from "@/components/Sidebar";
 
@@ -21,40 +21,41 @@ export default function TasksPage() {
   const { data: session } = useSession();
 
   const [tasks, setTasks] = useState<Task[]>([]);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>("EASY");
 
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editDifficulty, setEditDifficulty] = useState<Difficulty>("EASY");
+
+  const [loading, setLoading] = useState(false);
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
   const [isNewUser, setIsNewUser] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
-
-  const [loading, setLoading] = useState(false);
-
-  const [xp, setXp] = useState(0);
-  const [level, setLevel] = useState(1);
-
-  const completedTasks = tasks.filter((task) => task.completed);
-  const incompleteTasks = tasks.filter((task) => !task.completed);
-
   const [levelUpMessage, setLevelUpMessage] = useState("");
-
-  const xpToNextLevel = level * 25;
-
-  const xpProgressPercent = Math.min((xp / xpToNextLevel) * 100, 100);
-
   const [showTimeModal, setShowTimeModal] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [timeInput, setTimeInput] = useState("");
 
+  const completedTasks = tasks.filter((task) => task.completed);
+  const incompleteTasks = tasks.filter((task) => !task.completed);
+  const xpToNextLevel = level * 25;
+  const xpProgressPercent = Math.min((xp / xpToNextLevel) * 100, 100);
+
   const { setMusicSource } = useAudio();
 
   const tutorialMessages = [
-    "Ô vaillant héros, sois le bienvenu dans TodoQuest, terre d'ordre et de bravoure.",
-    "Transforme tes corvées en épopées : chaque tâche est une quête en devenir.",
-    "Choisis la difficulté de ta quête pour gagner plus d'expérience !",
-    "Triomphe d’elles pour gagner de l'expérience et élever ton rang parmi les élus.",
-    "Saisis ta plume, trace ta destinée — ta première quête t’attend",
+    "Ô vaillant héros, sois le bienvenu dans TodoQuest !",
+    "Transforme tes corvées en épopées : chaque tâche est une quête.",
+    "Choisis la difficulté pour gagner plus d'expérience (XP).",
+    "Utilise le Crayon ✏️ pour modifier une quête en cours de route.",
+    "À toi de jouer, ta destinée t'attend !",
   ];
 
   useEffect(() => {
@@ -128,6 +129,7 @@ export default function TasksPage() {
     }
   }, [session, fetchTasks, fetchUserData]);
 
+  // --- CRÉATION DE TÂCHE ---
   const addTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     playSound();
@@ -156,6 +158,77 @@ export default function TasksPage() {
       console.error("Error adding task", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openEditModal = (task: Task) => {
+    playSound();
+    setEditingTask(task);
+    setEditTitle(task.title);
+    setEditDescription(task.description || "");
+    setEditDifficulty(task.difficulty);
+    setShowEditModal(true);
+  };
+
+  const handleUpdateTask = async () => {
+    if (!editingTask || !session?.accessToken) return;
+    playSound();
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks/${editingTask.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+          body: JSON.stringify({
+            title: editTitle,
+            description: editDescription,
+            difficulty: editDifficulty,
+          }),
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to update task");
+
+      setShowEditModal(false);
+      setEditingTask(null);
+      fetchTasks();
+    } catch (error) {
+      console.error("Error updating task", error);
+    }
+  };
+
+  const saveEdit = async () => {
+    if (!editingTask || !session?.accessToken) return;
+    playSound();
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks/${editingTask.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+          body: JSON.stringify({
+            title: editTitle,
+            description: editDescription,
+            difficulty: editDifficulty,
+          }),
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to update task");
+
+      setShowEditModal(false);
+      setEditingTask(null);
+      fetchTasks();
+    } catch (error) {
+      console.error("Error updating task", error);
     }
   };
 
@@ -210,9 +283,7 @@ export default function TasksPage() {
       );
 
       if (!res.ok) throw new Error("Failed to complete task");
-
       const data = await res.json();
-
       const newLevel = data.userStats.level;
       const newXP = data.userStats.xp;
 
@@ -281,15 +352,13 @@ export default function TasksPage() {
           {levelUpMessage}
         </div>
       )}
+
       {showTimeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm border-2 border-black">
             <h2 className="text-xl font-bold mb-4 text-black">
               Temps passé sur la tâche
             </h2>
-            <p className="text-sm text-gray-500 mb-4">
-              Cela servira pour vos statistiques.
-            </p>
             <input
               type="number"
               value={timeInput}
@@ -315,10 +384,87 @@ export default function TasksPage() {
         </div>
       )}
 
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
+          <div className="bg-gray-800 p-6 rounded-xl shadow-2xl w-full max-w-md border-2 border-gray-600 text-white relative">
+            <button
+              onClick={() => setShowEditModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white"
+            >
+              <X size={24} />
+            </button>
+
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <Pencil size={24} className="text-blue-400" /> Modifier la quête
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-300">
+                  Titre
+                </label>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-300">
+                  Description
+                </label>
+                <textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 outline-none h-24 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-300">
+                  Difficulté
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["EASY", "MEDIUM", "HARD", "EPIC"] as Difficulty[]).map(
+                    (d) => (
+                      <button
+                        key={d}
+                        onClick={() => setEditDifficulty(d)}
+                        className={`py-2 px-2 rounded text-xs font-bold border transition-all ${
+                          editDifficulty === d
+                            ? d === "EASY"
+                              ? "bg-green-600 border-green-400"
+                              : d === "MEDIUM"
+                              ? "bg-yellow-600 border-yellow-400"
+                              : d === "HARD"
+                              ? "bg-orange-600 border-orange-400"
+                              : "bg-purple-600 border-purple-400"
+                            : "bg-gray-700 border-gray-600 text-gray-400 hover:bg-gray-600"
+                        }`}
+                      >
+                        {d}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={saveEdit}
+                className="w-full py-3 mt-4 bg-blue-600 hover:bg-blue-500 rounded font-bold shadow-lg transition-transform active:scale-95"
+              >
+                Sauvegarder les modifications
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showTutorial && (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-end gap-4 p-6 justify-center md:justify-start">
           <div className="hidden md:block w-24 h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat" />
-
           <div className="bg-white text-black p-4 rounded-lg shadow-lg border-2 border-black max-w-sm w-full">
             <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
             <button
@@ -384,7 +530,6 @@ export default function TasksPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 className="p-2 resize-none rounded bg-gray-700 text-white w-full border border-gray-600 h-20 md:h-auto"
               />
-
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-semibold text-gray-300">
                   Difficulté & Récompense :
@@ -420,7 +565,6 @@ export default function TasksPage() {
                   )}
                 </div>
               </div>
-
               <button
                 type="submit"
                 disabled={loading}
@@ -438,7 +582,7 @@ export default function TasksPage() {
                 incompleteTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-800 p-4 rounded-lg mt-2 border-l-4 border-l-blue-500 gap-3 sm:gap-0"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-800 p-4 rounded-lg mt-2 border-l-4 border-l-blue-500 gap-3 sm:gap-0 group"
                   >
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -459,6 +603,14 @@ export default function TasksPage() {
                       )}
                     </div>
                     <div className="flex gap-2 self-end sm:self-center">
+                      <button
+                        onClick={() => openEditModal(task)}
+                        className="p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg cursor-pointer transition-colors"
+                        title="Modifier la tâche"
+                      >
+                        <Pencil size={20} />
+                      </button>
+
                       <button
                         onClick={() => handleOpenTimeModal(task.id)}
                         className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg cursor-pointer transition-colors"

@@ -5,6 +5,7 @@ import {
   Post,
   Put,
   Delete,
+  Patch,
   Param,
   UseGuards,
   Req,
@@ -47,5 +48,14 @@ export class TasksController {
   @Delete(':id')
   delete(@Req() req: RequestWithUser, @Param('id') id: string) {
     return this.tasksService.delete(req.user.id, id);
+  }
+
+  @Patch(':id')
+  async updateTask(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+    @Body() body: { title?: string; description?: string; difficulty?: string },
+  ) {
+    return this.tasksService.update(id, req.user.id, body);
   }
 }

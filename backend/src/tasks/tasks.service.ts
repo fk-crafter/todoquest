@@ -146,4 +146,22 @@ export class TasksService {
 
     return { message: 'Tâche supprimée et XP ajustée' };
   }
+
+  async update(
+    id: string,
+    userId: string,
+    data: { title?: string; description?: string; difficulty?: string },
+  ) {
+    return this.prisma.task.update({
+      where: {
+        id: id,
+        userId: userId,
+      },
+      data: {
+        title: data.title,
+        description: data.description,
+        difficulty: data.difficulty as Difficulty,
+      },
+    });
+  }
 }
