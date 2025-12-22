@@ -170,37 +170,6 @@ export default function TasksPage() {
     setShowEditModal(true);
   };
 
-  const handleUpdateTask = async () => {
-    if (!editingTask || !session?.accessToken) return;
-    playSound();
-
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks/${editingTask.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.accessToken}`,
-          },
-          body: JSON.stringify({
-            title: editTitle,
-            description: editDescription,
-            difficulty: editDifficulty,
-          }),
-        }
-      );
-
-      if (!res.ok) throw new Error("Failed to update task");
-
-      setShowEditModal(false);
-      setEditingTask(null);
-      fetchTasks();
-    } catch (error) {
-      console.error("Error updating task", error);
-    }
-  };
-
   const saveEdit = async () => {
     if (!editingTask || !session?.accessToken) return;
     playSound();
