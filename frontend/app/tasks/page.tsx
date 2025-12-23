@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { Check, Plus, Trash, Pencil, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Check, Plus, Trash, Pencil, X, Trophy } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import Sidebar from "@/components/Sidebar";
 
@@ -17,8 +18,36 @@ interface Task {
   difficulty: Difficulty;
 }
 
+const ACHIEVEMENTS_THRESHOLDS = [
+  { id: "gen_1", count: 1, type: "TOTAL", label: "🌱 Le début du voyage" },
+  {
+    id: "gen_2",
+    count: 10,
+    type: "TOTAL",
+    label: "🔥 Aventurier Confirmé (10 tâches)",
+  },
+  {
+    id: "gen_3",
+    count: 20,
+    type: "TOTAL",
+    label: "👑 Légende montante (20 tâches)",
+  },
+  { id: "easy_1", count: 5, type: "EASY", label: "🧹 Nettoyeur de Gobelins" },
+  { id: "easy_2", count: 20, type: "EASY", label: "🏃‍♂️ Routine Matinale" },
+  { id: "med_1", count: 5, type: "MEDIUM", label: "🛡️ Garde du Village" },
+  { id: "med_2", count: 15, type: "MEDIUM", label: "🔨 Forgeron Productif" },
+  { id: "hard_1", count: 3, type: "HARD", label: "👹 Chasseur de Trolls" },
+  { id: "hard_2", count: 10, type: "HARD", label: "🌋 Survivant du Volcan" },
+  { id: "epic_1", count: 1, type: "EPIC", label: "🐉 Tueur de Dragons" },
+  { id: "epic_2", count: 5, type: "EPIC", label: "🌌 Dieu de la Productivité" },
+];
+
 export default function TasksPage() {
   const { data: session } = useSession();
+  const router = useRouter();
+  const [achievementMessage, setAchievementMessage] = useState<{
+    label: string;
+  } | null>(null);
 
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -235,8 +264,32 @@ export default function TasksPage() {
     setShowTimeModal(false);
   };
 
+  const checkAchievements = (completedTaskDifficulty: Difficulty) => {
+    const currentCompleted = tasks.filter((t) => t.completed);
+    const newTotalCount = currentCompleted.length + 1;
+    const newDiffCount =
+      currentCompleted.filter((t) => t.difficulty === completedTaskDifficulty)
+        .length + 1;
+
+    const unlocked = ACHIEVEMENTS_THRESHOLDS.find((ach) => {
+      if (ach.type === "TOTAL" && ach.count === newTotalCount) return true;
+      if (ach.type === completedTaskDifficulty && ach.count === newDiffCount)
+        return true;
+      return false;
+    });
+
+    if (unlocked) {
+      playSound();
+      setAchievementMessage({ label: unlocked.label });
+      setTimeout(() => setAchievementMessage(null), 6000);
+    }
+  };
+
   const completeTaskWithTime = async (taskId: string, timeSpent: number) => {
     if (!session || !session.user) return;
+
+    const taskToComplete = tasks.find((t) => t.id === taskId);
+    const taskDifficulty = taskToComplete?.difficulty || "EASY";
 
     try {
       const res = await fetch(
@@ -255,6 +308,8 @@ export default function TasksPage() {
       const data = await res.json();
       const newLevel = data.userStats.level;
       const newXP = data.userStats.xp;
+
+      checkAchievements(taskDifficulty);
 
       if (newLevel > level) {
         playLevelUpSound();
@@ -316,6 +371,23 @@ export default function TasksPage() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
+      {achievementMessage && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-purple-600 text-white font-bold px-4 py-3 md:px-6 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.6)] border-2 border-white w-[90%] md:w-auto flex flex-col items-center gap-2 animate-bounce">
+          <div className="flex items-center gap-2">
+            <Trophy className="text-yellow-300" />
+            <span>Succès Débloqué !</span>
+          </div>
+          <p className="text-sm md:text-base text-yellow-200">
+            {achievementMessage.label}
+          </p>
+          <button
+            onClick={() => router.push("/success")}
+            className="text-xs bg-white text-purple-900 px-3 py-1 rounded-full font-bold hover:bg-gray-200 transition-colors mt-1"
+          >
+            Voir mes trophées →
+          </button>
+        </div>
+      )}
       {levelUpMessage && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-500 text-black font-bold px-4 py-3 md:px-6 rounded-xl shadow-lg border-2 border-black w-[90%] md:w-auto text-center">
           {levelUpMessage}
