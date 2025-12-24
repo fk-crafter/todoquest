@@ -15,7 +15,8 @@ export const metadata: Metadata = {
   title: "TodoQuest",
   description: "Transforme tes tâches en aventure RPG !",
   icons: {
-    icon: "/favicon.png",
+    icon: { url: "/favicon.png", sizes: "any" },
+    apple: { url: "/favicon.png" },
   },
 };
 
