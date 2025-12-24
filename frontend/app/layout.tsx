@@ -14,6 +14,9 @@ const pressStart = Press_Start_2P({
 export const metadata: Metadata = {
   title: "TodoQuest",
   description: "Transforme tes tâches en aventure RPG !",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
