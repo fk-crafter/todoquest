@@ -154,7 +154,7 @@ export default function SuccessPage() {
     {
       id: "epic_2",
       category: "EPIC",
-      label: "🌌 Dieu de la Productivité",
+      label: "🌌 Roi de la Productivité",
       desc: "Terminer 5 tâches Épiques",
       condition: stats.epic >= 5,
       progress: `${Math.min(stats.epic, 5)}/5`,

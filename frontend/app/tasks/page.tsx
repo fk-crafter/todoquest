@@ -39,7 +39,7 @@ const ACHIEVEMENTS_THRESHOLDS = [
   { id: "hard_1", count: 3, type: "HARD", label: "👹 Chasseur de Trolls" },
   { id: "hard_2", count: 10, type: "HARD", label: "🌋 Survivant du Volcan" },
   { id: "epic_1", count: 1, type: "EPIC", label: "🐉 Tueur de Dragons" },
-  { id: "epic_2", count: 5, type: "EPIC", label: "🌌 Dieu de la Productivité" },
+  { id: "epic_2", count: 5, type: "EPIC", label: "🌌 Roi de la Productivité" },
 ];
 
 export default function TasksPage() {
