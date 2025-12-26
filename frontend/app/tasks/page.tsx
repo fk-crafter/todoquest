@@ -68,7 +68,10 @@ export default function TasksPage() {
   const [levelUpMessage, setLevelUpMessage] = useState("");
   const [showTimeModal, setShowTimeModal] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [timeInput, setTimeInput] = useState("");
+
+  const [daysInput, setDaysInput] = useState("");
+  const [hoursInput, setHoursInput] = useState("");
+  const [minutesInput, setMinutesInput] = useState("");
 
   const { setMusicSource } = useAudio();
 
@@ -236,17 +239,25 @@ export default function TasksPage() {
   const handleOpenTimeModal = (taskId: string) => {
     playSound();
     setSelectedTaskId(taskId);
-    setTimeInput("");
+    setDaysInput("");
+    setHoursInput("");
+    setMinutesInput("");
     setShowTimeModal(true);
   };
 
   const handleConfirmTime = async () => {
-    const timeSpent = parseInt(timeInput);
-    if (isNaN(timeSpent) || timeSpent < 0) {
-      alert("Temps invalide !");
+    const days = parseInt(daysInput || "0");
+    const hours = parseInt(hoursInput || "0");
+    const minutes = parseInt(minutesInput || "0");
+
+    const totalMinutes = days * 24 * 60 + hours * 60 + minutes;
+
+    if (totalMinutes <= 0) {
+      alert("Veuillez entrer une durée valide !");
       return;
     }
-    await completeTaskWithTime(selectedTaskId!, timeSpent);
+
+    await completeTaskWithTime(selectedTaskId!, totalMinutes);
     setShowTimeModal(false);
   };
 
@@ -310,6 +321,18 @@ export default function TasksPage() {
     } catch (error) {
       console.error("Error completing task", error);
     }
+  };
+  const formatTimeSpent = (totalMinutes: number) => {
+    const days = Math.floor(totalMinutes / (24 * 60));
+    const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+    const minutes = totalMinutes % 60;
+
+    let result = "";
+    if (days > 0) result += `${days}j `;
+    if (hours > 0) result += `${hours}h `;
+    if (minutes > 0 || result === "") result += `${minutes}min`;
+
+    return result.trim();
   };
 
   const getDifficultyBadge = (diff: Difficulty) => {
@@ -383,13 +406,50 @@ export default function TasksPage() {
             <h2 className="text-xl font-bold mb-4 text-black">
               Temps passé sur la tâche
             </h2>
-            <input
-              type="number"
-              value={timeInput}
-              onChange={(e) => setTimeInput(e.target.value)}
-              placeholder="Temps (en minutes)"
-              className="w-full p-2 rounded border border-gray-400 text-black mb-4"
-            />
+
+            {/* 👇 NOUVEAU FORMULAIRE : 3 COLONNES */}
+            <div className="flex gap-2 mb-6">
+              <div className="flex-1">
+                <label className="text-xs font-bold text-gray-500 uppercase">
+                  Jours
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={daysInput}
+                  onChange={(e) => setDaysInput(e.target.value)}
+                  className="w-full p-2 rounded border border-gray-400 text-black text-center"
+                  placeholder="0"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs font-bold text-gray-500 uppercase">
+                  Heures
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={hoursInput}
+                  onChange={(e) => setHoursInput(e.target.value)}
+                  className="w-full p-2 rounded border border-gray-400 text-black text-center"
+                  placeholder="0"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs font-bold text-gray-500 uppercase">
+                  Min
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={minutesInput}
+                  onChange={(e) => setMinutesInput(e.target.value)}
+                  className="w-full p-2 rounded border border-gray-400 text-black text-center"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowTimeModal(false)}
@@ -399,7 +459,7 @@ export default function TasksPage() {
               </button>
               <button
                 onClick={handleConfirmTime}
-                className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
+                className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white font-bold"
               >
                 Valider
               </button>
@@ -622,7 +682,7 @@ export default function TasksPage() {
                       )}
                       {task.timeSpent != null && (
                         <p className="text-sm text-black italic mt-1">
-                          ⏱ Temps passé : {task.timeSpent} min
+                          ⏱ Temps passé : {formatTimeSpent(task.timeSpent)}
                         </p>
                       )}
                     </div>
@@ -680,7 +740,7 @@ export default function TasksPage() {
                     )}
                     {task.timeSpent != null && (
                       <p className="text-sm text-gray-400 italic mt-1">
-                        ⏱ Temps passé : {task.timeSpent} min
+                        ⏱ Temps passé : {formatTimeSpent(task.timeSpent)}
                       </p>
                     )}
                   </div>
