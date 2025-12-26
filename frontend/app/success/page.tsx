@@ -1,9 +1,10 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useEffect, useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { Trophy, Star, Shield, Sword, Crown, Lock } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 type Difficulty = "ALL" | "EASY" | "MEDIUM" | "HARD" | "EPIC";
 
@@ -15,36 +16,39 @@ interface Task {
 
 export default function SuccessPage() {
   const { data: session } = useSession();
-
-  const [level, setLevel] = useState(1);
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTab, setSelectedTab] = useState<Difficulty>("ALL");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!session || !session.user) return;
+  const { data: user } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+        {
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+        }
+      );
+      if (!res.ok) throw new Error("Erreur user");
+      return res.json();
+    },
+    enabled: !!session?.accessToken,
+  });
 
-      try {
-        const resUser = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-          { headers: { Authorization: `Bearer ${session.accessToken}` } }
-        );
-        const dataUser = await resUser.json();
-        setLevel(dataUser.level);
+  const { data: tasks = [] } = useQuery<Task[]>({
+    queryKey: ["tasks"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks`,
+        {
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+        }
+      );
+      if (!res.ok) throw new Error("Erreur tasks");
+      return res.json();
+    },
+    enabled: !!session?.accessToken,
+  });
 
-        const resTasks = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks`,
-          { headers: { Authorization: `Bearer ${session.accessToken}` } }
-        );
-        const dataTasks = await resTasks.json();
-        setTasks(dataTasks);
-      } catch (error) {
-        console.error("Erreur chargement", error);
-      }
-    };
-
-    fetchData();
-  }, [session]);
+  const level = user?.level || 1;
 
   const stats = useMemo(() => {
     const completed = tasks.filter((t) => t.completed);

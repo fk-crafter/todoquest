@@ -3,45 +3,39 @@
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, LogOut } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAudio } from "@/context/AudioContext";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ProgressPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const { setMusicSource, isPlaying, toggleMusic } = useAudio();
-  const [userStats, setUserStats] = useState({ xp: 0, level: 1 });
 
   useEffect(() => {
     setMusicSource("/tasks.wav");
-
     if (!isPlaying) {
       toggleMusic();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (!session?.user?.id || !session?.accessToken) return;
+  const { data: user } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+        {
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+        }
+      );
+      if (!res.ok) throw new Error("Erreur stats");
+      return res.json();
+    },
+    enabled: !!session?.accessToken,
+  });
 
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-          {
-            headers: { Authorization: `Bearer ${session.accessToken}` },
-          }
-        );
-
-        const data = await res.json();
-        setUserStats({ xp: data.xp, level: data.level });
-      } catch (err) {
-        console.error("Erreur récupération stats:", err);
-      }
-    };
-
-    fetchStats();
-  }, [session]);
+  const xp = user?.xp || 0;
+  const level = user?.level || 1;
 
   if (!session) {
     return (
@@ -70,8 +64,8 @@ export default function ProgressPage() {
       </h1>
       <p className="text-xl ">Votre progression</p>
       <p className="text-lg">
-        XP: <span className="font-bold">{userStats.xp}</span> | Niveau:{" "}
-        <span className="font-bold">{userStats.level}</span>
+        XP: <span className="font-bold">{xp}</span> | Niveau:{" "}
+        <span className="font-bold">{level}</span>
       </p>
 
       <button

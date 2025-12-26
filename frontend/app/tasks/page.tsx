@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Check, Plus, Trash, Pencil, X, Trophy } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import Sidebar from "@/components/Sidebar";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD" | "EPIC";
 
@@ -45,12 +46,12 @@ const ACHIEVEMENTS_THRESHOLDS = [
 export default function TasksPage() {
   const { data: session } = useSession();
   const router = useRouter();
+
+  const queryClient = useQueryClient();
+
   const [achievementMessage, setAchievementMessage] = useState<{
     label: string;
   } | null>(null);
-
-  const [tasks, setTasks] = useState<Task[]>([]);
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>("EASY");
@@ -62,9 +63,6 @@ export default function TasksPage() {
   const [editDifficulty, setEditDifficulty] = useState<Difficulty>("EASY");
 
   const [loading, setLoading] = useState(false);
-  const [xp, setXp] = useState(0);
-  const [level, setLevel] = useState(1);
-  const [isNewUser, setIsNewUser] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
   const [levelUpMessage, setLevelUpMessage] = useState("");
@@ -72,12 +70,46 @@ export default function TasksPage() {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [timeInput, setTimeInput] = useState("");
 
+  const { setMusicSource } = useAudio();
+
+  const { data: tasks = [] } = useQuery<Task[]>({
+    queryKey: ["tasks"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks`,
+        {
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+        }
+      );
+      if (!res.ok) throw new Error("Erreur tasks");
+      return res.json();
+    },
+    enabled: !!session?.accessToken,
+  });
+
+  const { data: user } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+        {
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+        }
+      );
+      if (!res.ok) throw new Error("Erreur user");
+      return res.json();
+    },
+    enabled: !!session?.accessToken,
+  });
+
+  const xp = user?.xp || 0;
+  const level = user?.level || 1;
+  const isNewUser = user?.level === 1 && user?.xp === 0;
+
   const completedTasks = tasks.filter((task) => task.completed);
   const incompleteTasks = tasks.filter((task) => !task.completed);
   const xpToNextLevel = level * 25;
   const xpProgressPercent = Math.min((xp / xpToNextLevel) * 100, 100);
-
-  const { setMusicSource } = useAudio();
 
   const tutorialMessages = [
     "Ô vaillant héros, sois le bienvenu dans TodoQuest !",
@@ -111,54 +143,6 @@ export default function TasksPage() {
     }
   }, [isNewUser, session]);
 
-  const fetchTasks = useCallback(async () => {
-    if (!session?.accessToken) return;
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks`,
-        {
-          headers: { Authorization: `Bearer ${session?.accessToken}` },
-        }
-      );
-      const data = await res.json();
-      setTasks(data);
-    } catch (error) {
-      console.error("Error fetching tasks", error);
-    }
-  }, [session]);
-
-  const fetchUserData = useCallback(async () => {
-    if (!session?.accessToken) return;
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-        {
-          headers: { Authorization: `Bearer ${session?.accessToken}` },
-        }
-      );
-
-      if (!res.ok) throw new Error("Failed to fetch user data");
-      const data = await res.json();
-
-      setXp(data.xp);
-      setLevel(data.level);
-
-      if (data.level === 1 && data.xp === 0) {
-        setIsNewUser(true);
-      }
-    } catch (error) {
-      console.error("Error fetching user data", error);
-    }
-  }, [session]);
-
-  useEffect(() => {
-    if (session?.accessToken) {
-      fetchTasks();
-      fetchUserData();
-    }
-  }, [session, fetchTasks, fetchUserData]);
-
-  // --- CRÉATION DE TÂCHE ---
   const addTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     playSound();
@@ -182,7 +166,9 @@ export default function TasksPage() {
       setTitle("");
       setDescription("");
       setDifficulty("EASY");
-      fetchTasks();
+
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     } catch (error) {
       console.error("Error adding task", error);
     } finally {
@@ -224,7 +210,7 @@ export default function TasksPage() {
 
       setShowEditModal(false);
       setEditingTask(null);
-      fetchTasks();
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     } catch (error) {
       console.error("Error updating task", error);
     }
@@ -240,8 +226,8 @@ export default function TasksPage() {
           headers: { Authorization: `Bearer ${session?.accessToken}` },
         }
       );
-      fetchTasks();
-      fetchUserData();
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     } catch (error) {
       console.error("Error deleting task", error);
     }
@@ -306,24 +292,21 @@ export default function TasksPage() {
 
       if (!res.ok) throw new Error("Failed to complete task");
       const data = await res.json();
-      const newLevel = data.userStats.level;
-      const newXP = data.userStats.xp;
 
       checkAchievements(taskDifficulty);
 
-      if (newLevel > level) {
+      if (data.userStats.level > level) {
         playLevelUpSound();
         setLevelUpMessage(
-          `🎉 Félicitations ! Vous avez atteint le niveau ${newLevel} !`
+          `🎉 Félicitations ! Vous avez atteint le niveau ${data.userStats.level} !`
         );
         setTimeout(() => setLevelUpMessage(""), 5000);
       } else {
         playSound();
       }
 
-      setXp(newXP);
-      setLevel(newLevel);
-      fetchTasks();
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     } catch (error) {
       console.error("Error completing task", error);
     }

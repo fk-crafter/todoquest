@@ -1,16 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Sidebar from "@/components/Sidebar";
-import { Shield, Sword, Scroll, Zap, Trophy, Star } from "lucide-react";
+import { Shield, Sword, Scroll, Trophy } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
-  const [xp, setXp] = useState(0);
-  const [level, setLevel] = useState(1);
-  const [tasksCreated, setTasksCreated] = useState(0);
-  const [tasksCompleted, setTasksCompleted] = useState(0);
+
+  const fetchProfile = async () => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+      {
+        headers: { Authorization: `Bearer ${session?.accessToken}` },
+      }
+    );
+    if (!res.ok) throw new Error("Erreur chargement profil");
+    return res.json();
+  };
+
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["profile"],
+    queryFn: fetchProfile,
+    enabled: !!session?.accessToken,
+  });
+
+  const level = user?.level || 1;
+  const xp = user?.xp || 0;
+  const tasksCreated = user?.stats?.totalTasks || 0;
+  const tasksCompleted = user?.stats?.completedTasks || 0;
 
   const xpToNextLevel = level * 25;
   const xpProgressPercent = Math.min((xp / xpToNextLevel) * 100, 100);
@@ -22,41 +40,13 @@ export default function ProfilePage() {
     ? `https://api.dicebear.com/9.x/pixel-art/svg?seed=${session.user.name}`
     : "";
 
-  const getHeroTitle = (level: number) => {
-    if (level < 5) return "Novice du To-Do";
-    if (level < 10) return "Aventurier Organisé";
-    if (level < 20) return "Maître des Quêtes";
-    if (level < 40) return "Héros de la Productivité";
+  const getHeroTitle = (lvl: number) => {
+    if (lvl < 5) return "Novice du To-Do";
+    if (lvl < 10) return "Aventurier Organisé";
+    if (lvl < 20) return "Maître des Quêtes";
+    if (lvl < 40) return "Héros de la Productivité";
     return "Légende Vivante";
   };
-
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      if (!session || !session.user) return;
-
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-          {
-            headers: { Authorization: `Bearer ${session.accessToken}` },
-          }
-        );
-
-        if (!res.ok) throw new Error("Failed to fetch profile data");
-
-        const data = await res.json();
-
-        setXp(data.xp);
-        setLevel(data.level);
-        setTasksCreated(data.stats.totalTasks);
-        setTasksCompleted(data.stats.completedTasks);
-      } catch (error) {
-        console.error("Erreur lors du chargement des données du héros", error);
-      }
-    };
-
-    fetchProfileData();
-  }, [session]);
 
   if (!session) {
     return (
@@ -64,6 +54,14 @@ export default function ProfilePage() {
         <h1 className="text-2xl font-bold">
           Portail fermé (Connexion requise)
         </h1>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">
+        <p>Invocation du profil...</p>
       </div>
     );
   }

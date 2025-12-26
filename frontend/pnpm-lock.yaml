@@ -11,6 +11,9 @@ importers:
       '@next-auth/prisma-adapter':
         specifier: ^1.0.7
         version: 1.0.7(@prisma/client@6.5.0(typescript@5.8.2))(next-auth@4.24.11(next@16.0.10(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0))
+      '@tanstack/react-query':
+        specifier: ^5.90.12
+        version: 5.90.12(react@19.0.0)
       google-fonts:
         specifier: ^1.0.0
         version: 1.0.0
@@ -456,6 +459,14 @@ packages:
 
   '@tailwindcss/postcss@4.0.14':
     resolution: {integrity: sha512-+uIR6KtKhla1XeIanF27KtrfYy+PX+R679v5LxbkmEZlhQe3g8rk+wKj7Xgt++rWGRuFLGMXY80Ek8JNn+kN/g==}
+
+  '@tanstack/query-core@5.90.12':
+    resolution: {integrity: sha512-T1/8t5DhV/SisWjDnaiU2drl6ySvsHj1bHBCWNXd+/T+Hh1cf6JodyEYMd5sgwm+b/mETT4EV3H+zCVczCU5hg==}
+
+  '@tanstack/react-query@5.90.12':
+    resolution: {integrity: sha512-graRZspg7EoEaw0a8faiUASCyJrqjKPdqJ9EwuDRUF9mEYJ1YPczI9H+/agJ0mOJkPCJDk0lsz5QTrLZ/jQ2rg==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@tybys/wasm-util@0.9.0':
     resolution: {integrity: sha512-6+7nlbMVX/PVDCwaIQ8nTOPveOcFLSt8GcXdx8hD0bt39uWxYT88uXzqTd4fTvqta7oeUJqudepapKNt2DYJFw==}
@@ -2108,6 +2119,13 @@ snapshots:
       lightningcss: 1.29.2
       postcss: 8.5.3
       tailwindcss: 4.0.14
+
+  '@tanstack/query-core@5.90.12': {}
+
+  '@tanstack/react-query@5.90.12(react@19.0.0)':
+    dependencies:
+      '@tanstack/query-core': 5.90.12
+      react: 19.0.0
 
   '@tybys/wasm-util@0.9.0':
     dependencies:
