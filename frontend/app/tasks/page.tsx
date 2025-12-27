@@ -7,6 +7,17 @@ import { Check, Plus, Trash, Pencil, X, Trophy } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import Sidebar from "@/components/Sidebar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const taskSchema = z.object({
+  title: z.string().min(1, "Le titre est requis").max(50, "Titre trop long"),
+  description: z.string().optional(),
+  difficulty: z.enum(["EASY", "MEDIUM", "HARD", "EPIC"]),
+});
+
+type TaskFormData = z.infer<typeof taskSchema>;
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD" | "EPIC";
 
@@ -52,9 +63,23 @@ export default function TasksPage() {
   const [achievementMessage, setAchievementMessage] = useState<{
     label: string;
   } | null>(null);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [difficulty, setDifficulty] = useState<Difficulty>("EASY");
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<TaskFormData>({
+    resolver: zodResolver(taskSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      difficulty: "EASY",
+    },
+  });
+
+  const currentDifficulty = watch("difficulty");
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -146,10 +171,8 @@ export default function TasksPage() {
     }
   }, [isNewUser, session]);
 
-  const addTask = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const addTask = async (data: TaskFormData) => {
     playSound();
-    setLoading(true);
 
     try {
       const res = await fetch(
@@ -160,22 +183,18 @@ export default function TasksPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${session?.accessToken}`,
           },
-          body: JSON.stringify({ title, description, difficulty }),
+          body: JSON.stringify(data),
         }
       );
 
       if (!res.ok) throw new Error("Failed to add task");
 
-      setTitle("");
-      setDescription("");
-      setDifficulty("EASY");
+      reset();
 
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     } catch (error) {
       console.error("Error adding task", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -597,23 +616,29 @@ export default function TasksPage() {
             </div>
 
             <form
-              onSubmit={addTask}
+              onSubmit={handleSubmit(addTask)}
               className="flex flex-col gap-3 md:gap-4 w-full bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700"
             >
-              <input
-                type="text"
-                placeholder="Titre de la tâche"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="p-2 rounded bg-gray-700 text-white w-full border border-gray-600"
-                required
-              />
+              <div>
+                <input
+                  type="text"
+                  placeholder="Titre de la tâche"
+                  {...register("title")}
+                  className="p-2 rounded bg-gray-700 text-white w-full border border-gray-600"
+                />
+                {errors.title && (
+                  <span className="text-red-400 text-xs">
+                    {errors.title.message}
+                  </span>
+                )}
+              </div>
+
               <textarea
                 placeholder="Description (optionnel)"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                {...register("description")}
                 className="p-2 resize-none rounded bg-gray-700 text-white w-full border border-gray-600 h-20 md:h-auto"
               />
+
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-semibold text-gray-300">
                   Difficulté & Récompense :
@@ -624,9 +649,9 @@ export default function TasksPage() {
                       <button
                         key={d}
                         type="button"
-                        onClick={() => setDifficulty(d)}
+                        onClick={() => setValue("difficulty", d)}
                         className={`py-3 md:py-2 px-1 rounded text-xs md:text-sm font-bold border transition-all md:flex-1 ${
-                          difficulty === d
+                          currentDifficulty === d
                             ? d === "EASY"
                               ? "bg-green-600 border-green-400 text-white"
                               : d === "MEDIUM"
@@ -649,12 +674,14 @@ export default function TasksPage() {
                   )}
                 </div>
               </div>
+
               <button
                 type="submit"
-                disabled={loading}
-                className="p-3 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold w-full flex items-center justify-center gap-2 cursor-pointer transition-colors mt-2 text-sm md:text-base"
+                disabled={isSubmitting}
+                className="p-3 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold w-full flex items-center justify-center gap-2 cursor-pointer transition-colors mt-2 text-sm md:text-base disabled:opacity-50"
               >
-                {loading ? "Ajout..." : "Ajouter la tâche"} <Plus size={18} />
+                {isSubmitting ? "Ajout..." : "Ajouter la tâche"}{" "}
+                <Plus size={18} />
               </button>
             </form>
 

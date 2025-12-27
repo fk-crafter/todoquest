@@ -2,39 +2,50 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const registerSchema = z.object({
+  name: z.string().min(2, "Le pseudo doit faire au moins 2 caractères"),
+  email: z.string().email("Format d'email invalide"),
+  password: z
+    .string()
+    .min(6, "Le mot de passe doit faire au moins 6 caractères"),
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const onSubmit = async (data: RegisterFormData) => {
     setError("");
-    setLoading(true);
 
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-      if (!backendUrl) {
-        throw new Error("Backend URL is not defined");
-      }
+      if (!backendUrl) throw new Error("Backend URL is not defined");
 
       const res = await fetch(`${backendUrl}/api/auth/register`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
 
-      const data = await res.json();
+      const resData = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Registration failed");
+        throw new Error(resData.message || "Registration failed");
       }
 
       setShowSuccessModal(true);
@@ -47,8 +58,6 @@ export default function RegisterPage() {
       } else {
         setError("Une erreur inconnue est survenue");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -61,43 +70,57 @@ export default function RegisterPage() {
     <div className="flex flex-col items-center justify-center min-h-screen relative">
       <h1 className="text-3xl font-bold mb-6">Créer un compte</h1>
 
-      {error && <p className="text-red-400">{error}</p>}
+      {error && <p className="text-red-400 mb-4 font-bold">{error}</p>}
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-4 bg-gray-800 p-6 rounded-lg shadow-lg w-80"
       >
-        <input
-          type="text"
-          placeholder="Pseudo"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="p-2 rounded bg-gray-700 text-white w-full"
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="p-2 rounded bg-gray-700 text-white w-full"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="p-2 rounded bg-gray-700 text-white w-full"
-          required
-        />
+        <div className="flex flex-col gap-1">
+          <input
+            type="text"
+            placeholder="Pseudo"
+            {...register("name")}
+            className="p-2 rounded bg-gray-700 text-white w-full"
+          />
+          {errors.name && (
+            <span className="text-red-400 text-xs">{errors.name.message}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <input
+            type="email"
+            placeholder="Email"
+            {...register("email")}
+            className="p-2 rounded bg-gray-700 text-white w-full"
+          />
+          {errors.email && (
+            <span className="text-red-400 text-xs">{errors.email.message}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <input
+            type="password"
+            placeholder="Mot de passe"
+            {...register("password")}
+            className="p-2 rounded bg-gray-700 text-white w-full"
+          />
+          {errors.password && (
+            <span className="text-red-400 text-xs">
+              {errors.password.message}
+            </span>
+          )}
+        </div>
+
         <button
           onClick={playSound}
           type="submit"
-          disabled={loading}
-          className="p-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold w-full"
+          disabled={isSubmitting}
+          className="p-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold w-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Inscription en cours..." : "Inscription"}
+          {isSubmitting ? "Inscription..." : "Inscription"}
         </button>
       </form>
 
