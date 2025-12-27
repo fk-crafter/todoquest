@@ -10,6 +10,23 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Le titre est requis").max(50, "Titre trop long"),
@@ -53,6 +70,86 @@ const ACHIEVEMENTS_THRESHOLDS = [
   { id: "epic_1", count: 1, type: "EPIC", label: "🐉 Tueur de Dragons" },
   { id: "epic_2", count: 5, type: "EPIC", label: "🌌 Roi de la Productivité" },
 ];
+
+interface SortableTaskProps {
+  task: Task;
+  getDifficultyBadge: (diff: Difficulty) => React.ReactNode;
+  formatTimeSpent: (min: number) => string;
+  onEdit: (task: Task) => void;
+  onCheck: (id: string) => void;
+  onDelete: (id: string) => void;
+}
+
+function SortableTaskItem({
+  task,
+  getDifficultyBadge,
+  formatTimeSpent,
+  onEdit,
+  onCheck,
+  onDelete,
+}: SortableTaskProps) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-800 p-4 rounded-lg mt-2 border-l-4 border-l-blue-500 gap-3 sm:gap-0 group touch-none cursor-grab active:cursor-grabbing"
+    >
+      <div className="flex-1">
+        <div className="flex flex-wrap items-center gap-2 mb-1">
+          <h2 className="font-bold text-white text-lg break-words">
+            {task.title}
+          </h2>
+          {getDifficultyBadge(task.difficulty)}
+        </div>
+        {task.description && (
+          <p className="text-sm text-gray-300 break-words">
+            {task.description}
+          </p>
+        )}
+        {task.timeSpent != null && (
+          <p className="text-sm text-black italic mt-1">
+            ⏱ Temps passé : {formatTimeSpent(task.timeSpent)}
+          </p>
+        )}
+      </div>
+      <div className="flex gap-2 self-end sm:self-center">
+        {/* On empêche le drag quand on clique sur les boutons avec onPointerDown={(e) => e.stopPropagation()} */}
+        <button
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => onEdit(task)}
+          className="p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg cursor-pointer transition-colors"
+        >
+          <Pencil size={20} />
+        </button>
+
+        <button
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => onCheck(task.id)}
+          className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg cursor-pointer transition-colors"
+        >
+          <Check size={20} />
+        </button>
+        <button
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => onDelete(task.id)}
+          className="p-2 bg-red-600 hover:bg-red-500 text-white rounded-lg cursor-pointer transition-colors"
+        >
+          <Trash size={20} />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function TasksPage() {
   const { data: session } = useSession();
@@ -99,6 +196,26 @@ export default function TasksPage() {
   const [minutesInput, setMinutesInput] = useState("");
 
   const { setMusicSource } = useAudio();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }), // Distance de 8px pour éviter le drag accidentel au clic
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      queryClient.setQueryData(["tasks"], (oldTasks: Task[] | undefined) => {
+        if (!oldTasks) return [];
+
+        const oldIndex = oldTasks.findIndex((t) => t.id === active.id);
+        const newIndex = oldTasks.findIndex((t) => t.id === over?.id);
+
+        return arrayMove(oldTasks, oldIndex, newIndex);
+      });
+    }
+  };
 
   const { data: tasks = [] } = useQuery<Task[]>({
     queryKey: ["tasks"],
@@ -687,56 +804,34 @@ export default function TasksPage() {
 
             <div className="mt-6">
               <h2 className="text-xl font-semibold mb-2">À faire</h2>
+
               {incompleteTasks.length === 0 ? (
                 <p className="text-gray-400">Aucune tâche en cours.</p>
               ) : (
-                incompleteTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-800 p-4 rounded-lg mt-2 border-l-4 border-l-blue-500 gap-3 sm:gap-0 group"
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={incompleteTasks}
+                    strategy={verticalListSortingStrategy}
                   >
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h2 className="font-bold text-white text-lg break-words">
-                          {task.title}
-                        </h2>
-                        {getDifficultyBadge(task.difficulty)}
-                      </div>
-                      {task.description && (
-                        <p className="text-sm text-gray-300 break-words">
-                          {task.description}
-                        </p>
-                      )}
-                      {task.timeSpent != null && (
-                        <p className="text-sm text-black italic mt-1">
-                          ⏱ Temps passé : {formatTimeSpent(task.timeSpent)}
-                        </p>
-                      )}
+                    <div className="flex flex-col gap-2">
+                      {incompleteTasks.map((task) => (
+                        <SortableTaskItem
+                          key={task.id}
+                          task={task}
+                          getDifficultyBadge={getDifficultyBadge}
+                          formatTimeSpent={formatTimeSpent}
+                          onEdit={openEditModal}
+                          onCheck={handleOpenTimeModal}
+                          onDelete={deleteTask}
+                        />
+                      ))}
                     </div>
-                    <div className="flex gap-2 self-end sm:self-center">
-                      <button
-                        onClick={() => openEditModal(task)}
-                        className="p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg cursor-pointer transition-colors"
-                        title="Modifier la tâche"
-                      >
-                        <Pencil size={20} />
-                      </button>
-
-                      <button
-                        onClick={() => handleOpenTimeModal(task.id)}
-                        className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg cursor-pointer transition-colors"
-                      >
-                        <Check size={20} />
-                      </button>
-                      <button
-                        onClick={() => deleteTask(task.id)}
-                        className="p-2 bg-red-600 hover:bg-red-500 text-white rounded-lg cursor-pointer transition-colors"
-                      >
-                        <Trash size={20} />
-                      </button>
-                    </div>
-                  </div>
-                ))
+                  </SortableContext>
+                </DndContext>
               )}
             </div>
           </div>
