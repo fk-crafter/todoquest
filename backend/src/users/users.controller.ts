@@ -1,8 +1,7 @@
-import { Controller, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Patch, Body } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-// Interface pour TypeScript
 interface RequestWithUser {
   user: {
     id: string;
@@ -18,5 +17,11 @@ export class UsersController {
   @Get('me')
   getProfile(@Req() req: RequestWithUser) {
     return this.usersService.getProfile(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('me')
+  updateProfile(@Req() req: RequestWithUser, @Body() body: { name: string }) {
+    return this.usersService.updateUser(req.user.id, body);
   }
 }

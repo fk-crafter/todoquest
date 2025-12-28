@@ -6,7 +6,6 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async getProfile(userId: string) {
-    // 1. Récupérer les infos de l'utilisateur
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -22,34 +21,36 @@ export class UsersService {
 
     if (!user) throw new NotFoundException('Utilisateur introuvable');
 
-    // 2. Lancer les calculs de stats en parallèle (plus rapide)
-    // On utilise Promise.all pour ne pas attendre que le premier finisse avant de lancer le second
     const [totalTasks, completedTasks, timeAggregation] = await Promise.all([
-      // Compte total
       this.prisma.task.count({ where: { userId } }),
 
-      // Compte des terminées
       this.prisma.task.count({ where: { userId, completed: true } }),
 
-      // Somme du temps passé (seulement sur les tâches terminées)
       this.prisma.task.aggregate({
         where: { userId, completed: true },
         _sum: {
-          timeSpent: true, // On veut la somme de cette colonne
+          timeSpent: true,
         },
       }),
     ]);
 
-    // 3. Retourner le résultat fusionné
     return {
       ...user,
       stats: {
         totalTasks,
         completedTasks,
         pendingTasks: totalTasks - completedTasks,
-        // Si c'est null (aucune tâche), on renvoie 0
         totalMinutesSpent: timeAggregation._sum.timeSpent || 0,
       },
     };
+  }
+
+  async updateUser(userId: string, data: { name?: string }) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: data.name,
+      },
+    });
   }
 }

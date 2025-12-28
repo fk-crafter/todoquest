@@ -1,12 +1,17 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Sidebar from "@/components/Sidebar";
-import { Shield, Sword, Scroll, Trophy } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Shield, Sword, Scroll, Trophy, Pencil, Check, X } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const fetchProfile = async () => {
     const res = await fetch(
@@ -25,6 +30,41 @@ export default function ProfilePage() {
     enabled: !!session?.accessToken,
   });
 
+  useEffect(() => {
+    if (user?.name) {
+      setNewName(user.name);
+    }
+  }, [user]);
+
+  const updateUsername = async () => {
+    if (!newName.trim() || !session?.accessToken) return;
+    setIsSaving(true);
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+          body: JSON.stringify({ name: newName }),
+        }
+      );
+
+      if (!res.ok) throw new Error("Erreur mise à jour");
+
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Impossible de modifier le pseudo", error);
+      alert("Erreur lors de la modification du pseudo");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const level = user?.level || 1;
   const xp = user?.xp || 0;
   const tasksCreated = user?.stats?.totalTasks || 0;
@@ -36,8 +76,10 @@ export default function ProfilePage() {
   const successRate =
     tasksCreated > 0 ? Math.round((tasksCompleted / tasksCreated) * 100) : 0;
 
-  const avatarUrl = session?.user?.name
-    ? `https://api.dicebear.com/9.x/pixel-art/svg?seed=${session.user.name}`
+  const currentName = user?.name || session?.user?.name || "Héros";
+
+  const avatarUrl = currentName
+    ? `https://api.dicebear.com/9.x/pixel-art/svg?seed=${currentName}`
     : "";
 
   const getHeroTitle = (lvl: number) => {
@@ -88,10 +130,49 @@ export default function ProfilePage() {
                 />
               </div>
 
-              <div className="text-center">
-                <h2 className="text-xl font-bold text-white">
-                  {session.user.name}
-                </h2>
+              <div className="text-center w-full flex flex-col items-center">
+                {isEditing ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      type="text"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      className="bg-gray-700 text-white px-2 py-1 rounded border border-gray-500 focus:border-yellow-400 outline-none w-32 text-center"
+                      autoFocus
+                    />
+                    <button
+                      onClick={updateUsername}
+                      disabled={isSaving}
+                      className="p-1 bg-green-600 hover:bg-green-500 rounded text-white transition disabled:opacity-50"
+                    >
+                      <Check size={16} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsEditing(false);
+                        setNewName(currentName);
+                      }}
+                      disabled={isSaving}
+                      className="p-1 bg-red-600 hover:bg-red-500 rounded text-white transition disabled:opacity-50"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 group relative">
+                    <h2 className="text-xl font-bold text-white break-all">
+                      {currentName}
+                    </h2>
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="text-gray-400 hover:text-yellow-400 transition-colors opacity-0 group-hover:opacity-100 md:opacity-100"
+                      title="Modifier le pseudo"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                  </div>
+                )}
+
                 <span className="text-xs bg-blue-900 text-blue-300 px-3 py-1 rounded-full border border-blue-500 mt-2 inline-block">
                   {getHeroTitle(level)}
                 </span>
