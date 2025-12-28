@@ -223,7 +223,10 @@ export default function TasksPage() {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks`,
         {
-          headers: { Authorization: `Bearer ${session?.accessToken}` },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
         }
       );
       if (!res.ok) throw new Error("Erreur tasks");

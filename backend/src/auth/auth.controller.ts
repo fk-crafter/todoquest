@@ -17,4 +17,9 @@ export class AuthController {
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
+
+  @Post('social')
+  async socialLogin(@Body() body: { email: string; name: string }) {
+    return this.authService.loginSocial(body);
+  }
 }

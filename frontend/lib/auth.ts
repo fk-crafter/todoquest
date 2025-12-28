@@ -3,6 +3,7 @@ import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
+import jwt from "jsonwebtoken";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -25,12 +26,9 @@ export const authOptions: AuthOptions = {
 
         try {
           const backendUrl = process.env.BACKEND_URL || "http://localhost:5001";
-
           const res = await fetch(`${backendUrl}/api/auth/login`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email: credentials.email,
               password: credentials.password,
@@ -38,10 +36,7 @@ export const authOptions: AuthOptions = {
           });
 
           const data = await res.json();
-
-          if (!res.ok) {
-            throw new Error(data.message || "Login failed");
-          }
+          if (!res.ok) throw new Error(data.message || "Login failed");
 
           if (data && data.access_token) {
             return {
@@ -53,7 +48,6 @@ export const authOptions: AuthOptions = {
               accessToken: data.access_token,
             };
           }
-
           return null;
         } catch (error) {
           console.error("Login error:", error);
@@ -66,24 +60,47 @@ export const authOptions: AuthOptions = {
     signIn: "/auth",
   },
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user?: User }) {
-      if (user) {
-        token.id = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.xp = user.xp;
-        token.level = user.level;
-        token.accessToken = user.accessToken;
+    async jwt({ token, user, account }) {
+      if (account && user) {
+        if (user.accessToken) {
+          token.accessToken = user.accessToken;
+          token.id = user.id;
+        } else {
+          try {
+            const backendUrl =
+              process.env.BACKEND_URL || "http://localhost:5001";
+
+            const res = await fetch(`${backendUrl}/api/auth/social`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: user.email,
+                name: user.name || "Aventurier",
+              }),
+            });
+
+            const data = await res.json();
+
+            if (data && data.access_token) {
+              token.accessToken = data.access_token;
+              token.id = data.user.id;
+              token.xp = data.user.xp;
+              token.level = data.user.level;
+            }
+          } catch (error) {
+            console.error("Erreur sync backend:", error);
+          }
+        }
       }
       return token;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.xp = token.xp;
-        session.user.level = token.level;
+        session.user.id = token.id as string;
+        session.user.xp = token.xp as number;
+        session.user.level = token.level as number;
       }
-      session.accessToken = token.accessToken;
+      session.accessToken = token.accessToken as string;
       return session;
     },
   },

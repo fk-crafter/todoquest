@@ -74,4 +74,24 @@ export class AuthService {
       },
     };
   }
+
+  async loginSocial(dto: { email: string; name: string }) {
+    let user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          name: dto.name,
+          password: '',
+          xp: 0,
+          level: 1,
+        },
+      });
+    }
+
+    return this.generateToken(user);
+  }
 }
