@@ -5,6 +5,7 @@ import SessionWrapper from "@/components/SessionWrapper";
 import { AudioProvider } from "@/context/AudioContext";
 import MusicToggleButton from "@/components/MusicToggleButton";
 import QueryProvider from "@/components/QueryProvider";
+import OnboardingGuard from "@/components/OnboardingGuard";
 
 const pressStart = Press_Start_2P({
   subsets: ["latin"],
@@ -34,7 +35,9 @@ export default function RootLayout({
         <AudioProvider>
           <MusicToggleButton />
           <SessionWrapper>
-            <QueryProvider>{children}</QueryProvider>
+            <QueryProvider>
+              <OnboardingGuard>{children}</OnboardingGuard>
+            </QueryProvider>
           </SessionWrapper>
         </AudioProvider>
       </body>

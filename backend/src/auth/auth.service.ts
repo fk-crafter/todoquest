@@ -35,6 +35,8 @@ export class AuthService {
         password: hashedPassword,
         xp: 0,
         level: 1,
+        gender: 'adventurer',
+        isOnboarded: false,
       },
     });
 
@@ -46,7 +48,7 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    if (!user) {
+    if (!user || !user.password) {
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
 
@@ -71,6 +73,8 @@ export class AuthService {
         xp: user.xp,
         level: user.level,
         role: user.role,
+        gender: user.gender,
+        isOnboarded: user.isOnboarded,
       },
     };
   }
@@ -85,9 +89,11 @@ export class AuthService {
         data: {
           email: dto.email,
           name: dto.name,
-          password: '',
+          password: null,
           xp: 0,
           level: 1,
+          gender: 'adventurer',
+          isOnboarded: false,
         },
       });
     }

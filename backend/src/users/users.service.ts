@@ -1,6 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+interface UpdateUserDto {
+  name?: string;
+  gender?: string;
+  isOnboarded?: boolean;
+}
+
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
@@ -16,6 +22,8 @@ export class UsersService {
         level: true,
         role: true,
         createdAt: true,
+        gender: true,
+        isOnboarded: true,
       },
     });
 
@@ -23,9 +31,7 @@ export class UsersService {
 
     const [totalTasks, completedTasks, timeAggregation] = await Promise.all([
       this.prisma.task.count({ where: { userId } }),
-
       this.prisma.task.count({ where: { userId, completed: true } }),
-
       this.prisma.task.aggregate({
         where: { userId, completed: true },
         _sum: {
@@ -45,11 +51,13 @@ export class UsersService {
     };
   }
 
-  async updateUser(userId: string, data: { name?: string }) {
+  async updateUser(userId: string, data: UpdateUserDto) {
     return this.prisma.user.update({
       where: { id: userId },
       data: {
         name: data.name,
+        gender: data.gender,
+        isOnboarded: data.isOnboarded,
       },
     });
   }

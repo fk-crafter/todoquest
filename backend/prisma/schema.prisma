@@ -10,15 +10,19 @@ datasource db {
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
-  password  String
-  name      String
-  role      String   @default("user")
+  password  String?  
+  name      String?
+  
+  gender      String?  @default("adventurer") 
+  isOnboarded Boolean  @default(false)
+
+  role      Role     @default(USER)
   xp        Int      @default(0)
   level     Int      @default(1)
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  
   tasks     Task[]
 }
 
@@ -47,4 +51,9 @@ enum Difficulty {
   MEDIUM
   HARD
   EPIC
+}
+
+enum Role {
+  USER
+  ADMIN
 }
