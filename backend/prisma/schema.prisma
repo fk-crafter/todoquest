@@ -12,6 +12,8 @@ model User {
   email     String   @unique
   password  String?  
   name      String?
+
+  image     String?
   
   gender      String?  @default("adventurer") 
   isOnboarded Boolean  @default(false)

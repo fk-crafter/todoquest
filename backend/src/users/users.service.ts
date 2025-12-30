@@ -5,6 +5,7 @@ interface UpdateUserDto {
   name?: string;
   gender?: string;
   isOnboarded?: boolean;
+  image?: string;
 }
 
 @Injectable()
@@ -24,6 +25,7 @@ export class UsersService {
         createdAt: true,
         gender: true,
         isOnboarded: true,
+        image: true,
       },
     });
 
@@ -58,6 +60,7 @@ export class UsersService {
         name: data.name,
         gender: data.gender,
         isOnboarded: data.isOnboarded,
+        image: data.image,
       },
     });
   }

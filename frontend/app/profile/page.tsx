@@ -54,7 +54,6 @@ export default function ProfilePage() {
       );
 
       if (!res.ok) throw new Error("Erreur mise à jour");
-
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
       setIsEditing(false);
     } catch (error) {
@@ -69,18 +68,11 @@ export default function ProfilePage() {
   const xp = user?.xp || 0;
   const tasksCreated = user?.stats?.totalTasks || 0;
   const tasksCompleted = user?.stats?.completedTasks || 0;
-
   const xpToNextLevel = level * 25;
   const xpProgressPercent = Math.min((xp / xpToNextLevel) * 100, 100);
-
   const successRate =
     tasksCreated > 0 ? Math.round((tasksCompleted / tasksCreated) * 100) : 0;
-
   const currentName = user?.name || session?.user?.name || "Héros";
-
-  const avatarUrl = currentName
-    ? `https://api.dicebear.com/9.x/pixel-art/svg?seed=${currentName}`
-    : "";
 
   const getHeroTitle = (lvl: number) => {
     if (lvl < 5) return "Novice du To-Do";
@@ -90,22 +82,21 @@ export default function ProfilePage() {
     return "Légende Vivante";
   };
 
+  let avatarFileName =
+    user?.avatar || user?.image || session?.user?.image || "char1.png";
+
+  avatarFileName = avatarFileName.replace("/avatars/", "").replace("/", "");
+
+  const avatarUrl = `/${avatarFileName}`;
+
   if (!session) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">
-        <h1 className="text-2xl font-bold">
-          Portail fermé (Connexion requise)
-        </h1>
-      </div>
+      <div className="text-white text-center mt-20">Connexion requise...</div>
     );
   }
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">
-        <p>Invocation du profil...</p>
-      </div>
-    );
+    return <div className="text-white text-center mt-20">Chargement...</div>;
   }
 
   return (
@@ -122,11 +113,15 @@ export default function ProfilePage() {
 
           <div className="flex flex-col md:flex-row gap-8 items-center md:items-start z-10 relative">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-32 h-32 md:w-40 md:h-40 bg-gray-700 rounded-full border-4 border-yellow-500 overflow-hidden shadow-[0_0_15px_rgba(234,179,8,0.5)]">
+              <div className="w-32 h-32 md:w-40 md:h-40 bg-gray-700 rounded-full border-4 border-yellow-500 overflow-hidden shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center relative">
                 <img
                   src={avatarUrl}
-                  alt="Avatar Héros"
+                  alt="Avatar"
                   className="w-full h-full object-cover"
+                  style={{ imageRendering: "pixelated" }}
+                  onError={(e) => {
+                    e.currentTarget.src = "/char1.png";
+                  }}
                 />
               </div>
 
@@ -143,7 +138,7 @@ export default function ProfilePage() {
                     <button
                       onClick={updateUsername}
                       disabled={isSaving}
-                      className="p-1 bg-green-600 hover:bg-green-500 rounded text-white transition disabled:opacity-50"
+                      className="p-1 bg-green-600 rounded text-white"
                     >
                       <Check size={16} />
                     </button>
@@ -152,8 +147,7 @@ export default function ProfilePage() {
                         setIsEditing(false);
                         setNewName(currentName);
                       }}
-                      disabled={isSaving}
-                      className="p-1 bg-red-600 hover:bg-red-500 rounded text-white transition disabled:opacity-50"
+                      className="p-1 bg-red-600 rounded text-white"
                     >
                       <X size={16} />
                     </button>
@@ -165,14 +159,12 @@ export default function ProfilePage() {
                     </h2>
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="text-gray-400 hover:text-yellow-400 transition-colors opacity-0 group-hover:opacity-100 md:opacity-100"
-                      title="Modifier le pseudo"
+                      className="text-gray-400 hover:text-yellow-400 opacity-0 group-hover:opacity-100 md:opacity-100"
                     >
                       <Pencil size={16} />
                     </button>
                   </div>
                 )}
-
                 <span className="text-xs bg-blue-900 text-blue-300 px-3 py-1 rounded-full border border-blue-500 mt-2 inline-block">
                   {getHeroTitle(level)}
                 </span>
@@ -204,24 +196,22 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-gray-400 uppercase">
-                      Quêtes Créées
+                      Quêtes
                     </p>
                     <p className="font-bold text-lg">{tasksCreated}</p>
                   </div>
                 </div>
-
                 <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
                   <div className="p-2 bg-gray-800 rounded text-green-400">
                     <Sword size={20} />
                   </div>
                   <div>
                     <p className="text-[10px] text-gray-400 uppercase">
-                      Accomplies
+                      Finies
                     </p>
                     <p className="font-bold text-lg">{tasksCompleted}</p>
                   </div>
                 </div>
-
                 <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
                   <div className="p-2 bg-gray-800 rounded text-purple-400">
                     <Trophy size={20} />
@@ -233,7 +223,6 @@ export default function ProfilePage() {
                     <p className="font-bold text-lg">{successRate}%</p>
                   </div>
                 </div>
-
                 <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600 opacity-70">
                   <div className="p-2 bg-gray-800 rounded text-red-400">
                     <Shield size={20} />
@@ -245,12 +234,6 @@ export default function ProfilePage() {
                     <p className="font-bold text-sm text-gray-300">???</p>
                   </div>
                 </div>
-              </div>
-
-              <div className="text-center mt-4">
-                <p className="text-xs text-gray-500 italic">
-                  &quot;L&apos;aventure ne fait que commencer...&quot;
-                </p>
               </div>
             </div>
           </div>

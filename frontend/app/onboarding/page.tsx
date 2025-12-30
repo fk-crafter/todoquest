@@ -40,7 +40,7 @@ export default function OnboardingPage() {
           body: JSON.stringify({
             name: pseudo,
             gender: selectedGender,
-            avatar: selectedAvatar,
+            image: selectedAvatar,
             isOnboarded: true,
           }),
         }
