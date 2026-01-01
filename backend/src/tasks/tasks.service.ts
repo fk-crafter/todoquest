@@ -87,6 +87,7 @@ export class TasksService {
         data: {
           xp: newXP,
           level: newLevel,
+          gold: { increment: 10 },
         },
       }),
     ]);
@@ -99,6 +100,7 @@ export class TasksService {
         xp: updatedUser.xp,
         xpToNextLevel: this.getXpCap(updatedUser.level),
         gainedXp: xpGained,
+        goldGained: 10,
         levelUp: newLevel > user.level,
       },
     };

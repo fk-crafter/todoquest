@@ -26,6 +26,8 @@ export class UsersService {
         gender: true,
         isOnboarded: true,
         image: true,
+        gold: true,
+        inventory: true,
       },
     });
 
@@ -61,6 +63,29 @@ export class UsersService {
         gender: data.gender,
         isOnboarded: data.isOnboarded,
         image: data.image,
+      },
+    });
+  }
+
+  async buyItem(userId: string, itemId: string, price: number) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) throw new NotFoundException('Utilisateur introuvable');
+
+    if (user.gold < price) {
+      throw new Error("Pas assez d'or !");
+    }
+    const inventory = user.inventory || [];
+
+    if (inventory.includes(itemId)) {
+      throw new Error('Tu possèdes déjà cet objet !');
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        gold: { decrement: price },
+        inventory: { push: itemId },
       },
     });
   }

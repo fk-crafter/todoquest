@@ -2,8 +2,8 @@
 
 import { useSession } from "next-auth/react";
 import Sidebar from "@/components/Sidebar";
-import { useQuery } from "@tanstack/react-query";
-import { ShoppingBag, Lock, Coins } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ShoppingBag, Lock, Coins, Check } from "lucide-react";
 
 const SHOP_ITEMS = [
   {
@@ -97,6 +97,7 @@ const CATEGORIES = {
 
 export default function ShopPage() {
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
 
   const fetchProfile = async () => {
     const res = await fetch(
@@ -116,9 +117,43 @@ export default function ShopPage() {
   });
 
   const gold = user?.gold || 0;
+  const userInventory: string[] = user?.inventory || [];
 
-  const handleBuy = (item: any) => {
-    alert(`Achat de ${item.name} pour ${item.price} Or (Bientôt disponible !)`);
+  const handleBuy = async (item: any) => {
+    if (!session?.accessToken) return;
+    if (gold < item.price) return;
+
+    const confirm = window.confirm(
+      `Acheter "${item.name}" pour ${item.price} Or ?`
+    );
+    if (!confirm) return;
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/buy`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+          body: JSON.stringify({
+            itemId: item.id,
+            price: item.price,
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Erreur lors de l'achat");
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      alert(`Félicitations ! Tu as obtenu : ${item.name}`);
+    } catch (error: any) {
+      alert(error.message);
+    }
   };
 
   return (
@@ -126,7 +161,7 @@ export default function ShopPage() {
       <Sidebar />
 
       <main className="flex-1 p-4 md:p-6 flex flex-col">
-        <div className="flex justify-between items-center mb-6 bg-gray-800 p-3 rounded-xl border-b-4 border-gray-600">
+        <div className="flex justify-between items-center mb-6 mt-12 bg-gray-800 p-3 rounded-xl border-b-4 border-gray-600">
           <div className="flex items-center gap-3">
             <ShoppingBag className="text-yellow-400" size={24} />
             <h1 className="text-xl md:text-2xl font-bold text-yellow-400">
@@ -157,42 +192,57 @@ export default function ShopPage() {
                   </h2>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    {items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="bg-gray-800 border-2 border-gray-600 rounded-lg p-3 flex flex-col items-center gap-2 hover:border-blue-500 hover:bg-gray-750 transition-all group relative"
-                      >
-                        <div className="w-12 h-12 bg-gray-700 rounded-md flex items-center justify-center text-2xl border border-gray-600 group-hover:scale-105 transition-transform">
-                          {item.image}
-                        </div>
+                    {items.map((item) => {
+                      const isOwned = userInventory.includes(item.id);
+                      const canBuy = gold >= item.price;
 
-                        <div className="text-center w-full">
-                          <h3 className="text-xs md:text-sm font-bold text-white truncate w-full">
-                            {item.name}
-                          </h3>
-                        </div>
-
-                        <button
-                          onClick={() => handleBuy(item)}
-                          disabled={gold < item.price}
-                          className={`w-full py-1.5 px-2 rounded text-xs font-bold border-b-2 active:border-b-0 active:translate-y-0.5 transition-all flex items-center justify-center gap-1 mt-auto ${
-                            gold >= item.price
-                              ? "bg-yellow-500 hover:bg-yellow-400 text-black border-yellow-700"
-                              : "bg-gray-600 text-gray-400 border-gray-700 cursor-not-allowed"
+                      return (
+                        <div
+                          key={item.id}
+                          className={`bg-gray-800 border-2 rounded-lg p-3 flex flex-col items-center gap-2 transition-all group relative ${
+                            isOwned
+                              ? "border-green-600/50"
+                              : "border-gray-600 hover:border-blue-500 hover:bg-gray-750"
                           }`}
                         >
-                          {gold >= item.price ? (
-                            <>
-                              {item.price} <Coins size={12} />
-                            </>
-                          ) : (
-                            <>
-                              <Lock size={12} /> {item.price}
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    ))}
+                          <div className="w-12 h-12 bg-gray-700 rounded-md flex items-center justify-center text-2xl border border-gray-600 group-hover:scale-105 transition-transform">
+                            {item.image}
+                          </div>
+
+                          <div className="text-center w-full">
+                            <h3 className="text-xs md:text-sm font-bold text-white truncate w-full">
+                              {item.name}
+                            </h3>
+                          </div>
+
+                          <button
+                            onClick={() => !isOwned && handleBuy(item)}
+                            disabled={isOwned || !canBuy}
+                            className={`w-full py-1.5 px-2 rounded text-xs font-bold border-b-2 active:border-b-0 active:translate-y-0.5 transition-all flex items-center justify-center gap-1 mt-auto ${
+                              isOwned
+                                ? "bg-green-700 text-white border-green-900 cursor-default" // Style Possédé
+                                : canBuy
+                                ? "bg-yellow-500 hover:bg-yellow-400 text-black border-yellow-700 cursor-pointer" // Style Achetable
+                                : "bg-gray-600 text-gray-400 border-gray-700 cursor-not-allowed" // Style Trop cher
+                            }`}
+                          >
+                            {isOwned ? (
+                              <>
+                                <Check size={12} /> POSSÉDÉ
+                              </>
+                            ) : canBuy ? (
+                              <>
+                                {item.price} <Coins size={12} />
+                              </>
+                            ) : (
+                              <>
+                                <Lock size={12} /> {item.price}
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
