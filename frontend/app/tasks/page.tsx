@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Check, Plus, Trash, Pencil, X, Trophy } from "lucide-react";
+import { Check, Plus, Trash, Pencil, X, Trophy, Coins } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import Sidebar from "@/components/Sidebar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -252,6 +252,7 @@ export default function TasksPage() {
 
   const xp = user?.xp || 0;
   const level = user?.level || 1;
+  const gold = user?.gold || 0;
   const isNewUser = user?.level === 1 && user?.xp === 0;
 
   const completedTasks = tasks.filter((task) => task.completed);
@@ -721,9 +722,15 @@ export default function TasksPage() {
             <h1 className="text-2xl md:text-3xl font-bold mb-4">Vos Tâches</h1>
 
             <div className="mb-4">
-              <p className="text-base md:text-lg font-semibold">
-                XP: {xp} | Niveau: {level}
-              </p>
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-base md:text-lg font-semibold">
+                  Niveau {level}
+                </p>
+                <div className="flex items-center gap-2 bg-gray-900 px-3 py-1 rounded-lg border border-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.2)]">
+                  <span className="text-yellow-400 font-bold">{gold}</span>
+                  <Coins className="text-yellow-500" size={16} />
+                </div>
+              </div>
               <div className="w-full bg-gray-600 rounded-full h-4 mt-2 overflow-hidden">
                 <div
                   className="bg-green-500 h-4 transition-all duration-500"
