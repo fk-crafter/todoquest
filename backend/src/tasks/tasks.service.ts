@@ -87,7 +87,7 @@ export class TasksService {
         data: {
           xp: newXP,
           level: newLevel,
-          gold: { increment: 1000 },
+          gold: { increment: 10 },
         },
       }),
     ]);
