@@ -53,4 +53,24 @@ export class UsersController {
       throw new BadRequestException("Erreur lors de l'achat");
     }
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('equip')
+  async equipItem(
+    @Req() req: RequestWithUser,
+    @Body() body: { itemId: string; category: string },
+  ) {
+    try {
+      return await this.usersService.equipItem(
+        req.user.id,
+        body.itemId,
+        body.category,
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException("Erreur lors de l'équipement");
+    }
+  }
 }

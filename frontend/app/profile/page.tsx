@@ -6,6 +6,13 @@ import Sidebar from "@/components/Sidebar";
 import { Shield, Sword, Scroll, Trophy, Pencil, Check, X } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
+const THEMES_METADATA = {
+  default: { name: "Classique", icon: "🌑" },
+  theme_magma: { name: "Magma", icon: "🌋" },
+  theme_forest: { name: "Forêt", icon: "🌲" },
+  theme_cyber: { name: "Cyberpunk", icon: "👾" },
+};
+
 export default function ProfilePage() {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
@@ -35,6 +42,30 @@ export default function ProfilePage() {
       setNewName(user.name);
     }
   }, [user]);
+
+  const handleEquip = async (itemId: string, category: string) => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/equip`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+          body: JSON.stringify({ itemId, category }),
+        }
+      );
+
+      if (!res.ok) throw new Error("Erreur lors de l'équipement");
+
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      alert("Impossible d'équiper cet objet.");
+    }
+  };
 
   const updateUsername = async () => {
     if (!newName.trim() || !session?.accessToken) return;
@@ -108,133 +139,201 @@ export default function ProfilePage() {
           Fiche de Héros
         </h1>
 
-        <div className="bg-gray-800 border-4 border-gray-600 rounded-xl p-6 w-full max-w-2xl shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+        <div className="w-full max-w-2xl flex flex-col gap-6">
+          {/* CARTE PRINCIPALE */}
+          <div className="bg-gray-800 border-4 border-gray-600 rounded-xl p-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
 
-          <div className="flex flex-col md:flex-row gap-8 items-center md:items-start z-10 relative">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-32 h-32 md:w-40 md:h-40 bg-gray-700 rounded-full border-4 border-yellow-500 overflow-hidden shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center relative">
-                <img
-                  src={avatarUrl}
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                  style={{ imageRendering: "pixelated" }}
-                  onError={(e) => {
-                    e.currentTarget.src = "/char1.png";
-                  }}
-                />
+            <div className="flex flex-col md:flex-row gap-8 items-center md:items-start z-10 relative">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-32 h-32 md:w-40 md:h-40 bg-gray-700 rounded-full border-4 border-yellow-500 overflow-hidden shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center relative">
+                  <img
+                    src={avatarUrl}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                    style={{ imageRendering: "pixelated" }}
+                    onError={(e) => {
+                      e.currentTarget.src = "/char1.png";
+                    }}
+                  />
+                </div>
+
+                <div className="text-center w-full flex flex-col items-center">
+                  {isEditing ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <input
+                        type="text"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        className="bg-gray-700 text-white px-2 py-1 rounded border border-gray-500 focus:border-yellow-400 outline-none w-32 text-center"
+                        autoFocus
+                      />
+                      <button
+                        onClick={updateUsername}
+                        disabled={isSaving}
+                        className="p-1 bg-green-600 rounded text-white"
+                      >
+                        <Check size={16} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsEditing(false);
+                          setNewName(currentName);
+                        }}
+                        className="p-1 bg-red-600 rounded text-white"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 group relative">
+                      <h2 className="text-xl font-bold text-white break-all">
+                        {currentName}
+                      </h2>
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="text-gray-400 hover:text-yellow-400 opacity-0 group-hover:opacity-100 md:opacity-100"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                    </div>
+                  )}
+                  <span className="text-xs bg-blue-900 text-blue-300 px-3 py-1 rounded-full border border-blue-500 mt-2 inline-block">
+                    {getHeroTitle(level)}
+                  </span>
+                </div>
               </div>
 
-              <div className="text-center w-full flex flex-col items-center">
-                {isEditing ? (
-                  <div className="flex items-center gap-2 mt-1">
-                    <input
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      className="bg-gray-700 text-white px-2 py-1 rounded border border-gray-500 focus:border-yellow-400 outline-none w-32 text-center"
-                      autoFocus
-                    />
-                    <button
-                      onClick={updateUsername}
-                      disabled={isSaving}
-                      className="p-1 bg-green-600 rounded text-white"
-                    >
-                      <Check size={16} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsEditing(false);
-                        setNewName(currentName);
-                      }}
-                      className="p-1 bg-red-600 rounded text-white"
-                    >
-                      <X size={16} />
-                    </button>
+              <div className="flex-1 w-full space-y-6">
+                <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                  <div className="flex justify-between items-end mb-2">
+                    <span className="text-yellow-400 font-bold text-lg">
+                      Niveau {level}
+                    </span>
+                    <span className="text-gray-400 text-xs">
+                      {xp} / {xpToNextLevel} XP
+                    </span>
                   </div>
-                ) : (
-                  <div className="flex items-center gap-2 group relative">
-                    <h2 className="text-xl font-bold text-white break-all">
-                      {currentName}
-                    </h2>
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      className="text-gray-400 hover:text-yellow-400 opacity-0 group-hover:opacity-100 md:opacity-100"
-                    >
-                      <Pencil size={16} />
-                    </button>
+                  <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden border border-gray-600">
+                    <div
+                      className="bg-gradient-to-r from-yellow-600 to-yellow-400 h-full transition-all duration-1000 ease-out"
+                      style={{ width: `${xpProgressPercent}%` }}
+                    ></div>
                   </div>
-                )}
-                <span className="text-xs bg-blue-900 text-blue-300 px-3 py-1 rounded-full border border-blue-500 mt-2 inline-block">
-                  {getHeroTitle(level)}
-                </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
+                    <div className="p-2 bg-gray-800 rounded text-blue-400">
+                      <Scroll size={20} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-400 uppercase">
+                        Quêtes
+                      </p>
+                      <p className="font-bold text-lg">{tasksCreated}</p>
+                    </div>
+                  </div>
+                  <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
+                    <div className="p-2 bg-gray-800 rounded text-green-400">
+                      <Sword size={20} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-400 uppercase">
+                        Finies
+                      </p>
+                      <p className="font-bold text-lg">{tasksCompleted}</p>
+                    </div>
+                  </div>
+                  <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
+                    <div className="p-2 bg-gray-800 rounded text-purple-400">
+                      <Trophy size={20} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-400 uppercase">
+                        Efficacité
+                      </p>
+                      <p className="font-bold text-lg">{successRate}%</p>
+                    </div>
+                  </div>
+                  <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600 opacity-70">
+                    <div className="p-2 bg-gray-800 rounded text-red-400">
+                      <Shield size={20} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-400 uppercase">
+                        Classe
+                      </p>
+                      <p className="font-bold text-sm text-gray-300">???</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
 
-            <div className="flex-1 w-full space-y-6">
-              <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
-                <div className="flex justify-between items-end mb-2">
-                  <span className="text-yellow-400 font-bold text-lg">
-                    Niveau {level}
-                  </span>
-                  <span className="text-gray-400 text-xs">
-                    {xp} / {xpToNextLevel} XP
-                  </span>
-                </div>
-                <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden border border-gray-600">
-                  <div
-                    className="bg-gradient-to-r from-yellow-600 to-yellow-400 h-full transition-all duration-1000 ease-out"
-                    style={{ width: `${xpProgressPercent}%` }}
-                  ></div>
-                </div>
+          <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+            <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+              🎨 Mes Thèmes
+            </h2>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div
+                className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
+                  !user?.equippedTheme
+                    ? "border-green-500 bg-gray-700 scale-105"
+                    : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
+                }`}
+              >
+                <span className="text-3xl">🌑</span>
+                <span className="font-bold text-xs">Classique</span>
+                <button
+                  onClick={() => handleEquip("default", "THEME")}
+                  disabled={!user?.equippedTheme}
+                  className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
+                    !user?.equippedTheme
+                      ? "bg-green-600 text-white cursor-default"
+                      : "bg-gray-600 hover:bg-blue-600 text-white"
+                  }`}
+                >
+                  {!user?.equippedTheme ? "ÉQUIPÉ" : "CHOISIR"}
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
-                  <div className="p-2 bg-gray-800 rounded text-blue-400">
-                    <Scroll size={20} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase">
-                      Quêtes
-                    </p>
-                    <p className="font-bold text-lg">{tasksCreated}</p>
-                  </div>
-                </div>
-                <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
-                  <div className="p-2 bg-gray-800 rounded text-green-400">
-                    <Sword size={20} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase">
-                      Finies
-                    </p>
-                    <p className="font-bold text-lg">{tasksCompleted}</p>
-                  </div>
-                </div>
-                <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
-                  <div className="p-2 bg-gray-800 rounded text-purple-400">
-                    <Trophy size={20} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase">
-                      Efficacité
-                    </p>
-                    <p className="font-bold text-lg">{successRate}%</p>
-                  </div>
-                </div>
-                <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600 opacity-70">
-                  <div className="p-2 bg-gray-800 rounded text-red-400">
-                    <Shield size={20} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase">
-                      Classe
-                    </p>
-                    <p className="font-bold text-sm text-gray-300">???</p>
-                  </div>
-                </div>
-              </div>
+              {user?.inventory
+                ?.filter((id: string) => id.startsWith("theme_"))
+                .map((themeId: string) => {
+                  const meta =
+                    THEMES_METADATA[themeId as keyof typeof THEMES_METADATA];
+                  const isEquipped = user?.equippedTheme === themeId;
+
+                  return (
+                    <div
+                      key={themeId}
+                      className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
+                        isEquipped
+                          ? "border-green-500 bg-gray-700 scale-105"
+                          : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
+                      }`}
+                    >
+                      <span className="text-3xl">{meta?.icon || "?"}</span>
+                      <span className="font-bold text-xs">
+                        {meta?.name || themeId}
+                      </span>
+                      <button
+                        onClick={() => handleEquip(themeId, "THEME")}
+                        disabled={isEquipped}
+                        className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
+                          isEquipped
+                            ? "bg-green-600 text-white cursor-default"
+                            : "bg-gray-600 hover:bg-blue-600 text-white"
+                        }`}
+                      >
+                        {isEquipped ? "ÉQUIPÉ" : "CHOISIR"}
+                      </button>
+                    </div>
+                  );
+                })}
             </div>
           </div>
         </div>

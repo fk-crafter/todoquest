@@ -89,4 +89,25 @@ export class UsersService {
       },
     });
   }
+
+  async equipItem(userId: string, itemId: string, category: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) throw new NotFoundException('Utilisateur introuvable');
+
+    if (itemId !== 'default' && !user.inventory.includes(itemId)) {
+      throw new Error('Tu ne possèdes pas cet objet !');
+    }
+
+    let updateData = {};
+
+    if (category === 'THEME') {
+      updateData = { equippedTheme: itemId === 'default' ? null : itemId };
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+  }
 }
