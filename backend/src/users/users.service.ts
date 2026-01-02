@@ -28,6 +28,10 @@ export class UsersService {
         image: true,
         gold: true,
         inventory: true,
+
+        equippedTheme: true,
+        equippedFrame: true,
+        equippedTitle: true,
       },
     });
 
