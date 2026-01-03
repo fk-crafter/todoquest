@@ -1,9 +1,44 @@
 @import "tailwindcss";
 
+@theme {
+  --font-press: "Press Start 2P", cursive;
+
+  --color-app-bg: var(--app-bg);
+  --color-app-surface: var(--app-surface);
+  --color-app-accent: var(--app-accent);
+  --color-app-border: var(--app-border);
+}
+
 :root {
-  --font-press-start: "Press Start 2P", cursive;
+  --app-bg: #111827;
+  --app-surface: #1f2937;
+  --app-accent: #facc15;
+  --app-border: #4b5563;
+}
+
+[data-theme="theme_magma"] {
+  --app-bg: #180404;
+  --app-surface: #450a0a;
+  --app-accent: #ef4444;
+  --app-border: #7f1d1d;
+}
+
+[data-theme="theme_forest"] {
+  --app-bg: #051a05;
+  --app-surface: #14532d;
+  --app-accent: #4ade80;
+  --app-border: #166534;
+}
+
+[data-theme="theme_cyber"] {
+  --app-bg: #0f0518;
+  --app-surface: #2e1065;
+  --app-accent: #22d3ee;
+  --app-border: #4c1d95;
 }
 
 body {
-  font-family: var(--font-press-start);
+  font-family: var(--font-press);
+  background-color: var(--app-bg);
+  color: white;
 }

@@ -6,6 +6,7 @@ import { AudioProvider } from "@/context/AudioContext";
 import MusicToggleButton from "@/components/MusicToggleButton";
 import QueryProvider from "@/components/QueryProvider";
 import OnboardingGuard from "@/components/OnboardingGuard";
+import ThemeProvider from "@/components/ThemeProvider";
 
 const pressStart = Press_Start_2P({
   subsets: ["latin"],
@@ -36,7 +37,9 @@ export default function RootLayout({
           <MusicToggleButton />
           <SessionWrapper>
             <QueryProvider>
-              <OnboardingGuard>{children}</OnboardingGuard>
+              <ThemeProvider>
+                <OnboardingGuard>{children}</OnboardingGuard>
+              </ThemeProvider>
             </QueryProvider>
           </SessionWrapper>
         </AudioProvider>

@@ -49,18 +49,8 @@ interface Task {
 
 const ACHIEVEMENTS_THRESHOLDS = [
   { id: "gen_1", count: 1, type: "TOTAL", label: "🌱 Le début du voyage" },
-  {
-    id: "gen_2",
-    count: 10,
-    type: "TOTAL",
-    label: "🔥 Aventurier Confirmé (10 tâches)",
-  },
-  {
-    id: "gen_3",
-    count: 20,
-    type: "TOTAL",
-    label: "👑 Légende montante (20 tâches)",
-  },
+  { id: "gen_2", count: 10, type: "TOTAL", label: "🔥 Aventurier Confirmé" },
+  { id: "gen_3", count: 20, type: "TOTAL", label: "👑 Légende montante" },
   { id: "easy_1", count: 5, type: "EASY", label: "🧹 Nettoyeur de Gobelins" },
   { id: "easy_2", count: 20, type: "EASY", label: "🏃‍♂️ Routine Matinale" },
   { id: "med_1", count: 5, type: "MEDIUM", label: "🛡️ Garde du Village" },
@@ -102,7 +92,7 @@ function SortableTaskItem({
       style={style}
       {...attributes}
       {...listeners}
-      className="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-800 p-4 rounded-lg mt-2 border-l-4 border-l-blue-500 gap-3 sm:gap-0 group touch-none cursor-grab active:cursor-grabbing"
+      className="flex flex-col sm:flex-row sm:items-center justify-between bg-app-surface p-4 rounded-lg mt-2 border-l-4 border-l-app-accent gap-3 sm:gap-0 group touch-none cursor-grab active:cursor-grabbing border border-app-border"
     >
       <div className="flex-1">
         <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -117,17 +107,16 @@ function SortableTaskItem({
           </p>
         )}
         {task.timeSpent != null && (
-          <p className="text-sm text-black italic mt-1">
+          <p className="text-sm text-app-accent italic mt-1 font-bold">
             ⏱ Temps passé : {formatTimeSpent(task.timeSpent)}
           </p>
         )}
       </div>
       <div className="flex gap-2 self-end sm:self-center">
-        {/* On empêche le drag quand on clique sur les boutons avec onPointerDown={(e) => e.stopPropagation()} */}
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => onEdit(task)}
-          className="p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg cursor-pointer transition-colors"
+          className="p-2 bg-gray-700 hover:bg-app-accent hover:text-app-bg text-white rounded-lg cursor-pointer transition-colors border border-gray-600 hover:border-app-accent"
         >
           <Pencil size={20} />
         </button>
@@ -135,14 +124,14 @@ function SortableTaskItem({
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => onCheck(task.id)}
-          className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg cursor-pointer transition-colors"
+          className="p-2 bg-app-accent hover:opacity-80 text-app-bg rounded-lg cursor-pointer transition-colors font-bold shadow-[0_0_10px_rgba(0,0,0,0.3)]"
         >
           <Check size={20} />
         </button>
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => onDelete(task.id)}
-          className="p-2 bg-red-600 hover:bg-red-500 text-white rounded-lg cursor-pointer transition-colors"
+          className="p-2 bg-red-900/50 hover:bg-red-600 border border-red-800 text-white rounded-lg cursor-pointer transition-colors"
         >
           <Trash size={20} />
         </button>
@@ -184,7 +173,6 @@ export default function TasksPage() {
   const [editDescription, setEditDescription] = useState("");
   const [editDifficulty, setEditDifficulty] = useState<Difficulty>("EASY");
 
-  const [loading, setLoading] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
   const [levelUpMessage, setLevelUpMessage] = useState("");
@@ -198,7 +186,7 @@ export default function TasksPage() {
   const { setMusicSource } = useAudio();
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }), // Distance de 8px pour éviter le drag accidentel au clic
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -208,10 +196,8 @@ export default function TasksPage() {
     if (active.id !== over?.id) {
       queryClient.setQueryData(["tasks"], (oldTasks: Task[] | undefined) => {
         if (!oldTasks) return [];
-
         const oldIndex = oldTasks.findIndex((t) => t.id === active.id);
         const newIndex = oldTasks.findIndex((t) => t.id === over?.id);
-
         return arrayMove(oldTasks, oldIndex, newIndex);
       });
     }
@@ -294,7 +280,6 @@ export default function TasksPage() {
 
   const addTask = async (data: TaskFormData) => {
     playSound();
-
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks`,
@@ -307,11 +292,8 @@ export default function TasksPage() {
           body: JSON.stringify(data),
         }
       );
-
       if (!res.ok) throw new Error("Failed to add task");
-
       reset();
-
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     } catch (error) {
@@ -331,7 +313,6 @@ export default function TasksPage() {
   const saveEdit = async () => {
     if (!editingTask || !session?.accessToken) return;
     playSound();
-
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks/${editingTask.id}`,
@@ -348,9 +329,7 @@ export default function TasksPage() {
           }),
         }
       );
-
       if (!res.ok) throw new Error("Failed to update task");
-
       setShowEditModal(false);
       setEditingTask(null);
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -389,14 +368,12 @@ export default function TasksPage() {
     const days = parseInt(daysInput || "0");
     const hours = parseInt(hoursInput || "0");
     const minutes = parseInt(minutesInput || "0");
-
     const totalMinutes = days * 24 * 60 + hours * 60 + minutes;
 
     if (totalMinutes <= 0) {
       alert("Veuillez entrer une durée valide !");
       return;
     }
-
     await completeTaskWithTime(selectedTaskId!, totalMinutes);
     setShowTimeModal(false);
   };
@@ -424,7 +401,6 @@ export default function TasksPage() {
 
   const completeTaskWithTime = async (taskId: string, timeSpent: number) => {
     if (!session || !session.user) return;
-
     const taskToComplete = tasks.find((t) => t.id === taskId);
     const taskDifficulty = taskToComplete?.difficulty || "EASY";
 
@@ -440,10 +416,8 @@ export default function TasksPage() {
           body: JSON.stringify({ timeSpent }),
         }
       );
-
       if (!res.ok) throw new Error("Failed to complete task");
       const data = await res.json();
-
       checkAchievements(taskDifficulty);
 
       if (data.userStats.level > level) {
@@ -455,23 +429,21 @@ export default function TasksPage() {
       } else {
         playSound();
       }
-
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     } catch (error) {
       console.error("Error completing task", error);
     }
   };
+
   const formatTimeSpent = (totalMinutes: number) => {
     const days = Math.floor(totalMinutes / (24 * 60));
     const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
     const minutes = totalMinutes % 60;
-
     let result = "";
     if (days > 0) result += `${days}j `;
     if (hours > 0) result += `${hours}h `;
     if (minutes > 0 || result === "") result += `${minutes}min`;
-
     return result.trim();
   };
 
@@ -479,25 +451,25 @@ export default function TasksPage() {
     switch (diff) {
       case "EASY":
         return (
-          <span className="text-[10px] md:text-xs bg-green-900 text-green-300 px-2 py-1 rounded border border-green-700 whitespace-nowrap">
+          <span className="text-[10px] md:text-xs bg-green-900/50 text-green-300 px-2 py-1 rounded border border-green-700 whitespace-nowrap">
             Facile (+10 XP)
           </span>
         );
       case "MEDIUM":
         return (
-          <span className="text-[10px] md:text-xs bg-yellow-900 text-yellow-300 px-2 py-1 rounded border border-yellow-700 whitespace-nowrap">
+          <span className="text-[10px] md:text-xs bg-yellow-900/50 text-yellow-300 px-2 py-1 rounded border border-yellow-700 whitespace-nowrap">
             Moyen (+30 XP)
           </span>
         );
       case "HARD":
         return (
-          <span className="text-[10px] md:text-xs bg-orange-900 text-orange-300 px-2 py-1 rounded border border-orange-700 whitespace-nowrap">
+          <span className="text-[10px] md:text-xs bg-orange-900/50 text-orange-300 px-2 py-1 rounded border border-orange-700 whitespace-nowrap">
             Difficile (+50 XP)
           </span>
         );
       case "EPIC":
         return (
-          <span className="text-[10px] md:text-xs bg-purple-900 text-purple-300 px-2 py-1 rounded border border-purple-700 whitespace-nowrap">
+          <span className="text-[10px] md:text-xs bg-purple-900/50 text-purple-300 px-2 py-1 rounded border border-purple-700 whitespace-nowrap">
             Épique (+100 XP)
           </span>
         );
@@ -518,39 +490,32 @@ export default function TasksPage() {
     <div className="flex min-h-screen">
       <Sidebar />
       {achievementMessage && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-purple-600 text-white font-bold px-4 py-3 md:px-6 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.6)] border-2 border-white w-[90%] md:w-auto flex flex-col items-center gap-2 animate-bounce">
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-app-surface text-app-accent font-bold px-4 py-3 md:px-6 rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.5)] border-2 border-app-accent w-[90%] md:w-auto flex flex-col items-center gap-2 animate-bounce">
           <div className="flex items-center gap-2">
-            <Trophy className="text-yellow-300" />
+            <Trophy className="text-app-accent" />
             <span>Succès Débloqué !</span>
           </div>
-          <p className="text-sm md:text-base text-yellow-200">
+          <p className="text-sm md:text-base text-white">
             {achievementMessage.label}
           </p>
-          <button
-            onClick={() => router.push("/success")}
-            className="text-xs bg-white text-purple-900 px-3 py-1 rounded-full font-bold hover:bg-gray-200 transition-colors mt-1"
-          >
-            Voir mes trophées →
-          </button>
         </div>
       )}
       {levelUpMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-500 text-black font-bold px-4 py-3 md:px-6 rounded-xl shadow-lg border-2 border-black w-[90%] md:w-auto text-center">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-app-accent text-app-bg font-bold px-4 py-3 md:px-6 rounded-xl shadow-lg border-2 border-black w-[90%] md:w-auto text-center">
           {levelUpMessage}
         </div>
       )}
 
       {showTimeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm border-2 border-black">
-            <h2 className="text-xl font-bold mb-4 text-black">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-app-surface p-6 rounded-lg shadow-xl w-full max-w-sm border-2 border-app-border">
+            <h2 className="text-xl font-bold mb-4 text-app-accent">
               Temps passé sur la tâche
             </h2>
 
-            {/* 👇 NOUVEAU FORMULAIRE : 3 COLONNES */}
             <div className="flex gap-2 mb-6">
               <div className="flex-1">
-                <label className="text-xs font-bold text-gray-500 uppercase">
+                <label className="text-xs font-bold text-gray-400 uppercase">
                   Jours
                 </label>
                 <input
@@ -558,12 +523,12 @@ export default function TasksPage() {
                   min="0"
                   value={daysInput}
                   onChange={(e) => setDaysInput(e.target.value)}
-                  className="w-full p-2 rounded border border-gray-400 text-black text-center"
+                  className="w-full p-2 rounded border border-app-border bg-app-bg text-white text-center"
                   placeholder="0"
                 />
               </div>
               <div className="flex-1">
-                <label className="text-xs font-bold text-gray-500 uppercase">
+                <label className="text-xs font-bold text-gray-400 uppercase">
                   Heures
                 </label>
                 <input
@@ -571,12 +536,12 @@ export default function TasksPage() {
                   min="0"
                   value={hoursInput}
                   onChange={(e) => setHoursInput(e.target.value)}
-                  className="w-full p-2 rounded border border-gray-400 text-black text-center"
+                  className="w-full p-2 rounded border border-app-border bg-app-bg text-white text-center"
                   placeholder="0"
                 />
               </div>
               <div className="flex-1">
-                <label className="text-xs font-bold text-gray-500 uppercase">
+                <label className="text-xs font-bold text-gray-400 uppercase">
                   Min
                 </label>
                 <input
@@ -584,7 +549,7 @@ export default function TasksPage() {
                   min="0"
                   value={minutesInput}
                   onChange={(e) => setMinutesInput(e.target.value)}
-                  className="w-full p-2 rounded border border-gray-400 text-black text-center"
+                  className="w-full p-2 rounded border border-app-border bg-app-bg text-white text-center"
                   placeholder="0"
                 />
               </div>
@@ -593,13 +558,13 @@ export default function TasksPage() {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowTimeModal(false)}
-                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black"
+                className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 text-white"
               >
                 Annuler
               </button>
               <button
                 onClick={handleConfirmTime}
-                className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white font-bold"
+                className="px-4 py-2 rounded bg-app-accent hover:opacity-80 text-app-bg font-bold"
               >
                 Valider
               </button>
@@ -609,8 +574,8 @@ export default function TasksPage() {
       )}
 
       {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
-          <div className="bg-gray-800 p-6 rounded-xl shadow-2xl w-full max-w-md border-2 border-gray-600 text-white relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="bg-app-surface p-6 rounded-xl shadow-2xl w-full max-w-md border-2 border-app-border text-white relative">
             <button
               onClick={() => setShowEditModal(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-white"
@@ -618,8 +583,8 @@ export default function TasksPage() {
               <X size={24} />
             </button>
 
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <Pencil size={24} className="text-blue-400" /> Modifier la quête
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-app-accent">
+              <Pencil size={24} /> Modifier la quête
             </h2>
 
             <div className="space-y-4">
@@ -631,7 +596,7 @@ export default function TasksPage() {
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 outline-none"
+                  className="w-full p-2 rounded bg-app-bg border border-app-border focus:border-app-accent outline-none text-white"
                 />
               </div>
 
@@ -642,7 +607,7 @@ export default function TasksPage() {
                 <textarea
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
-                  className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 outline-none h-24 resize-none"
+                  className="w-full p-2 rounded bg-app-bg border border-app-border focus:border-app-accent outline-none h-24 resize-none text-white"
                 />
               </div>
 
@@ -665,7 +630,7 @@ export default function TasksPage() {
                               : d === "HARD"
                               ? "bg-orange-600 border-orange-400"
                               : "bg-purple-600 border-purple-400"
-                            : "bg-gray-700 border-gray-600 text-gray-400 hover:bg-gray-600"
+                            : "bg-app-bg border-app-border text-gray-400 hover:bg-gray-700"
                         }`}
                       >
                         {d}
@@ -677,7 +642,7 @@ export default function TasksPage() {
 
               <button
                 onClick={saveEdit}
-                className="w-full py-3 mt-4 bg-blue-600 hover:bg-blue-500 rounded font-bold shadow-lg transition-transform active:scale-95"
+                className="w-full py-3 mt-4 bg-app-accent hover:opacity-90 text-app-bg rounded font-bold shadow-lg transition-transform active:scale-95"
               >
                 Sauvegarder les modifications
               </button>
@@ -687,9 +652,9 @@ export default function TasksPage() {
       )}
 
       {showTutorial && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-end gap-4 p-6 justify-center md:justify-start">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-end gap-4 p-6 justify-center md:justify-start">
           <div className="hidden md:block w-24 h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat" />
-          <div className="bg-white text-black p-4 rounded-lg shadow-lg border-2 border-black max-w-sm w-full">
+          <div className="bg-app-surface text-white p-4 rounded-lg shadow-lg border-2 border-app-accent max-w-sm w-full">
             <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
             <button
               onClick={() => {
@@ -706,7 +671,7 @@ export default function TasksPage() {
                   }
                 }
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer w-full md:w-auto"
+              className="px-4 py-2 bg-app-accent text-app-bg font-bold rounded hover:opacity-80 cursor-pointer w-full md:w-auto"
             >
               {tutorialStep < tutorialMessages.length - 1
                 ? "Suivant"
@@ -719,39 +684,41 @@ export default function TasksPage() {
       <main className="w-full p-4 md:p-6 mt-12 md:mt-12 mb-16 md:mb-0">
         <div className="flex flex-col md:flex-row items-start justify-center min-h-screen gap-6 md:gap-8">
           <div className="w-full md:w-1/2">
-            <h1 className="text-2xl md:text-3xl font-bold mb-4">Vos Tâches</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-4 text-app-accent">
+              Vos Tâches
+            </h1>
 
             <div className="mb-4">
               <div className="flex justify-between items-center mb-2">
-                <p className="text-base md:text-lg font-semibold">
+                <p className="text-base md:text-lg font-semibold text-white">
                   Niveau {level}
                 </p>
-                <div className="flex items-center gap-2 bg-gray-900 px-3 py-1 rounded-lg border border-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.2)]">
+                <div className="flex items-center gap-2 bg-app-surface px-3 py-1 rounded-lg border border-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.2)]">
                   <span className="text-yellow-400 font-bold">{gold}</span>
                   <Coins className="text-yellow-500" size={16} />
                 </div>
               </div>
-              <div className="w-full bg-gray-600 rounded-full h-4 mt-2 overflow-hidden">
+              <div className="w-full bg-app-surface rounded-full h-4 mt-2 overflow-hidden border border-app-border">
                 <div
-                  className="bg-green-500 h-4 transition-all duration-500"
+                  className="bg-app-accent h-4 transition-all duration-500"
                   style={{ width: `${xpProgressPercent}%` }}
                 ></div>
               </div>
-              <p className="text-xs md:text-sm text-gray-300 mt-1 text-right">
+              <p className="text-xs md:text-sm text-gray-400 mt-1 text-right">
                 {xp} / {xpToNextLevel} XP
               </p>
             </div>
 
             <form
               onSubmit={handleSubmit(addTask)}
-              className="flex flex-col gap-3 md:gap-4 w-full bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700"
+              className="flex flex-col gap-3 md:gap-4 w-full bg-app-surface p-4 rounded-lg shadow-md border border-app-border"
             >
               <div>
                 <input
                   type="text"
                   placeholder="Titre de la tâche"
                   {...register("title")}
-                  className="p-2 rounded bg-gray-700 text-white w-full border border-gray-600"
+                  className="p-2 rounded bg-app-bg text-white w-full border border-app-border focus:border-app-accent outline-none"
                 />
                 {errors.title && (
                   <span className="text-red-400 text-xs">
@@ -763,7 +730,7 @@ export default function TasksPage() {
               <textarea
                 placeholder="Description (optionnel)"
                 {...register("description")}
-                className="p-2 resize-none rounded bg-gray-700 text-white w-full border border-gray-600 h-20 md:h-auto"
+                className="p-2 resize-none rounded bg-app-bg text-white w-full border border-app-border focus:border-app-accent outline-none h-20 md:h-auto"
               />
 
               <div className="flex flex-col gap-2">
@@ -786,7 +753,7 @@ export default function TasksPage() {
                               : d === "HARD"
                               ? "bg-orange-600 border-orange-400 text-white"
                               : "bg-purple-600 border-purple-400 text-white"
-                            : "bg-gray-700 border-gray-600 text-gray-400 hover:bg-gray-600"
+                            : "bg-app-bg border-app-border text-gray-400 hover:bg-gray-700"
                         }`}
                       >
                         {d === "EASY"
@@ -805,7 +772,7 @@ export default function TasksPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="p-3 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold w-full flex items-center justify-center gap-2 cursor-pointer transition-colors mt-2 text-sm md:text-base disabled:opacity-50"
+                className="p-3 bg-app-accent hover:opacity-90 rounded text-app-bg font-bold w-full flex items-center justify-center gap-2 cursor-pointer transition-colors mt-2 text-sm md:text-base disabled:opacity-50"
               >
                 {isSubmitting ? "Ajout..." : "Ajouter la tâche"}{" "}
                 <Plus size={18} />
@@ -813,7 +780,7 @@ export default function TasksPage() {
             </form>
 
             <div className="mt-6">
-              <h2 className="text-xl font-semibold mb-2">À faire</h2>
+              <h2 className="text-xl font-semibold mb-2 text-white">À faire</h2>
 
               {incompleteTasks.length === 0 ? (
                 <p className="text-gray-400">Aucune tâche en cours.</p>
@@ -847,7 +814,9 @@ export default function TasksPage() {
           </div>
 
           <div className="w-full md:w-1/2">
-            <h2 className="text-xl font-semibold mb-4">Tâches complétées</h2>
+            <h2 className="text-xl font-semibold mb-4 text-white">
+              Tâches complétées
+            </h2>
             {completedTasks.length === 0 ? (
               <p className="text-gray-400">
                 Aucune tâche complétée pour l&apos;instant.
@@ -856,29 +825,29 @@ export default function TasksPage() {
               completedTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="bg-green-900 bg-opacity-40 p-4 rounded-lg mb-2 text-white flex justify-between items-center border border-green-800"
+                  className="bg-app-surface/60 p-4 rounded-lg mb-2 text-white flex justify-between items-center border border-app-border/50"
                 >
                   <div className="flex-1 mr-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-bold line-through text-gray-400 break-all">
+                      <h3 className="font-bold line-through text-gray-500 break-all">
                         {task.title}
                       </h3>
                       {getDifficultyBadge(task.difficulty)}
                     </div>
                     {task.description && (
-                      <p className="text-sm text-gray-500 break-words">
+                      <p className="text-sm text-gray-600 break-words">
                         {task.description}
                       </p>
                     )}
                     {task.timeSpent != null && (
-                      <p className="text-sm text-gray-400 italic mt-1">
+                      <p className="text-sm text-gray-500 italic mt-1">
                         ⏱ Temps passé : {formatTimeSpent(task.timeSpent)}
                       </p>
                     )}
                   </div>
                   <button
                     onClick={() => deleteTask(task.id)}
-                    className="p-2 bg-red-900 bg-opacity-60 hover:bg-red-700 text-white rounded-lg cursor-pointer flex-shrink-0"
+                    className="p-2 bg-red-900/30 hover:bg-red-700 text-white rounded-lg cursor-pointer flex-shrink-0"
                   >
                     <Trash size={20} />
                   </button>
