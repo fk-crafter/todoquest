@@ -137,16 +137,20 @@ export class TasksService {
 
     await this.prisma.$transaction([
       this.prisma.task.delete({ where: { id: taskId } }),
+
       this.prisma.user.update({
         where: { id: userId },
         data: {
           xp: newXP,
           level: newLevel,
+          gold: { decrement: 10 },
         },
       }),
     ]);
 
-    return { message: 'Tâche supprimée et XP ajustée' };
+    return {
+      message: 'Tâche supprimée, XP et Or retirés (Anti-Triche activé)',
+    };
   }
 
   async update(
