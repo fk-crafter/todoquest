@@ -3,14 +3,26 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Sidebar from "@/components/Sidebar";
-import { Shield, Sword, Scroll, Trophy, Pencil, Check, X } from "lucide-react";
+import {
+  Shield,
+  Sword,
+  Scroll,
+  Trophy,
+  Pencil,
+  Check,
+  X,
+  Moon,
+  Mountain,
+  Trees,
+  Cpu,
+} from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const THEMES_METADATA = {
-  default: { name: "Classique", icon: "🌑" },
-  theme_magma: { name: "Magma", icon: "🌋" },
-  theme_forest: { name: "Forêt", icon: "🌲" },
-  theme_cyber: { name: "Cyberpunk", icon: "👾" },
+  default: { name: "Classique", icon: Moon, color: "text-gray-400" },
+  theme_magma: { name: "Magma", icon: Mountain, color: "text-red-500" },
+  theme_forest: { name: "Forêt", icon: Trees, color: "text-green-500" },
+  theme_cyber: { name: "Cyberpunk", icon: Cpu, color: "text-purple-500" },
 };
 
 export default function ProfilePage() {
@@ -140,7 +152,6 @@ export default function ProfilePage() {
         </h1>
 
         <div className="w-full max-w-2xl flex flex-col gap-6">
-          {/* CARTE PRINCIPALE */}
           <div className="bg-gray-800 border-4 border-gray-600 rounded-xl p-6 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
 
@@ -285,7 +296,7 @@ export default function ProfilePage() {
                     : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
                 }`}
               >
-                <span className="text-3xl">🌑</span>
+                <Moon size={32} className="text-gray-400" />
                 <span className="font-bold text-xs">Classique</span>
                 <button
                   onClick={() => handleEquip("default", "THEME")}
@@ -306,6 +317,7 @@ export default function ProfilePage() {
                   const meta =
                     THEMES_METADATA[themeId as keyof typeof THEMES_METADATA];
                   const isEquipped = user?.equippedTheme === themeId;
+                  const Icon = meta?.icon || Moon;
 
                   return (
                     <div
@@ -316,7 +328,7 @@ export default function ProfilePage() {
                           : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
                       }`}
                     >
-                      <span className="text-3xl">{meta?.icon || "?"}</span>
+                      <Icon size={32} className={meta?.color || "text-white"} />
                       <span className="font-bold text-xs">
                         {meta?.name || themeId}
                       </span>
