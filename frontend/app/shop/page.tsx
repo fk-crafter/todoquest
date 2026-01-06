@@ -3,29 +3,57 @@
 import { useSession } from "next-auth/react";
 import Sidebar from "@/components/Sidebar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ShoppingBag, Lock, Coins, Check } from "lucide-react";
+import {
+  ShoppingBag,
+  Lock,
+  Coins,
+  Check,
+  Shield,
+  Wand2,
+  Bot,
+  Frame,
+  Flame,
+  Zap,
+  Crown,
+  Sword,
+  Mountain,
+  Trees,
+  Cpu,
+} from "lucide-react";
 
-const SHOP_ITEMS = [
+type ShopItem = {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  icon: React.ElementType;
+  color: string;
+};
+
+const SHOP_ITEMS: ShopItem[] = [
   {
     id: "skin_knight",
     name: "Chevalier",
     category: "SKIN",
     price: 500,
-    image: "🛡️",
+    icon: Shield,
+    color: "text-gray-300",
   },
   {
     id: "skin_wizard",
     name: "Sorcier",
     category: "SKIN",
     price: 500,
-    image: "🔮",
+    icon: Wand2,
+    color: "text-purple-400",
   },
   {
     id: "skin_robot",
     name: "Robot",
     category: "SKIN",
     price: 800,
-    image: "🤖",
+    icon: Bot,
+    color: "text-cyan-400",
   },
 
   {
@@ -33,21 +61,24 @@ const SHOP_ITEMS = [
     name: "Cadre Doré",
     category: "FRAME",
     price: 300,
-    image: "🖼️",
+    icon: Frame,
+    color: "text-yellow-400",
   },
   {
     id: "frame_fire",
     name: "Enflammé",
     category: "FRAME",
     price: 800,
-    image: "🔥",
+    icon: Flame,
+    color: "text-orange-500",
   },
   {
     id: "frame_neon",
     name: "Néon Bleu",
     category: "FRAME",
     price: 600,
-    image: "⚡",
+    icon: Zap,
+    color: "text-blue-400",
   },
 
   {
@@ -55,14 +86,16 @@ const SHOP_ITEMS = [
     name: "Le Bourgeois",
     category: "TITLE",
     price: 5000,
-    image: "🎩",
+    icon: Crown,
+    color: "text-yellow-300",
   },
   {
     id: "title_slayer",
-    name: "Tueur de Procrastination",
+    name: "Tueur",
     category: "TITLE",
     price: 200,
-    image: "⚔️",
+    icon: Sword,
+    color: "text-red-400",
   },
 
   {
@@ -70,21 +103,24 @@ const SHOP_ITEMS = [
     name: "Magma",
     category: "THEME",
     price: 1000,
-    image: "🌋",
+    icon: Mountain,
+    color: "text-red-600",
   },
   {
     id: "theme_forest",
     name: "Forêt",
     category: "THEME",
     price: 1000,
-    image: "🌲",
+    icon: Trees,
+    color: "text-green-500",
   },
   {
     id: "theme_cyber",
     name: "Cyberpunk",
     category: "THEME",
     price: 1500,
-    image: "👾",
+    icon: Cpu,
+    color: "text-purple-500",
   },
 ];
 
@@ -119,7 +155,7 @@ export default function ShopPage() {
   const gold = user?.gold || 0;
   const userInventory: string[] = user?.inventory || [];
 
-  const handleBuy = async (item: any) => {
+  const handleBuy = async (item: ShopItem) => {
     if (!session?.accessToken) return;
     if (gold < item.price) return;
 
@@ -195,6 +231,7 @@ export default function ShopPage() {
                     {items.map((item) => {
                       const isOwned = userInventory.includes(item.id);
                       const canBuy = gold >= item.price;
+                      const IconComponent = item.icon;
 
                       return (
                         <div
@@ -205,8 +242,8 @@ export default function ShopPage() {
                               : "border-gray-600 hover:border-blue-500 hover:bg-gray-750"
                           }`}
                         >
-                          <div className="w-12 h-12 bg-gray-700 rounded-md flex items-center justify-center text-2xl border border-gray-600 group-hover:scale-105 transition-transform">
-                            {item.image}
+                          <div className="w-12 h-12 bg-gray-700 rounded-md flex items-center justify-center border border-gray-600 group-hover:scale-105 transition-transform">
+                            <IconComponent size={28} className={item.color} />
                           </div>
 
                           <div className="text-center w-full">
@@ -220,10 +257,10 @@ export default function ShopPage() {
                             disabled={isOwned || !canBuy}
                             className={`w-full py-1.5 px-2 rounded text-xs font-bold border-b-2 active:border-b-0 active:translate-y-0.5 transition-all flex items-center justify-center gap-1 mt-auto ${
                               isOwned
-                                ? "bg-green-700 text-white border-green-900 cursor-default" // Style Possédé
+                                ? "bg-green-700 text-white border-green-900 cursor-default"
                                 : canBuy
-                                ? "bg-yellow-500 hover:bg-yellow-400 text-black border-yellow-700 cursor-pointer" // Style Achetable
-                                : "bg-gray-600 text-gray-400 border-gray-700 cursor-not-allowed" // Style Trop cher
+                                ? "bg-yellow-500 hover:bg-yellow-400 text-black border-yellow-700 cursor-pointer"
+                                : "bg-gray-600 text-gray-400 border-gray-700 cursor-not-allowed"
                             }`}
                           >
                             {isOwned ? (
