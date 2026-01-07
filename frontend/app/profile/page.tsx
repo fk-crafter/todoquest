@@ -15,6 +15,8 @@ import {
   Mountain,
   Trees,
   Cpu,
+  Crown,
+  Star,
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -23,6 +25,12 @@ const THEMES_METADATA = {
   theme_magma: { name: "Magma", icon: Mountain, color: "text-red-500" },
   theme_forest: { name: "Forêt", icon: Trees, color: "text-green-500" },
   theme_cyber: { name: "Cyberpunk", icon: Cpu, color: "text-purple-500" },
+};
+
+const TITLES_METADATA = {
+  default: { name: "Rang de Niveau", icon: Star, color: "text-gray-400" },
+  title_rich: { name: "Le Bourgeois", icon: Crown, color: "text-yellow-400" },
+  title_slayer: { name: "Tueur", icon: Sword, color: "text-red-500" },
 };
 
 export default function ProfilePage() {
@@ -117,7 +125,7 @@ export default function ProfilePage() {
     tasksCreated > 0 ? Math.round((tasksCompleted / tasksCreated) * 100) : 0;
   const currentName = user?.name || session?.user?.name || "Héros";
 
-  const getHeroTitle = (lvl: number) => {
+  const getLevelTitle = (lvl: number) => {
     if (lvl < 5) return "Novice du To-Do";
     if (lvl < 10) return "Aventurier Organisé";
     if (lvl < 20) return "Maître des Quêtes";
@@ -125,11 +133,16 @@ export default function ProfilePage() {
     return "Légende Vivante";
   };
 
+  const equippedTitleId = user?.equippedTitle || "default";
+  const displayTitle =
+    equippedTitleId !== "default" &&
+    TITLES_METADATA[equippedTitleId as keyof typeof TITLES_METADATA]
+      ? TITLES_METADATA[equippedTitleId as keyof typeof TITLES_METADATA].name
+      : getLevelTitle(level);
+
   let avatarFileName =
     user?.avatar || user?.image || session?.user?.image || "char1.png";
-
   avatarFileName = avatarFileName.replace("/avatars/", "").replace("/", "");
-
   const avatarUrl = `/${avatarFileName}`;
 
   if (!session) {
@@ -209,8 +222,15 @@ export default function ProfilePage() {
                       </button>
                     </div>
                   )}
-                  <span className="text-xs bg-blue-900 text-blue-300 px-3 py-1 rounded-full border border-blue-500 mt-2 inline-block">
-                    {getHeroTitle(level)}
+
+                  <span
+                    className={`text-xs px-3 py-1 rounded-full border mt-2 inline-block ${
+                      equippedTitleId !== "default"
+                        ? "bg-yellow-900/50 text-yellow-300 border-yellow-500"
+                        : "bg-blue-900 text-blue-300 border-blue-500"
+                    }`}
+                  >
+                    {displayTitle}
                   </span>
                 </div>
               </div>
@@ -283,69 +303,147 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
-            <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
-              🎨 Mes Thèmes
-            </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+              <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+                🎨 Mes Thèmes
+              </h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div
-                className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
-                  !user?.equippedTheme
-                    ? "border-green-500 bg-gray-700 scale-105"
-                    : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
-                }`}
-              >
-                <Moon size={32} className="text-gray-400" />
-                <span className="font-bold text-xs">Classique</span>
-                <button
-                  onClick={() => handleEquip("default", "THEME")}
-                  disabled={!user?.equippedTheme}
-                  className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
+              <div className="grid grid-cols-2 gap-4">
+                <div
+                  className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
                     !user?.equippedTheme
-                      ? "bg-green-600 text-white cursor-default"
-                      : "bg-gray-600 hover:bg-blue-600 text-white"
+                      ? "border-green-500 bg-gray-700 scale-105"
+                      : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
                   }`}
                 >
-                  {!user?.equippedTheme ? "ÉQUIPÉ" : "CHOISIR"}
-                </button>
-              </div>
+                  <Moon size={28} className="text-gray-400" />
+                  <span className="font-bold text-[10px]">Classique</span>
+                  <button
+                    onClick={() => handleEquip("default", "THEME")}
+                    disabled={!user?.equippedTheme}
+                    className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
+                      !user?.equippedTheme
+                        ? "bg-green-600 text-white cursor-default"
+                        : "bg-gray-600 hover:bg-blue-600 text-white"
+                    }`}
+                  >
+                    {!user?.equippedTheme ? "ÉQUIPÉ" : "CHOISIR"}
+                  </button>
+                </div>
 
-              {user?.inventory
-                ?.filter((id: string) => id.startsWith("theme_"))
-                .map((themeId: string) => {
-                  const meta =
-                    THEMES_METADATA[themeId as keyof typeof THEMES_METADATA];
-                  const isEquipped = user?.equippedTheme === themeId;
-                  const Icon = meta?.icon || Moon;
+                {user?.inventory
+                  ?.filter((id: string) => id.startsWith("theme_"))
+                  .map((themeId: string) => {
+                    const meta =
+                      THEMES_METADATA[themeId as keyof typeof THEMES_METADATA];
+                    const isEquipped = user?.equippedTheme === themeId;
+                    const Icon = meta?.icon || Moon;
 
-                  return (
-                    <div
-                      key={themeId}
-                      className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
-                        isEquipped
-                          ? "border-green-500 bg-gray-700 scale-105"
-                          : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
-                      }`}
-                    >
-                      <Icon size={32} className={meta?.color || "text-white"} />
-                      <span className="font-bold text-xs">
-                        {meta?.name || themeId}
-                      </span>
-                      <button
-                        onClick={() => handleEquip(themeId, "THEME")}
-                        disabled={isEquipped}
-                        className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
+                    return (
+                      <div
+                        key={themeId}
+                        className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
                           isEquipped
-                            ? "bg-green-600 text-white cursor-default"
-                            : "bg-gray-600 hover:bg-blue-600 text-white"
+                            ? "border-green-500 bg-gray-700 scale-105"
+                            : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
                         }`}
                       >
-                        {isEquipped ? "ÉQUIPÉ" : "CHOISIR"}
-                      </button>
-                    </div>
-                  );
-                })}
+                        <Icon
+                          size={28}
+                          className={meta?.color || "text-white"}
+                        />
+                        <span className="font-bold text-[10px]">
+                          {meta?.name || themeId}
+                        </span>
+                        <button
+                          onClick={() => handleEquip(themeId, "THEME")}
+                          disabled={isEquipped}
+                          className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
+                            isEquipped
+                              ? "bg-green-600 text-white cursor-default"
+                              : "bg-gray-600 hover:bg-blue-600 text-white"
+                          }`}
+                        >
+                          {isEquipped ? "ÉQUIPÉ" : "CHOISIR"}
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+              <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+                👑 Mes Titres
+              </h2>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div
+                  className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
+                    !user?.equippedTitle || user?.equippedTitle === "default"
+                      ? "border-green-500 bg-gray-700 scale-105"
+                      : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
+                  }`}
+                >
+                  <Star size={28} className="text-gray-400" />
+                  <span className="font-bold text-[10px]">Par Niveau</span>
+                  <button
+                    onClick={() => handleEquip("default", "TITLE")}
+                    disabled={
+                      !user?.equippedTitle || user?.equippedTitle === "default"
+                    }
+                    className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
+                      !user?.equippedTitle || user?.equippedTitle === "default"
+                        ? "bg-green-600 text-white cursor-default"
+                        : "bg-gray-600 hover:bg-blue-600 text-white"
+                    }`}
+                  >
+                    {!user?.equippedTitle || user?.equippedTitle === "default"
+                      ? "ÉQUIPÉ"
+                      : "CHOISIR"}
+                  </button>
+                </div>
+
+                {user?.inventory
+                  ?.filter((id: string) => id.startsWith("title_"))
+                  .map((titleId: string) => {
+                    const meta =
+                      TITLES_METADATA[titleId as keyof typeof TITLES_METADATA];
+                    const isEquipped = user?.equippedTitle === titleId;
+                    const Icon = meta?.icon || Crown;
+
+                    return (
+                      <div
+                        key={titleId}
+                        className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
+                          isEquipped
+                            ? "border-green-500 bg-gray-700 scale-105"
+                            : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
+                        }`}
+                      >
+                        <Icon
+                          size={28}
+                          className={meta?.color || "text-white"}
+                        />
+                        <span className="font-bold text-[10px]">
+                          {meta?.name || titleId}
+                        </span>
+                        <button
+                          onClick={() => handleEquip(titleId, "TITLE")}
+                          disabled={isEquipped}
+                          className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
+                            isEquipped
+                              ? "bg-green-600 text-white cursor-default"
+                              : "bg-gray-600 hover:bg-blue-600 text-white"
+                          }`}
+                        >
+                          {isEquipped ? "ÉQUIPÉ" : "CHOISIR"}
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
             </div>
           </div>
         </div>

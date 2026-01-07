@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 interface UpdateUserDto {
@@ -28,7 +32,6 @@ export class UsersService {
         image: true,
         gold: true,
         inventory: true,
-
         equippedTheme: true,
         equippedFrame: true,
         equippedTitle: true,
@@ -77,12 +80,12 @@ export class UsersService {
     if (!user) throw new NotFoundException('Utilisateur introuvable');
 
     if (user.gold < price) {
-      throw new Error("Pas assez d'or !");
+      throw new BadRequestException("Pas assez d'or !");
     }
     const inventory = user.inventory || [];
 
     if (inventory.includes(itemId)) {
-      throw new Error('Tu possèdes déjà cet objet !');
+      throw new BadRequestException('Tu possèdes déjà cet objet !');
     }
 
     return this.prisma.user.update({
@@ -100,13 +103,26 @@ export class UsersService {
     if (!user) throw new NotFoundException('Utilisateur introuvable');
 
     if (itemId !== 'default' && !user.inventory.includes(itemId)) {
-      throw new Error('Tu ne possèdes pas cet objet !');
+      throw new BadRequestException('Tu ne possèdes pas cet objet !');
     }
 
     let updateData = {};
 
-    if (category === 'THEME') {
-      updateData = { equippedTheme: itemId === 'default' ? null : itemId };
+    switch (category) {
+      case 'THEME':
+        updateData = { equippedTheme: itemId === 'default' ? null : itemId };
+        break;
+
+      case 'FRAME':
+        updateData = { equippedFrame: itemId === 'default' ? null : itemId };
+        break;
+
+      case 'TITLE':
+        updateData = { equippedTitle: itemId === 'default' ? null : itemId };
+        break;
+
+      default:
+        throw new BadRequestException(`Catégorie inconnue : ${category}`);
     }
 
     return this.prisma.user.update({
