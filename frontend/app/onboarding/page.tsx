@@ -2,31 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { CheckCircle, ArrowLeft } from "lucide-react";
-
-const MALE_AVATARS = ["char1.png", "char2.png", "char3.png"];
-const FEMALE_AVATARS = ["char4.png", "char5.png", "char6.png"];
+import { ArrowLeft } from "lucide-react";
 
 export default function OnboardingPage() {
   const { data: session, update } = useSession();
-  const router = useRouter();
 
   const [step, setStep] = useState(1);
   const [pseudo, setPseudo] = useState("");
-  const [selectedGender, setSelectedGender] = useState<
-    "male" | "female" | null
-  >(null);
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (session?.user?.name) setPseudo(session.user.name);
   }, [session]);
 
-  const handleFinish = async () => {
-    if (!pseudo || !selectedGender || !selectedAvatar) return;
+  const handleFinish = async (gender: "male" | "female") => {
+    if (!pseudo) return;
     setLoading(true);
+
+    const avatarImage = gender === "male" ? "char-male.png" : "char-female.png";
 
     try {
       const res = await fetch(
@@ -39,8 +32,8 @@ export default function OnboardingPage() {
           },
           body: JSON.stringify({
             name: pseudo,
-            gender: selectedGender,
-            image: selectedAvatar,
+            gender: gender,
+            image: avatarImage,
             isOnboarded: true,
           }),
         }
@@ -53,8 +46,8 @@ export default function OnboardingPage() {
         user: {
           ...session?.user,
           name: pseudo,
-          gender: selectedGender,
-          image: selectedAvatar,
+          gender: gender,
+          image: avatarImage,
           isOnboarded: true,
         },
       });
@@ -66,19 +59,14 @@ export default function OnboardingPage() {
     }
   };
 
-  const selectGenderAndNext = (gender: "male" | "female") => {
-    setSelectedGender(gender);
-    setStep(3);
-  };
-
   return (
     <div className="min-h-screen bg-gray-900 text-white font-press flex flex-col items-center justify-center p-4">
       <div className="bg-gray-800 border-4 border-gray-600 p-8 rounded-xl shadow-2xl w-full max-w-md relative transition-all">
         <div className="flex justify-center mb-6 gap-2">
-          {[1, 2, 3].map((s) => (
+          {[1, 2].map((s) => (
             <div
               key={s}
-              className={`h-2 w-1/3 rounded ${
+              className={`h-2 w-1/2 rounded ${
                 step >= s ? "bg-yellow-400" : "bg-gray-700"
               }`}
             />
@@ -114,78 +102,54 @@ export default function OnboardingPage() {
               <ArrowLeft size={24} />
             </div>
             <h1 className="text-2xl text-yellow-400 text-center mt-2">
-              Tu es ?
+              Choisis ton Héros
             </h1>
 
             <div className="grid grid-cols-2 gap-4">
               <button
-                onClick={() => selectGenderAndNext("male")}
-                className="p-6 rounded-xl border-4 border-gray-700 bg-gray-900 hover:border-blue-500 hover:bg-gray-800 transition-all flex flex-col items-center gap-2"
+                onClick={() => handleFinish("male")}
+                disabled={loading}
+                className="group p-4 rounded-xl border-4 border-gray-700 bg-gray-900 hover:border-blue-500 hover:bg-gray-800 transition-all flex flex-col items-center gap-3 relative overflow-hidden"
               >
-                <span className="text-4xl">👨</span>
-                <span className="font-bold text-blue-400">HOMME</span>
+                <div className="w-full aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-600 group-hover:scale-105 transition-transform">
+                  <img
+                    src="/char-male.png"
+                    alt="Homme"
+                    className="w-full h-full object-cover"
+                    style={{ imageRendering: "pixelated" }}
+                  />
+                </div>
+                <span className="font-bold text-blue-400 text-lg">HOMME</span>
+                {loading && (
+                  <div className="absolute inset-0 bg-black/50 z-10" />
+                )}
               </button>
+
               <button
-                onClick={() => selectGenderAndNext("female")}
-                className="p-6 rounded-xl border-4 border-gray-700 bg-gray-900 hover:border-pink-500 hover:bg-gray-800 transition-all flex flex-col items-center gap-2"
+                onClick={() => handleFinish("female")}
+                disabled={loading}
+                className="group p-4 rounded-xl border-4 border-gray-700 bg-gray-900 hover:border-pink-500 hover:bg-gray-800 transition-all flex flex-col items-center gap-3 relative overflow-hidden"
               >
-                <span className="text-4xl">👩</span>
-                <span className="font-bold text-pink-400">FEMME</span>
+                <div className="w-full aspect-square bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-600 group-hover:scale-105 transition-transform">
+                  <img
+                    src="/char-female.png"
+                    alt="Femme"
+                    className="w-full h-full object-cover"
+                    style={{ imageRendering: "pixelated" }}
+                  />
+                </div>
+                <span className="font-bold text-pink-400 text-lg">FEMME</span>
+                {loading && (
+                  <div className="absolute inset-0 bg-black/50 z-10" />
+                )}
               </button>
             </div>
-          </div>
-        )}
 
-        {step === 3 && selectedGender && (
-          <div className="space-y-6 animate-fadeIn">
-            <div
-              className="flex items-center absolute top-4 left-4 cursor-pointer text-gray-400 hover:text-white"
-              onClick={() => setStep(2)}
-            >
-              <ArrowLeft size={24} />
-            </div>
-            <h1 className="text-2xl text-yellow-400 text-center mt-2">
-              Choisis ton héros
-            </h1>
-
-            <div className="grid grid-cols-3 gap-3">
-              {(selectedGender === "male" ? MALE_AVATARS : FEMALE_AVATARS).map(
-                (avatarFile) => (
-                  <button
-                    key={avatarFile}
-                    onClick={() => setSelectedAvatar(avatarFile)}
-                    className={`relative rounded-lg overflow-hidden border-4 transition-all group ${
-                      selectedAvatar === avatarFile
-                        ? "border-yellow-400 scale-105 shadow-[0_0_15px_rgba(250,204,21,0.5)]"
-                        : "border-gray-700 hover:border-gray-500"
-                    }`}
-                  >
-                    <img
-                      src={`/${avatarFile}`}
-                      alt="Avatar"
-                      className="w-full h-auto bg-gray-700 pixelated"
-                      style={{ imageRendering: "pixelated" }}
-                    />
-                    {selectedAvatar === avatarFile && (
-                      <div className="absolute inset-0 bg-yellow-400/20 flex items-center justify-center">
-                        <CheckCircle
-                          className="text-yellow-400 drop-shadow-md"
-                          size={32}
-                        />
-                      </div>
-                    )}
-                  </button>
-                )
-              )}
-            </div>
-
-            <button
-              onClick={handleFinish}
-              disabled={!selectedAvatar || loading}
-              className="w-full bg-green-600 hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded font-bold mt-4 shadow-[0_4px_0_rgb(0,0,0,0.5)] active:shadow-none active:translate-y-1 transition-all"
-            >
-              {loading ? "INITIALISATION..." : "COMMENCER L'AVENTURE"}
-            </button>
+            {loading && (
+              <p className="text-center text-gray-400 text-xs animate-pulse">
+                Création du personnage...
+              </p>
+            )}
           </div>
         )}
       </div>

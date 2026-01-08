@@ -141,7 +141,8 @@ export default function ProfilePage() {
       : getLevelTitle(level);
 
   let avatarFileName =
-    user?.avatar || user?.image || session?.user?.image || "char1.png";
+    user?.avatar || user?.image || session?.user?.image || "char-male.png";
+
   avatarFileName = avatarFileName.replace("/avatars/", "").replace("/", "");
   const avatarUrl = `/${avatarFileName}`;
 
@@ -177,7 +178,7 @@ export default function ProfilePage() {
                     className="w-full h-full object-cover"
                     style={{ imageRendering: "pixelated" }}
                     onError={(e) => {
-                      e.currentTarget.src = "/char1.png";
+                      e.currentTarget.src = "/char-male.png";
                     }}
                   />
                 </div>
