@@ -161,7 +161,7 @@ export default function ProfilePage() {
       <Sidebar />
 
       <main className="flex-1 p-4 md:p-8 flex flex-col items-center">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-yellow-400 drop-shadow-md">
+        <h1 className="text-xl md:text-4xl font-bold mb-8 mt-15 text-yellow-400 drop-shadow-md">
           Fiche de Héros
         </h1>
 
