@@ -10,6 +10,7 @@ interface UpdateUserDto {
   gender?: string;
   isOnboarded?: boolean;
   image?: string;
+  class?: 'ADVENTURER' | 'ARCHER' | 'MAGE' | 'SWORDSMAN';
 }
 
 @Injectable()
@@ -30,6 +31,7 @@ export class UsersService {
         gender: true,
         isOnboarded: true,
         image: true,
+        class: true,
         gold: true,
         inventory: true,
         equippedTheme: true,
@@ -70,6 +72,7 @@ export class UsersService {
         gender: data.gender,
         isOnboarded: data.isOnboarded,
         image: data.image,
+        class: data.class,
       },
     });
   }

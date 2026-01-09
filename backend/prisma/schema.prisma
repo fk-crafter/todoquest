@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum GameClass {
+  ADVENTURER
+  ARCHER
+  MAGE
+  SWORDSMAN
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -15,26 +22,27 @@ model User {
 
   image     String?
   
-  gender      String?  @default("adventurer") 
-  isOnboarded Boolean  @default(false)
+  gender       String?  @default("adventurer") 
+  isOnboarded  Boolean  @default(false)
 
-  role      Role     @default(USER)
-  xp        Int      @default(0)
-  level     Int      @default(1)
+  role       Role     @default(USER)
+  xp         Int      @default(0)
+  level      Int      @default(1)
 
-  gold      Int      @default(0)
+  class      GameClass @default(ADVENTURER)
+
+  gold       Int      @default(0)
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  tasks     Task[]
+  tasks      Task[]
 
   inventory String[]
 
   equippedTheme String?
   equippedFrame String?
   equippedTitle String?
-
 }
 
 model Task {
@@ -46,7 +54,7 @@ model Task {
   
   completed   Boolean   @default(false)
   completedAt DateTime?
-  timeSpent   Int?     
+  timeSpent   Int?      
   
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
