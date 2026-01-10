@@ -146,6 +146,24 @@ export default function ProfilePage() {
   avatarFileName = avatarFileName.replace("/avatars/", "").replace("/", "");
   const avatarUrl = `/${avatarFileName}`;
 
+  const userClass = user?.class || "ADVENTURER";
+  const userGender = user?.gender || "male";
+
+  const getClassName = () => {
+    switch (userClass) {
+      case "ARCHER":
+        return userGender === "female" ? "Archère" : "Archer";
+      case "MAGE":
+        return userGender === "female" ? "Mage" : "Mage";
+      case "SWORDSMAN":
+        return userGender === "female" ? "Escrim" : "Escrimeur";
+      default:
+        return "Aventurier";
+    }
+  };
+
+  const displayClassName = getClassName();
+
   if (!session) {
     return (
       <div className="text-white text-center mt-20">Connexion requise...</div>
@@ -288,7 +306,14 @@ export default function ProfilePage() {
                       <p className="font-bold text-lg">{successRate}%</p>
                     </div>
                   </div>
-                  <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600 opacity-70">
+
+                  <div
+                    className={`bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600 ${
+                      userClass === "ADVENTURER"
+                        ? "opacity-70"
+                        : "border-yellow-500 bg-gray-800"
+                    }`}
+                  >
                     <div className="p-2 bg-gray-800 rounded text-red-400">
                       <Shield size={20} />
                     </div>
@@ -296,7 +321,9 @@ export default function ProfilePage() {
                       <p className="text-[10px] text-gray-400 uppercase">
                         Classe
                       </p>
-                      <p className="font-bold text-sm text-gray-300">???</p>
+                      <p className="font-bold text-sm text-yellow-400 capitalize">
+                        {displayClassName}
+                      </p>
                     </div>
                   </div>
                 </div>
