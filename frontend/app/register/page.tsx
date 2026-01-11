@@ -67,14 +67,18 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen relative">
-      <h1 className="text-3xl font-bold mb-6">Créer un compte</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen relative p-4">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">
+        Créer un compte
+      </h1>
 
-      {error && <p className="text-red-400 mb-4 font-bold">{error}</p>}
+      {error && (
+        <p className="text-red-400 mb-4 font-bold text-center">{error}</p>
+      )}
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 bg-gray-800 p-6 rounded-lg shadow-lg w-80"
+        className="flex flex-col gap-4 bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-xs md:w-80"
       >
         <div className="flex flex-col gap-1">
           <input
@@ -124,21 +128,21 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      <p className="mt-4 text-gray-300">
+      <p className="mt-4 text-gray-300 text-center">
         Vous avez déjà un compte ?{" "}
         <span
           onClick={() => {
             playSound();
             router.push("/auth");
           }}
-          className="text-blue-400 cursor-pointer hover:underline"
+          className="text-blue-400 cursor-pointer hover:underline whitespace-nowrap"
         >
           Connexion
         </span>
       </p>
 
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg w-full max-w-md text-center border border-gray-600">
             <h2 className="text-2xl font-bold mb-4 text-green-400">
               Inscription réussie !
