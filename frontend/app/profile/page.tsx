@@ -156,9 +156,9 @@ export default function ProfilePage() {
       case "MAGE":
         return userGender === "female" ? "Mage" : "Mage";
       case "SWORDSMAN":
-        return userGender === "female" ? "Escrim" : "Escrimeur";
+        return userGender === "female" ? "Escrim" : "Escrim";
       default:
-        return "Aventurier";
+        return "???";
     }
   };
 

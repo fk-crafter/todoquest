@@ -7,6 +7,7 @@ import {
   Body,
   Post,
   BadRequestException,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -14,8 +15,16 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 interface RequestWithUser {
   user: {
     id: string;
-    email: string;
+    email?: string;
   };
+}
+
+interface UpdateUserDto {
+  name?: string;
+  gender?: string;
+  isOnboarded?: boolean;
+  image?: string;
+  class?: 'ADVENTURER' | 'ARCHER' | 'MAGE' | 'SWORDSMAN';
 }
 
 @Controller('users')
@@ -30,7 +39,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Patch('me')
-  updateProfile(@Req() req: RequestWithUser, @Body() body: { name: string }) {
+  updateProfile(@Req() req: RequestWithUser, @Body() body: UpdateUserDto) {
     return this.usersService.updateUser(req.user.id, body);
   }
 
@@ -72,5 +81,12 @@ export class UsersController {
       }
       throw new BadRequestException("Erreur lors de l'équipement");
     }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('me')
+  remove(@Req() req: RequestWithUser) {
+    console.log('Suppression du compte ID:', req.user.id);
+    return this.usersService.deleteUser(req.user.id);
   }
 }
