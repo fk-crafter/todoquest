@@ -179,106 +179,114 @@ export default function SuccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 md:p-6 flex flex-col items-center">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col md:flex-row">
       <Sidebar />
 
-      <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-        <Trophy className="text-yellow-500" /> Salle des Trophées
-      </h1>
-      <p className="text-gray-400 mb-8 text-center text-sm md:text-base">
-        Accomplis des tâches de différentes difficultés pour débloquer ces
-        titres.
-      </p>
+      <div className="flex-1 flex flex-col items-center p-4 md:p-6">
+        <h1 className="text-2xl mt-15 font-bold mb-4 flex items-center gap-2 md:text-3xl md:mb-2">
+          <Trophy className="text-yellow-500 w-6 h-6 md:w-8 md:h-8" />
+          Salle des Trophées
+        </h1>
 
-      <div className="flex flex-wrap justify-center gap-2 mb-8 bg-gray-800 p-2 rounded-lg shadow-md border border-gray-700">
-        {(["ALL", "EASY", "MEDIUM", "HARD", "EPIC"] as Difficulty[]).map(
-          (diff) => (
-            <button
-              key={diff}
-              onClick={() => setSelectedTab(diff)}
-              className={`px-3 py-1.5 rounded-md text-sm font-bold transition-all ${
-                selectedTab === diff
-                  ? diff === "EASY"
-                    ? "bg-green-600 text-white shadow-lg scale-105"
-                    : diff === "MEDIUM"
-                    ? "bg-yellow-600 text-white shadow-lg scale-105"
-                    : diff === "HARD"
-                    ? "bg-orange-600 text-white shadow-lg scale-105"
-                    : diff === "EPIC"
-                    ? "bg-purple-600 text-white shadow-lg scale-105"
-                    : "bg-blue-600 text-white shadow-lg scale-105"
-                  : "bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white"
+        <p className="text-gray-400 mb-6 text-center text-sm md:text-base md:mb-8">
+          Accomplis des tâches de différentes difficultés pour débloquer ces
+          titres.
+        </p>
+
+        <div className="flex flex-wrap justify-center gap-2 mb-6 bg-gray-800 p-2 rounded-lg shadow-md border border-gray-700 w-full md:w-auto md:mb-8">
+          {(["ALL", "EASY", "MEDIUM", "HARD", "EPIC"] as Difficulty[]).map(
+            (diff) => (
+              <button
+                key={diff}
+                onClick={() => setSelectedTab(diff)}
+                className={`flex-1 md:flex-none px-2 py-2 md:px-3 md:py-1.5 rounded-md text-xs md:text-sm font-bold transition-all ${
+                  selectedTab === diff
+                    ? diff === "EASY"
+                      ? "bg-green-600 text-white shadow-lg scale-105"
+                      : diff === "MEDIUM"
+                      ? "bg-yellow-600 text-white shadow-lg scale-105"
+                      : diff === "HARD"
+                      ? "bg-orange-600 text-white shadow-lg scale-105"
+                      : diff === "EPIC"
+                      ? "bg-purple-600 text-white shadow-lg scale-105"
+                      : "bg-blue-600 text-white shadow-lg scale-105"
+                    : "bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white"
+                }`}
+              >
+                {diff === "ALL" ? "Général" : diff}
+              </button>
+            )
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 w-full max-w-4xl md:grid-cols-2 md:gap-4">
+          {filteredAchievements.map((ach) => (
+            <div
+              key={ach.id}
+              className={`relative p-3 md:p-4 rounded-xl border-2 flex items-center gap-3 md:gap-4 transition-all duration-300 ${
+                ach.condition
+                  ? ach.category === "EPIC"
+                    ? "bg-purple-900/30 border-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]"
+                    : ach.category === "HARD"
+                    ? "bg-orange-900/30 border-orange-500 text-white"
+                    : ach.category === "MEDIUM"
+                    ? "bg-yellow-900/30 border-yellow-500 text-white"
+                    : ach.category === "EASY"
+                    ? "bg-green-900/30 border-green-500 text-white"
+                    : "bg-blue-900/30 border-blue-500 text-white"
+                  : "bg-gray-800 border-gray-700 text-gray-500 grayscale opacity-70"
               }`}
             >
-              {diff === "ALL" ? "Général" : diff}
-            </button>
-          )
+              <div
+                className={`p-2 md:p-3 rounded-full flex-shrink-0 ${
+                  ach.condition ? "bg-black/20" : "bg-gray-700"
+                }`}
+              >
+                {ach.condition ? (
+                  ach.icon
+                ) : (
+                  <Lock className="w-5 h-5 md:w-6 md:h-6" />
+                )}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-base md:text-lg flex items-center gap-2 truncate pr-2">
+                  {ach.label}
+                </h3>
+                <p className="text-xs md:text-sm opacity-80">{ach.desc}</p>
+
+                <div className="mt-2 w-full bg-black/40 h-2 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-500 ${
+                      ach.condition ? "bg-white" : "bg-gray-600"
+                    }`}
+                    style={{
+                      width: ach.condition ? "100%" : "30%",
+                    }}
+                  ></div>
+                </div>
+                <p className="text-[10px] text-right mt-1 opacity-60">
+                  {ach.progress}
+                </p>
+              </div>
+
+              {ach.condition && (
+                <div className="absolute top-2 right-2">
+                  <span className="text-[8px] md:text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full font-bold">
+                    DÉBLOQUÉ
+                  </span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {filteredAchievements.length === 0 && (
+          <p className="text-gray-500 mt-10">
+            Aucun succès dans cette catégorie.
+          </p>
         )}
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl">
-        {filteredAchievements.map((ach) => (
-          <div
-            key={ach.id}
-            className={`relative p-4 rounded-xl border-2 flex items-center gap-4 transition-all duration-300 ${
-              ach.condition
-                ? ach.category === "EPIC"
-                  ? "bg-purple-900/30 border-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]"
-                  : ach.category === "HARD"
-                  ? "bg-orange-900/30 border-orange-500 text-white"
-                  : ach.category === "MEDIUM"
-                  ? "bg-yellow-900/30 border-yellow-500 text-white"
-                  : ach.category === "EASY"
-                  ? "bg-green-900/30 border-green-500 text-white"
-                  : "bg-blue-900/30 border-blue-500 text-white"
-                : "bg-gray-800 border-gray-700 text-gray-500 grayscale opacity-70"
-            }`}
-          >
-            <div
-              className={`p-3 rounded-full ${
-                ach.condition ? "bg-black/20" : "bg-gray-700"
-              }`}
-            >
-              {ach.condition ? ach.icon : <Lock size={24} />}
-            </div>
-
-            <div className="flex-1">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                {ach.label}
-              </h3>
-              <p className="text-xs md:text-sm opacity-80">{ach.desc}</p>
-
-              <div className="mt-2 w-full bg-black/40 h-2 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-500 ${
-                    ach.condition ? "bg-white" : "bg-gray-600"
-                  }`}
-                  style={{
-                    width: ach.condition ? "100%" : "30%",
-                  }}
-                ></div>
-              </div>
-              <p className="text-[10px] text-right mt-1 opacity-60">
-                {ach.progress}
-              </p>
-            </div>
-
-            {ach.condition && (
-              <div className="absolute top-2 right-2">
-                <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">
-                  DÉBLOQUÉ
-                </span>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {filteredAchievements.length === 0 && (
-        <p className="text-gray-500 mt-10">
-          Aucun succès dans cette catégorie.
-        </p>
-      )}
     </div>
   );
 }
