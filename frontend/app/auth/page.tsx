@@ -55,8 +55,10 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6">Authentification</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">
+        Authentification
+      </h1>
 
       {globalError && (
         <p className="text-red-500 font-bold mb-4">{globalError}</p>
@@ -64,7 +66,7 @@ export default function AuthPage() {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 bg-gray-800 p-6 rounded-lg shadow-lg w-80"
+        className="flex flex-col gap-4 bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-xs md:w-80"
       >
         <div className="flex flex-col gap-1">
           <input
@@ -102,7 +104,7 @@ export default function AuthPage() {
         </button>
       </form>
 
-      <div className="flex flex-col gap-2 mt-4 w-80">
+      <div className="flex flex-col gap-2 mt-4 w-full max-w-xs md:w-80">
         <button
           type="button"
           onClick={() => {
@@ -126,14 +128,14 @@ export default function AuthPage() {
         </button>
       </div>
 
-      <p className="mt-4 text-gray-300">
+      <p className="mt-4 text-gray-300 text-center">
         Pas de compte ?{" "}
         <span
           onClick={() => {
             playSound();
             router.push("/register");
           }}
-          className="text-blue-400 cursor-pointer hover:underline"
+          className="text-blue-400 cursor-pointer hover:underline whitespace-nowrap"
         >
           Créer un compte
         </span>
@@ -145,9 +147,9 @@ export default function AuthPage() {
           playSound();
           router.push("/");
         }}
-        className="mt-6 flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white text-lg font-bold rounded-lg shadow-md transition-all"
+        className="mt-6 flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg shadow-md transition-all text-sm px-4 py-2 w-full whitespace-nowrap md:text-lg md:px-6 md:py-3 md:w-auto"
       >
-        <ArrowLeft size={24} /> Retour à l&apos;accueil
+        <ArrowLeft className="w-5 h-5 md:w-6 md:h-6" /> Retour à l&apos;accueil
       </button>
     </div>
   );
