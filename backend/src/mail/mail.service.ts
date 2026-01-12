@@ -13,7 +13,7 @@ export class MailService {
     const confirmLink = `${process.env.FRONTEND_URL}/verify?token=${token}`;
 
     await this.resend.emails.send({
-      from: 'TodoQuest <onboarding@resend.dev>',
+      from: 'TodoQuest <no-reply@chuzly.app>',
       to: email,
       subject: 'Vérifiez votre compte TodoQuest 🛡️',
       html: `
