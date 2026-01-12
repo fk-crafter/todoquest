@@ -23,17 +23,18 @@ import {
   Hexagon,
   Ghost,
   Sparkles,
+  Loader2,
 } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
-const THEMES_METADATA = {
+const THEMES_METADATA: Record<string, any> = {
   default: { name: "Classique", icon: Moon, color: "text-gray-400" },
   theme_magma: { name: "Magma", icon: Mountain, color: "text-red-500" },
   theme_forest: { name: "Forêt", icon: Trees, color: "text-green-500" },
   theme_cyber: { name: "Cyberpunk", icon: Cpu, color: "text-purple-500" },
 };
 
-const TITLES_METADATA = {
+const TITLES_METADATA: Record<string, any> = {
   default: { name: "Rang de Niveau", icon: Star, color: "text-gray-400" },
   title_rich: { name: "Le Bourgeois", icon: Crown, color: "text-yellow-400" },
   title_slayer: { name: "Tueur", icon: Sword, color: "text-red-500" },
@@ -42,7 +43,7 @@ const TITLES_METADATA = {
   title_legend: { name: "Légende", icon: Sparkles, color: "text-purple-400" },
 };
 
-const FRAMES_METADATA = {
+const FRAMES_METADATA: Record<string, any> = {
   default: {
     name: "Standard",
     icon: Frame,
@@ -81,33 +82,34 @@ export default function ProfilePage() {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-
-  const fetchProfile = async () => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
-      {
-        headers: { Authorization: `Bearer ${session?.accessToken}` },
-      }
-    );
-    if (!res.ok) throw new Error("Erreur chargement profil");
-    return res.json();
-  };
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["profile"],
-    queryFn: fetchProfile,
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
+        {
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+        }
+      );
+      if (!res.ok) throw new Error("Erreur chargement profil");
+      return res.json();
+    },
     enabled: !!session?.accessToken,
   });
 
   useEffect(() => {
-    if (user?.name) {
-      setNewName(user.name);
-    }
+    if (user?.name) setNewName(user.name);
   }, [user]);
 
-  const handleEquip = async (itemId: string, category: string) => {
-    try {
+  const equipMutation = useMutation({
+    mutationFn: async ({
+      itemId,
+      category,
+    }: {
+      itemId: string;
+      category: string;
+    }) => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/equip`,
         {
@@ -119,43 +121,42 @@ export default function ProfilePage() {
           body: JSON.stringify({ itemId, category }),
         }
       );
+      if (!res.ok) throw new Error("Erreur équipement");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+    onError: () => alert("Impossible d'équiper cet objet."),
+  });
 
-      if (!res.ok) throw new Error("Erreur lors de l'équipement");
-
-      await queryClient.invalidateQueries({ queryKey: ["profile"] });
-    } catch (error) {
-      console.error(error);
-      alert("Impossible d'équiper cet objet.");
-    }
-  };
-
-  const updateUsername = async () => {
-    if (!newName.trim() || !session?.accessToken) return;
-    setIsSaving(true);
-
-    try {
+  const updateNameMutation = useMutation({
+    mutationFn: async (name: string) => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${session.accessToken}`,
+            Authorization: `Bearer ${session?.accessToken}`,
           },
-          body: JSON.stringify({ name: newName }),
+          body: JSON.stringify({ name }),
         }
       );
-
-      if (!res.ok) throw new Error("Erreur mise à jour");
-      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      if (!res.ok) throw new Error("Erreur update");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
       setIsEditing(false);
-    } catch (error) {
-      console.error("Impossible de modifier le pseudo", error);
-      alert("Erreur lors de la modification du pseudo");
-    } finally {
-      setIsSaving(false);
-    }
-  };
+    },
+    onError: () => alert("Erreur modification pseudo"),
+  });
+
+  if (!session)
+    return (
+      <div className="text-center mt-20 text-white">Connexion requise...</div>
+    );
+  if (isLoading)
+    return <div className="text-center mt-20 text-white">Chargement...</div>;
 
   const level = user?.level || 1;
   const xp = user?.xp || 0;
@@ -167,6 +168,15 @@ export default function ProfilePage() {
     tasksCreated > 0 ? Math.round((tasksCompleted / tasksCreated) * 100) : 0;
   const currentName = user?.name || session?.user?.name || "Héros";
 
+  let avatarFileName =
+    user?.avatar || user?.image || session?.user?.image || "char-male.png";
+  avatarFileName = avatarFileName.replace("/avatars/", "").replace("/", "");
+  const avatarUrl = `/${avatarFileName}`;
+
+  const equippedFrameId = user?.equippedFrame || "default";
+  const currentFrameData =
+    FRAMES_METADATA[equippedFrameId] || FRAMES_METADATA["default"];
+
   const getLevelTitle = (lvl: number) => {
     if (lvl < 5) return "Novice du To-Do";
     if (lvl < 10) return "Aventurier Organisé";
@@ -177,50 +187,24 @@ export default function ProfilePage() {
 
   const equippedTitleId = user?.equippedTitle || "default";
   const displayTitle =
-    equippedTitleId !== "default" &&
-    TITLES_METADATA[equippedTitleId as keyof typeof TITLES_METADATA]
-      ? TITLES_METADATA[equippedTitleId as keyof typeof TITLES_METADATA].name
+    equippedTitleId !== "default" && TITLES_METADATA[equippedTitleId]
+      ? TITLES_METADATA[equippedTitleId].name
       : getLevelTitle(level);
-
-  let avatarFileName =
-    user?.avatar || user?.image || session?.user?.image || "char-male.png";
-
-  avatarFileName = avatarFileName.replace("/avatars/", "").replace("/", "");
-  const avatarUrl = `/${avatarFileName}`;
 
   const userClass = user?.class || "ADVENTURER";
   const userGender = user?.gender || "male";
-
-  const getClassName = () => {
+  const displayClassName = (() => {
     switch (userClass) {
       case "ARCHER":
         return userGender === "female" ? "Archère" : "Archer";
       case "MAGE":
-        return userGender === "female" ? "Mage" : "Mage";
+        return "Mage";
       case "SWORDSMAN":
-        return userGender === "female" ? "Escrim" : "Escrim";
+        return "Escrim";
       default:
         return "???";
     }
-  };
-
-  const displayClassName = getClassName();
-
-  const equippedFrameId = user?.equippedFrame || "default";
-  const currentFrameData =
-    FRAMES_METADATA[equippedFrameId as keyof typeof FRAMES_METADATA] ||
-    FRAMES_METADATA["default"];
-  const avatarFrameClasses = currentFrameData.style;
-
-  if (!session) {
-    return (
-      <div className="text-white text-center mt-20">Connexion requise...</div>
-    );
-  }
-
-  if (isLoading) {
-    return <div className="text-white text-center mt-20">Chargement...</div>;
-  }
+  })();
 
   return (
     <div className="min-h-screen flex bg-gray-900 text-white font-press">
@@ -233,12 +217,12 @@ export default function ProfilePage() {
 
         <div className="w-full max-w-2xl flex flex-col gap-6">
           <div className="bg-gray-800 border-4 border-gray-600 rounded-xl p-6 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2" />
 
             <div className="flex flex-col md:flex-row gap-8 items-center md:items-start z-10 relative">
               <div className="flex flex-col items-center gap-4">
                 <div
-                  className={`w-32 h-32 md:w-40 md:h-40 bg-gray-700 rounded-full border-4 overflow-hidden flex items-center justify-center relative transition-all duration-300 ${avatarFrameClasses}`}
+                  className={`w-32 h-32 md:w-40 md:h-40 bg-gray-700 rounded-full border-4 overflow-hidden flex items-center justify-center relative transition-all duration-300 ${currentFrameData.style}`}
                 >
                   <img
                     src={avatarUrl}
@@ -262,11 +246,15 @@ export default function ProfilePage() {
                         autoFocus
                       />
                       <button
-                        onClick={updateUsername}
-                        disabled={isSaving}
+                        onClick={() => updateNameMutation.mutate(newName)}
+                        disabled={updateNameMutation.isPending}
                         className="p-1 bg-green-600 rounded text-white"
                       >
-                        <Check size={16} />
+                        {updateNameMutation.isPending ? (
+                          <Loader2 className="animate-spin" size={16} />
+                        ) : (
+                          <Check size={16} />
+                        )}
                       </button>
                       <button
                         onClick={() => {
@@ -285,7 +273,7 @@ export default function ProfilePage() {
                       </h2>
                       <button
                         onClick={() => setIsEditing(true)}
-                        className="text-gray-400 hover:text-yellow-400 opacity-0 group-hover:opacity-100 md:opacity-100"
+                        className="text-gray-400 hover:text-yellow-400 opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity"
                       >
                         <Pencil size={16} />
                       </button>
@@ -318,44 +306,29 @@ export default function ProfilePage() {
                     <div
                       className="bg-gradient-to-r from-yellow-600 to-yellow-400 h-full transition-all duration-1000 ease-out"
                       style={{ width: `${xpProgressPercent}%` }}
-                    ></div>
+                    />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
-                    <div className="p-2 bg-gray-800 rounded text-blue-400">
-                      <Scroll size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 uppercase">
-                        Quêtes
-                      </p>
-                      <p className="font-bold text-lg">{tasksCreated}</p>
-                    </div>
-                  </div>
-                  <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
-                    <div className="p-2 bg-gray-800 rounded text-green-400">
-                      <Sword size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 uppercase">
-                        Finies
-                      </p>
-                      <p className="font-bold text-lg">{tasksCompleted}</p>
-                    </div>
-                  </div>
-                  <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
-                    <div className="p-2 bg-gray-800 rounded text-purple-400">
-                      <Trophy size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 uppercase">
-                        Efficacité
-                      </p>
-                      <p className="font-bold text-lg">{successRate}%</p>
-                    </div>
-                  </div>
+                  <StatCard
+                    icon={Scroll}
+                    label="Quêtes"
+                    value={tasksCreated}
+                    color="text-blue-400"
+                  />
+                  <StatCard
+                    icon={Sword}
+                    label="Finies"
+                    value={tasksCompleted}
+                    color="text-green-400"
+                  />
+                  <StatCard
+                    icon={Trophy}
+                    label="Efficacité"
+                    value={`${successRate}%`}
+                    color="text-purple-400"
+                  />
 
                   <div
                     className={`bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600 ${
@@ -382,222 +355,143 @@ export default function ProfilePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
-            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg md:col-span-2">
-              <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
-                🖼️ Mes Cadres d'Avatar
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div
-                  className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
-                    !user?.equippedFrame || user?.equippedFrame === "default"
-                      ? "border-green-500 bg-gray-700 scale-105"
-                      : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  <Frame size={28} className="text-gray-400" />
-                  <span className="font-bold text-[10px]">Standard</span>
-                  <button
-                    onClick={() => handleEquip("default", "FRAME")}
-                    disabled={
-                      !user?.equippedFrame || user?.equippedFrame === "default"
-                    }
-                    className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
-                      !user?.equippedFrame || user?.equippedFrame === "default"
-                        ? "bg-green-600 text-white cursor-default"
-                        : "bg-gray-600 hover:bg-blue-600 text-white"
-                    }`}
-                  >
-                    {!user?.equippedFrame || user?.equippedFrame === "default"
-                      ? "ÉQUIPÉ"
-                      : "CHOISIR"}
-                  </button>
-                </div>
-
-                {user?.inventory
-                  ?.filter((id: string) => id.startsWith("frame_"))
-                  .map((frameId: string) => {
-                    const meta =
-                      FRAMES_METADATA[frameId as keyof typeof FRAMES_METADATA];
-                    const isEquipped = user?.equippedFrame === frameId;
-                    const Icon = meta?.icon || Frame;
-
-                    return (
-                      <div
-                        key={frameId}
-                        className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
-                          isEquipped
-                            ? "border-green-500 bg-gray-700 scale-105"
-                            : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
-                        }`}
-                      >
-                        <Icon
-                          size={28}
-                          className={meta?.color || "text-white"}
-                        />
-                        <span className="font-bold text-[10px]">
-                          {meta?.name || frameId}
-                        </span>
-                        <button
-                          onClick={() => handleEquip(frameId, "FRAME")}
-                          disabled={isEquipped}
-                          className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
-                            isEquipped
-                              ? "bg-green-600 text-white cursor-default"
-                              : "bg-gray-600 hover:bg-blue-600 text-white"
-                          }`}
-                        >
-                          {isEquipped ? "ÉQUIPÉ" : "CHOISIR"}
-                        </button>
-                      </div>
-                    );
-                  })}
-              </div>
+            <div className="md:col-span-2">
+              <CustomizationSection
+                title="🖼️ Mes Cadres d'Avatar"
+                category="FRAME"
+                equippedId={user?.equippedFrame || "default"}
+                inventory={user?.inventory || []}
+                metadata={FRAMES_METADATA}
+                onEquip={(id) =>
+                  equipMutation.mutate({ itemId: id, category: "FRAME" })
+                }
+                isLoading={equipMutation.isPending}
+              />
             </div>
 
-            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
-              <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
-                🎨 Mes Thèmes
-              </h2>
+            <CustomizationSection
+              title="🎨 Mes Thèmes"
+              category="THEME"
+              equippedId={user?.equippedTheme || "default"}
+              inventory={user?.inventory || []}
+              metadata={THEMES_METADATA}
+              onEquip={(id) =>
+                equipMutation.mutate({ itemId: id, category: "THEME" })
+              }
+              isLoading={equipMutation.isPending}
+            />
 
-              <div className="grid grid-cols-2 gap-4">
-                <div
-                  className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
-                    !user?.equippedTheme
-                      ? "border-green-500 bg-gray-700 scale-105"
-                      : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  <Moon size={28} className="text-gray-400" />
-                  <span className="font-bold text-[10px]">Classique</span>
-                  <button
-                    onClick={() => handleEquip("default", "THEME")}
-                    disabled={!user?.equippedTheme}
-                    className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
-                      !user?.equippedTheme
-                        ? "bg-green-600 text-white cursor-default"
-                        : "bg-gray-600 hover:bg-blue-600 text-white"
-                    }`}
-                  >
-                    {!user?.equippedTheme ? "ÉQUIPÉ" : "CHOISIR"}
-                  </button>
-                </div>
-
-                {user?.inventory
-                  ?.filter((id: string) => id.startsWith("theme_"))
-                  .map((themeId: string) => {
-                    const meta =
-                      THEMES_METADATA[themeId as keyof typeof THEMES_METADATA];
-                    const isEquipped = user?.equippedTheme === themeId;
-                    const Icon = meta?.icon || Moon;
-
-                    return (
-                      <div
-                        key={themeId}
-                        className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
-                          isEquipped
-                            ? "border-green-500 bg-gray-700 scale-105"
-                            : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
-                        }`}
-                      >
-                        <Icon
-                          size={28}
-                          className={meta?.color || "text-white"}
-                        />
-                        <span className="font-bold text-[10px]">
-                          {meta?.name || themeId}
-                        </span>
-                        <button
-                          onClick={() => handleEquip(themeId, "THEME")}
-                          disabled={isEquipped}
-                          className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
-                            isEquipped
-                              ? "bg-green-600 text-white cursor-default"
-                              : "bg-gray-600 hover:bg-blue-600 text-white"
-                          }`}
-                        >
-                          {isEquipped ? "ÉQUIPÉ" : "CHOISIR"}
-                        </button>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-
-            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
-              <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
-                👑 Mes Titres
-              </h2>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div
-                  className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
-                    !user?.equippedTitle || user?.equippedTitle === "default"
-                      ? "border-green-500 bg-gray-700 scale-105"
-                      : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  <Star size={28} className="text-gray-400" />
-                  <span className="font-bold text-[10px]">Par Niveau</span>
-                  <button
-                    onClick={() => handleEquip("default", "TITLE")}
-                    disabled={
-                      !user?.equippedTitle || user?.equippedTitle === "default"
-                    }
-                    className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
-                      !user?.equippedTitle || user?.equippedTitle === "default"
-                        ? "bg-green-600 text-white cursor-default"
-                        : "bg-gray-600 hover:bg-blue-600 text-white"
-                    }`}
-                  >
-                    {!user?.equippedTitle || user?.equippedTitle === "default"
-                      ? "ÉQUIPÉ"
-                      : "CHOISIR"}
-                  </button>
-                </div>
-
-                {user?.inventory
-                  ?.filter((id: string) => id.startsWith("title_"))
-                  .map((titleId: string) => {
-                    const meta =
-                      TITLES_METADATA[titleId as keyof typeof TITLES_METADATA];
-                    const isEquipped = user?.equippedTitle === titleId;
-                    const Icon = meta?.icon || Crown;
-
-                    return (
-                      <div
-                        key={titleId}
-                        className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
-                          isEquipped
-                            ? "border-green-500 bg-gray-700 scale-105"
-                            : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
-                        }`}
-                      >
-                        <Icon
-                          size={28}
-                          className={meta?.color || "text-white"}
-                        />
-                        <span className="font-bold text-[10px]">
-                          {meta?.name || titleId}
-                        </span>
-                        <button
-                          onClick={() => handleEquip(titleId, "TITLE")}
-                          disabled={isEquipped}
-                          className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
-                            isEquipped
-                              ? "bg-green-600 text-white cursor-default"
-                              : "bg-gray-600 hover:bg-blue-600 text-white"
-                          }`}
-                        >
-                          {isEquipped ? "ÉQUIPÉ" : "CHOISIR"}
-                        </button>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
+            <CustomizationSection
+              title="👑 Mes Titres"
+              category="TITLE"
+              equippedId={user?.equippedTitle || "default"}
+              inventory={user?.inventory || []}
+              metadata={TITLES_METADATA}
+              onEquip={(id) =>
+                equipMutation.mutate({ itemId: id, category: "TITLE" })
+              }
+              isLoading={equipMutation.isPending}
+            />
           </div>
         </div>
       </main>
+    </div>
+  );
+}
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  color,
+}: {
+  icon: any;
+  label: string;
+  value: string | number;
+  color: string;
+}) {
+  return (
+    <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
+      <div className={`p-2 bg-gray-800 rounded ${color}`}>
+        <Icon size={20} />
+      </div>
+      <div>
+        <p className="text-[10px] text-gray-400 uppercase">{label}</p>
+        <p className="font-bold text-lg">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function CustomizationSection({
+  title,
+  category,
+  equippedId,
+  inventory,
+  metadata,
+  onEquip,
+  isLoading,
+}: {
+  title: string;
+  category: string;
+  equippedId: string;
+  inventory: string[];
+  metadata: Record<string, any>;
+  onEquip: (id: string) => void;
+  isLoading: boolean;
+}) {
+  const prefix = category.toLowerCase() + "_";
+  const ownedItems = inventory.filter((id: string) => id.startsWith(prefix));
+  const allItems = ["default", ...ownedItems];
+
+  return (
+    <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg h-full">
+      <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+        {title}
+      </h2>
+
+      <div
+        className={`grid grid-cols-2 ${
+          category === "FRAME" ? "md:grid-cols-4" : ""
+        } gap-4`}
+      >
+        {allItems.map((itemId) => {
+          const meta = metadata[itemId] || {
+            name: itemId,
+            icon: Star,
+            color: "text-white",
+          };
+          const isEquipped = equippedId === itemId;
+          const Icon = meta.icon;
+
+          return (
+            <div
+              key={itemId}
+              className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
+                isEquipped
+                  ? "border-green-500 bg-gray-700 scale-105"
+                  : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
+              }`}
+            >
+              <Icon size={28} className={meta.color} />
+              <span className="font-bold text-[10px] text-center truncate w-full">
+                {meta.name}
+              </span>
+              <button
+                onClick={() => onEquip(itemId)}
+                disabled={isEquipped || isLoading}
+                className={`px-3 py-1 rounded text-[10px] font-bold uppercase w-full ${
+                  isEquipped
+                    ? "bg-green-600 text-white cursor-default"
+                    : "bg-gray-600 hover:bg-blue-600 text-white"
+                }`}
+              >
+                {isEquipped ? "ÉQUIPÉ" : "CHOISIR"}
+              </button>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
