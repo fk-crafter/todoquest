@@ -17,6 +17,12 @@ import {
   Cpu,
   Crown,
   Star,
+  Frame,
+  Flame,
+  Zap,
+  Hexagon,
+  Ghost,
+  Sparkles,
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -31,6 +37,43 @@ const TITLES_METADATA = {
   default: { name: "Rang de Niveau", icon: Star, color: "text-gray-400" },
   title_rich: { name: "Le Bourgeois", icon: Crown, color: "text-yellow-400" },
   title_slayer: { name: "Tueur", icon: Sword, color: "text-red-500" },
+  title_paladin: { name: "Paladin", icon: Shield, color: "text-blue-300" },
+  title_ninja: { name: "Ombre", icon: Ghost, color: "text-gray-400" },
+  title_legend: { name: "Légende", icon: Sparkles, color: "text-purple-400" },
+};
+
+const FRAMES_METADATA = {
+  default: {
+    name: "Standard",
+    icon: Frame,
+    style: "border-gray-500 shadow-none",
+    color: "text-gray-400",
+  },
+  frame_gold: {
+    name: "Cadre Doré",
+    icon: Frame,
+    style: "border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.6)]",
+    color: "text-yellow-400",
+  },
+  frame_fire: {
+    name: "Enflammé",
+    icon: Flame,
+    style:
+      "border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.8)] animate-pulse",
+    color: "text-orange-500",
+  },
+  frame_neon: {
+    name: "Néon Bleu",
+    icon: Zap,
+    style: "border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.8)]",
+    color: "text-cyan-400",
+  },
+  frame_emerald: {
+    name: "Émeraude",
+    icon: Hexagon,
+    style: "border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.6)]",
+    color: "text-green-400",
+  },
 };
 
 export default function ProfilePage() {
@@ -80,7 +123,6 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error("Erreur lors de l'équipement");
 
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
-      window.location.reload();
     } catch (error) {
       console.error(error);
       alert("Impossible d'équiper cet objet.");
@@ -164,6 +206,12 @@ export default function ProfilePage() {
 
   const displayClassName = getClassName();
 
+  const equippedFrameId = user?.equippedFrame || "default";
+  const currentFrameData =
+    FRAMES_METADATA[equippedFrameId as keyof typeof FRAMES_METADATA] ||
+    FRAMES_METADATA["default"];
+  const avatarFrameClasses = currentFrameData.style;
+
   if (!session) {
     return (
       <div className="text-white text-center mt-20">Connexion requise...</div>
@@ -189,7 +237,9 @@ export default function ProfilePage() {
 
             <div className="flex flex-col md:flex-row gap-8 items-center md:items-start z-10 relative">
               <div className="flex flex-col items-center gap-4">
-                <div className="w-32 h-32 md:w-40 md:h-40 bg-gray-700 rounded-full border-4 border-yellow-500 overflow-hidden shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center relative">
+                <div
+                  className={`w-32 h-32 md:w-40 md:h-40 bg-gray-700 rounded-full border-4 overflow-hidden flex items-center justify-center relative transition-all duration-300 ${avatarFrameClasses}`}
+                >
                   <img
                     src={avatarUrl}
                     alt="Avatar"
@@ -331,7 +381,79 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg md:col-span-2">
+              <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+                🖼️ Mes Cadres d'Avatar
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div
+                  className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
+                    !user?.equippedFrame || user?.equippedFrame === "default"
+                      ? "border-green-500 bg-gray-700 scale-105"
+                      : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
+                  }`}
+                >
+                  <Frame size={28} className="text-gray-400" />
+                  <span className="font-bold text-[10px]">Standard</span>
+                  <button
+                    onClick={() => handleEquip("default", "FRAME")}
+                    disabled={
+                      !user?.equippedFrame || user?.equippedFrame === "default"
+                    }
+                    className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
+                      !user?.equippedFrame || user?.equippedFrame === "default"
+                        ? "bg-green-600 text-white cursor-default"
+                        : "bg-gray-600 hover:bg-blue-600 text-white"
+                    }`}
+                  >
+                    {!user?.equippedFrame || user?.equippedFrame === "default"
+                      ? "ÉQUIPÉ"
+                      : "CHOISIR"}
+                  </button>
+                </div>
+
+                {user?.inventory
+                  ?.filter((id: string) => id.startsWith("frame_"))
+                  .map((frameId: string) => {
+                    const meta =
+                      FRAMES_METADATA[frameId as keyof typeof FRAMES_METADATA];
+                    const isEquipped = user?.equippedFrame === frameId;
+                    const Icon = meta?.icon || Frame;
+
+                    return (
+                      <div
+                        key={frameId}
+                        className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
+                          isEquipped
+                            ? "border-green-500 bg-gray-700 scale-105"
+                            : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
+                        }`}
+                      >
+                        <Icon
+                          size={28}
+                          className={meta?.color || "text-white"}
+                        />
+                        <span className="font-bold text-[10px]">
+                          {meta?.name || frameId}
+                        </span>
+                        <button
+                          onClick={() => handleEquip(frameId, "FRAME")}
+                          disabled={isEquipped}
+                          className={`px-3 py-1 rounded text-[10px] font-bold uppercase ${
+                            isEquipped
+                              ? "bg-green-600 text-white cursor-default"
+                              : "bg-gray-600 hover:bg-blue-600 text-white"
+                          }`}
+                        >
+                          {isEquipped ? "ÉQUIPÉ" : "CHOISIR"}
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+
             <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
               <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
                 🎨 Mes Thèmes

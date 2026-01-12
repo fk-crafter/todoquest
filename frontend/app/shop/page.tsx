@@ -8,9 +8,6 @@ import {
   Lock,
   Coins,
   Check,
-  Shield,
-  Wand2,
-  Bot,
   Frame,
   Flame,
   Zap,
@@ -19,6 +16,10 @@ import {
   Mountain,
   Trees,
   Cpu,
+  Shield,
+  Ghost,
+  Sparkles,
+  Hexagon,
 } from "lucide-react";
 
 type ShopItem = {
@@ -31,31 +32,6 @@ type ShopItem = {
 };
 
 const SHOP_ITEMS: ShopItem[] = [
-  {
-    id: "skin_knight",
-    name: "Chevalier",
-    category: "SKIN",
-    price: 500,
-    icon: Shield,
-    color: "text-gray-300",
-  },
-  {
-    id: "skin_wizard",
-    name: "Sorcier",
-    category: "SKIN",
-    price: 500,
-    icon: Wand2,
-    color: "text-purple-400",
-  },
-  {
-    id: "skin_robot",
-    name: "Robot",
-    category: "SKIN",
-    price: 800,
-    icon: Bot,
-    color: "text-cyan-400",
-  },
-
   {
     id: "frame_gold",
     name: "Cadre Doré",
@@ -78,9 +54,41 @@ const SHOP_ITEMS: ShopItem[] = [
     category: "FRAME",
     price: 600,
     icon: Zap,
-    color: "text-blue-400",
+    color: "text-cyan-400",
+  },
+  {
+    id: "frame_emerald",
+    name: "Émeraude",
+    category: "FRAME",
+    price: 500,
+    icon: Hexagon,
+    color: "text-green-400",
   },
 
+  {
+    id: "title_slayer",
+    name: "Tueur",
+    category: "TITLE",
+    price: 200,
+    icon: Sword,
+    color: "text-red-400",
+  },
+  {
+    id: "title_paladin",
+    name: "Paladin",
+    category: "TITLE",
+    price: 500,
+    icon: Shield,
+    color: "text-blue-300",
+  },
+  {
+    id: "title_ninja",
+    name: "Ombre",
+    category: "TITLE",
+    price: 800,
+    icon: Ghost,
+    color: "text-gray-400",
+  },
   {
     id: "title_rich",
     name: "Le Bourgeois",
@@ -90,12 +98,12 @@ const SHOP_ITEMS: ShopItem[] = [
     color: "text-yellow-300",
   },
   {
-    id: "title_slayer",
-    name: "Tueur",
+    id: "title_legend",
+    name: "Légende",
     category: "TITLE",
-    price: 200,
-    icon: Sword,
-    color: "text-red-400",
+    price: 2500,
+    icon: Sparkles,
+    color: "text-purple-400",
   },
 
   {
@@ -125,8 +133,7 @@ const SHOP_ITEMS: ShopItem[] = [
 ];
 
 const CATEGORIES = {
-  SKIN: "Apparences 👤",
-  FRAME: "Cadres 🖼️",
+  FRAME: "Cadres d'Avatar 🖼️",
   TITLE: "Titres Rares 👑",
   THEME: "Thèmes Visuels 🎨",
 };
