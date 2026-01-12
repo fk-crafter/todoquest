@@ -9,12 +9,18 @@ import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { User } from '@prisma/client';
+import { MailService } from '../mail/mail.service';
+
+interface VerificationTokenPayload {
+  userId: string;
+}
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -40,7 +46,35 @@ export class AuthService {
       },
     });
 
-    return this.generateToken(user);
+    const verificationToken = this.jwtService.sign(
+      { userId: user.id },
+      { expiresIn: '1d' },
+    );
+
+    await this.mailService.sendVerificationEmail(user.email, verificationToken);
+
+    return {
+      message:
+        'Inscription réussie. Veuillez vérifier vos emails pour activer votre compte.',
+    };
+  }
+
+  async verifyEmail(token: string) {
+    try {
+      const payload =
+        await this.jwtService.verifyAsync<VerificationTokenPayload>(token);
+
+      await this.prisma.user.update({
+        where: { id: payload.userId },
+        data: { isVerified: true },
+      });
+
+      return { success: true, message: 'Email vérifié avec succès !' };
+    } catch {
+      throw new BadRequestException(
+        'Le lien de vérification est invalide ou a expiré.',
+      );
+    }
   }
 
   async login(dto: LoginDto) {
@@ -50,6 +84,12 @@ export class AuthService {
 
     if (!user || !user.password) {
       throw new UnauthorizedException('Email ou mot de passe incorrect');
+    }
+
+    if (!user.isVerified) {
+      throw new UnauthorizedException(
+        'Veuillez vérifier votre email avant de vous connecter.',
+      );
     }
 
     const isMatch = await bcrypt.compare(dto.password, user.password);
@@ -75,6 +115,7 @@ export class AuthService {
         role: user.role,
         gender: user.gender,
         isOnboarded: user.isOnboarded,
+        isVerified: user.isVerified,
       },
     };
   }
@@ -94,6 +135,7 @@ export class AuthService {
           level: 1,
           gender: 'adventurer',
           isOnboarded: false,
+          isVerified: true,
         },
       });
     }
