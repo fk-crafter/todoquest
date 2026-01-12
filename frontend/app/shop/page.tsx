@@ -20,6 +20,7 @@ import {
   Ghost,
   Sparkles,
   Hexagon,
+  Gem,
 } from "lucide-react";
 
 type ShopItem = {
@@ -64,7 +65,6 @@ const SHOP_ITEMS: ShopItem[] = [
     icon: Hexagon,
     color: "text-green-400",
   },
-
   {
     id: "title_slayer",
     name: "Tueur",
@@ -105,7 +105,6 @@ const SHOP_ITEMS: ShopItem[] = [
     icon: Sparkles,
     color: "text-purple-400",
   },
-
   {
     id: "theme_magma",
     name: "Magma",
@@ -199,6 +198,12 @@ export default function ShopPage() {
     }
   };
 
+  const handleBuyGold = () => {
+    alert(
+      "Le système de paiement arrivera bientôt ! Préparez votre carte bleue 💳"
+    );
+  };
+
   return (
     <div className="min-h-screen flex bg-gray-900 text-white font-press">
       <Sidebar />
@@ -221,6 +226,41 @@ export default function ShopPage() {
         </div>
 
         <div className="space-y-8 pb-10">
+          <div>
+            <h2 className="text-lg text-yellow-400 mb-3 border-b border-yellow-800 pb-1 uppercase tracking-wider flex items-center gap-2">
+              <Gem size={20} /> Trésorerie
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-gradient-to-br from-yellow-900/40 to-yellow-900/10 border-2 border-yellow-600/50 rounded-lg p-4 flex items-center justify-between relative overflow-hidden group hover:border-yellow-400 transition-all">
+                <div className="absolute -right-6 -top-6 w-24 h-24 bg-yellow-500/20 rounded-full blur-xl group-hover:bg-yellow-500/30 transition-all"></div>
+
+                <div className="flex flex-col gap-1 z-10">
+                  <h3 className="font-bold text-yellow-100 text-sm">
+                    Bourse d'Or
+                  </h3>
+                  <div className="flex items-center gap-2 text-yellow-400 font-bold text-xl">
+                    1 500 <Coins size={20} />
+                  </div>
+                  <span className="text-[10px] text-yellow-200/70">
+                    Idéal pour débuter
+                  </span>
+                </div>
+
+                <button
+                  onClick={handleBuyGold}
+                  className="z-10 bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-1 text-sm"
+                >
+                  2,99 €
+                </button>
+              </div>
+
+              <div className="bg-gray-800/50 border-2 border-gray-700 border-dashed rounded-lg p-4 flex items-center justify-center text-gray-500 gap-2 opacity-50">
+                <Lock size={16} /> Plus d'offres bientôt...
+              </div>
+            </div>
+          </div>
+
           {(Object.keys(CATEGORIES) as Array<keyof typeof CATEGORIES>).map(
             (catKey) => {
               const items = SHOP_ITEMS.filter(

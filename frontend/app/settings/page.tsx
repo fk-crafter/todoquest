@@ -13,7 +13,7 @@ export default function SettingsPage() {
 
   const { isPlaying, toggleMusic, volume, setVolume } = useAudio();
 
-  const [notifications, setNotifications] = useState(true);
+  const [notifications, setNotifications] = useState(false); // Mis à false par défaut vu que c'est désactivé
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleLogout = async () => {
@@ -116,16 +116,23 @@ export default function SettingsPage() {
               Préférences
             </h2>
 
-            <div className="flex items-center justify-between text-sm md:text-base">
-              <span>Notifications de quête</span>
-              <label className="relative inline-flex items-center cursor-pointer">
+            {/* MODIFICATION ICI : Opacity 50 + Badge Bientôt + Disabled */}
+            <div className="flex items-center justify-between text-sm md:text-base opacity-50 cursor-not-allowed">
+              <div className="flex items-center gap-2">
+                <span>Notifications de quête</span>
+                <span className="text-[10px] bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 px-2 py-0.5 rounded-full uppercase font-bold">
+                  Bientôt disponible
+                </span>
+              </div>
+
+              <label className="relative inline-flex items-center cursor-not-allowed">
                 <input
                   type="checkbox"
                   checked={notifications}
-                  onChange={() => setNotifications(!notifications)}
+                  disabled // Désactivé
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:outline-none peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
               </label>
             </div>
           </div>
