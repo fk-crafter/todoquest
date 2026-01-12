@@ -13,7 +13,7 @@ export default function SettingsPage() {
 
   const { isPlaying, toggleMusic, volume, setVolume } = useAudio();
 
-  const [notifications, setNotifications] = useState(false); // Mis à false par défaut vu que c'est désactivé
+  const [notifications, setNotifications] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleLogout = async () => {
@@ -60,19 +60,15 @@ export default function SettingsPage() {
   }
 
   return (
-    // LAYOUT : flex-col (mobile) -> md:flex-row (desktop)
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col md:flex-row">
+    <div className="min-h-screen bg-gray-900 text-white font-press flex flex-col md:flex-row">
       <Sidebar />
 
-      {/* MAIN : mt-12 pour éviter que le header mobile ne cache le titre, p-4 mobile / p-8 desktop */}
       <main className="flex-1 p-4 md:p-8 flex flex-col items-center mt-12 md:mt-0">
-        {/* TITRE : text-2xl (mobile) / text-3xl (desktop) */}
         <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 flex items-center gap-3 text-center">
           ⚙️ Sanctuaire des Réglages
         </h1>
 
         <div className="w-full max-w-md space-y-4 md:space-y-6">
-          {/* CARTE AUDIO : p-4 (mobile) / p-6 (desktop) */}
           <div className="bg-gray-800 p-4 md:p-6 rounded-xl shadow-lg border border-gray-700">
             <h2 className="text-lg md:text-xl font-semibold mb-4 text-blue-400">
               Ambiance Sonore
@@ -110,13 +106,11 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* CARTE PREFERENCES */}
           <div className="bg-gray-800 p-4 md:p-6 rounded-xl shadow-lg border border-gray-700">
             <h2 className="text-lg md:text-xl font-semibold mb-4 text-purple-400">
               Préférences
             </h2>
 
-            {/* MODIFICATION ICI : Opacity 50 + Badge Bientôt + Disabled */}
             <div className="flex items-center justify-between text-sm md:text-base opacity-50 cursor-not-allowed">
               <div className="flex items-center gap-2">
                 <span>Notifications de quête</span>
@@ -129,7 +123,7 @@ export default function SettingsPage() {
                 <input
                   type="checkbox"
                   checked={notifications}
-                  disabled // Désactivé
+                  disabled
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:outline-none peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
@@ -137,7 +131,6 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* CARTE DANGER */}
           <div className="bg-gray-800 p-4 md:p-6 rounded-xl shadow-lg border border-red-900">
             <h2 className="text-lg md:text-xl font-semibold mb-4 text-red-500">
               Zone de Danger
