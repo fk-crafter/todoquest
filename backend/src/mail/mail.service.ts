@@ -10,7 +10,7 @@ export class MailService {
   }
 
   async sendVerificationEmail(email: string, token: string) {
-    const confirmLink = `${process.env.FRONTEND_URL}/verify?token=${token}`;
+    const confirmLink = `${process.env.FRONT_URL}/verify?token=${token}`;
 
     await this.resend.emails.send({
       from: 'TodoQuest <no-reply@chuzly.app>',
