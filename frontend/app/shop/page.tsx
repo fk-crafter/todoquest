@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Sidebar from "@/components/Sidebar";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import RetroModal from "@/components/ui/RetroModal";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import {
   ShoppingBag,
   Lock,
@@ -21,6 +23,9 @@ import {
   Sparkles,
   Hexagon,
   Gem,
+  Loader2,
+  CreditCard,
+  AlertCircle,
 } from "lucide-react";
 
 type ShopItem = {
@@ -141,6 +146,11 @@ export default function ShopPage() {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
+  const [itemToBuy, setItemToBuy] = useState<ShopItem | null>(null);
+  const [successItem, setSuccessItem] = useState<ShopItem | null>(null);
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const fetchProfile = async () => {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
@@ -161,23 +171,15 @@ export default function ShopPage() {
   const gold = user?.gold || 0;
   const userInventory: string[] = user?.inventory || [];
 
-  const handleBuy = async (item: ShopItem) => {
-    if (!session?.accessToken) return;
-    if (gold < item.price) return;
-
-    const confirm = window.confirm(
-      `Acheter "${item.name}" pour ${item.price} Or ?`
-    );
-    if (!confirm) return;
-
-    try {
+  const buyMutation = useMutation({
+    mutationFn: async (item: ShopItem) => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/buy`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${session.accessToken}`,
+            Authorization: `Bearer ${session?.accessToken}`,
           },
           body: JSON.stringify({
             itemId: item.id,
@@ -190,18 +192,32 @@ export default function ShopPage() {
         const err = await res.json();
         throw new Error(err.message || "Erreur lors de l'achat");
       }
+    },
+    onSuccess: (_, item) => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      setItemToBuy(null);
+      setSuccessItem(item);
+    },
+    onError: (error: any) => {
+      setItemToBuy(null);
+      setErrorMessage(error.message);
+    },
+  });
 
-      await queryClient.invalidateQueries({ queryKey: ["profile"] });
-      alert(`Félicitations ! Tu as obtenu : ${item.name}`);
-    } catch (error: any) {
-      alert(error.message);
+  const handleRequestBuy = (item: ShopItem) => {
+    if (!session?.accessToken) return;
+    if (gold < item.price) return;
+    setItemToBuy(item);
+  };
+
+  const confirmBuy = () => {
+    if (itemToBuy) {
+      buyMutation.mutate(itemToBuy);
     }
   };
 
   const handleBuyGold = () => {
-    alert(
-      "Le système de paiement arrivera bientôt ! Préparez votre carte bleue 💳"
-    );
+    setShowComingSoon(true);
   };
 
   return (
@@ -249,7 +265,7 @@ export default function ShopPage() {
 
                 <button
                   onClick={handleBuyGold}
-                  className="z-10 bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-1 text-sm"
+                  className="z-10 bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-1 text-sm cursor-pointer"
                 >
                   2,99 €
                 </button>
@@ -279,6 +295,9 @@ export default function ShopPage() {
                       const isOwned = userInventory.includes(item.id);
                       const canBuy = gold >= item.price;
                       const IconComponent = item.icon;
+                      const isProcessing =
+                        buyMutation.isPending &&
+                        buyMutation.variables?.id === item.id;
 
                       return (
                         <div
@@ -300,8 +319,10 @@ export default function ShopPage() {
                           </div>
 
                           <button
-                            onClick={() => !isOwned && handleBuy(item)}
-                            disabled={isOwned || !canBuy}
+                            onClick={() => !isOwned && handleRequestBuy(item)}
+                            disabled={
+                              isOwned || !canBuy || buyMutation.isPending
+                            }
                             className={`w-full py-1.5 px-2 rounded text-xs font-bold border-b-2 active:border-b-0 active:translate-y-0.5 transition-all flex items-center justify-center gap-1 mt-auto ${
                               isOwned
                                 ? "bg-green-700 text-white border-green-900 cursor-default"
@@ -310,7 +331,9 @@ export default function ShopPage() {
                                 : "bg-gray-600 text-gray-400 border-gray-700 cursor-not-allowed"
                             }`}
                           >
-                            {isOwned ? (
+                            {isProcessing ? (
+                              <Loader2 className="animate-spin" size={12} />
+                            ) : isOwned ? (
                               <>
                                 <Check size={12} /> POSSÉDÉ
                               </>
@@ -334,6 +357,109 @@ export default function ShopPage() {
           )}
         </div>
       </main>
+
+      <RetroModal
+        isOpen={!!itemToBuy}
+        onClose={() => setItemToBuy(null)}
+        title="Confirmation"
+        footer={
+          <>
+            <button
+              onClick={() => setItemToBuy(null)}
+              className="px-4 py-2 text-gray-400 hover:text-white font-bold"
+            >
+              Annuler
+            </button>
+            <button
+              onClick={confirmBuy}
+              disabled={buyMutation.isPending}
+              className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded flex items-center gap-2"
+            >
+              {buyMutation.isPending && (
+                <Loader2 className="animate-spin" size={16} />
+              )}
+              Acheter
+            </button>
+          </>
+        }
+      >
+        <div className="flex flex-col items-center gap-4 text-center">
+          {itemToBuy && (
+            <>
+              <div className="p-4 bg-gray-700 rounded-lg border-2 border-gray-600">
+                <itemToBuy.icon size={48} className={itemToBuy.color} />
+              </div>
+              <p>
+                Voulez-vous acheter <strong>{itemToBuy.name}</strong> ?
+              </p>
+              <p className="text-yellow-400 font-bold text-xl flex items-center gap-2">
+                -{itemToBuy.price} <Coins size={20} />
+              </p>
+            </>
+          )}
+        </div>
+      </RetroModal>
+
+      <RetroModal
+        isOpen={!!successItem}
+        onClose={() => setSuccessItem(null)}
+        title="Butin Acquis !"
+        type="success"
+        footer={
+          <button
+            onClick={() => setSuccessItem(null)}
+            className="w-full px-6 py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded"
+          >
+            Génial !
+          </button>
+        }
+      >
+        <div className="flex flex-col items-center gap-4 text-center">
+          {successItem && (
+            <>
+              <div className="relative">
+                <div className="absolute inset-0 bg-yellow-500 blur-xl opacity-20 animate-pulse" />
+                <div className="p-6 bg-gray-700 rounded-xl border-4 border-yellow-500 relative z-10">
+                  <successItem.icon size={64} className={successItem.color} />
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-white mt-2">
+                {successItem.name}
+              </h3>
+              <p className="text-gray-400 text-sm">Ajouté à ton inventaire.</p>
+            </>
+          )}
+        </div>
+      </RetroModal>
+
+      <RetroModal
+        isOpen={showComingSoon}
+        onClose={() => setShowComingSoon(false)}
+        title="Bientôt..."
+      >
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <CreditCard size={48} className="text-gray-500" />
+          </div>
+          <p>
+            Le système de paiement est en cours de construction par nos
+            gobelins.
+          </p>
+          <p className="text-sm text-gray-500">Revenez plus tard !</p>
+        </div>
+      </RetroModal>
+
+      <RetroModal
+        isOpen={!!errorMessage}
+        onClose={() => setErrorMessage(null)}
+        title="Erreur"
+        type="danger"
+      >
+        <div className="flex flex-col items-center gap-4 text-center">
+          <AlertCircle size={48} className="text-red-500" />
+          <p>{errorMessage}</p>
+        </div>
+      </RetroModal>
     </div>
   );
 }
