@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"),
+  metadataBase: new URL("https://to-doquest.vercel.app"),
   title: {
     default: "TodoQuest | Transforme ta vie en RPG",
     template: "%s | TodoQuest",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   description:
     "L'application de productivité gamifiée. Gagne de l'XP, monte de niveau et collectionne des équipements en accomplissant tes tâches quotidiennes.",
   applicationName: "TodoQuest",
-  authors: [{ name: "Ton Nom ou Studio" }],
+  authors: [{ name: "FK-Crafter" }],
   keywords: ["todo list", "rpg", "gamification", "productivité", "jeu", "tâches"],
   manifest: "/manifest.json",
   icons: {
