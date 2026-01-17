@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Press_Start_2P } from "next/font/google";
 import "./globals.css";
 import SessionWrapper from "@/components/SessionWrapper";
@@ -7,7 +7,6 @@ import MusicToggleButton from "@/components/MusicToggleButton";
 import QueryProvider from "@/components/QueryProvider";
 import OnboardingGuard from "@/components/OnboardingGuard";
 import ThemeProvider from "@/components/ThemeProvider";
-// 👇 Import du composant PWA
 import RegisterServiceWorker from "@/components/RegisterServiceWorker";
 
 const pressStart = Press_Start_2P({
@@ -16,12 +15,56 @@ const pressStart = Press_Start_2P({
   variable: "--font-press-start",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#111827",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
-  title: "TodoQuest",
-  description: "Transforme tes tâches en aventure RPG !",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"),
+  title: {
+    default: "TodoQuest | Transforme ta vie en RPG",
+    template: "%s | TodoQuest",
+  },
+  description:
+    "L'application de productivité gamifiée. Gagne de l'XP, monte de niveau et collectionne des équipements en accomplissant tes tâches quotidiennes.",
+  applicationName: "TodoQuest",
+  authors: [{ name: "Ton Nom ou Studio" }],
+  keywords: ["todo list", "rpg", "gamification", "productivité", "jeu", "tâches"],
+  manifest: "/manifest.json",
   icons: {
-    icon: { url: "/favicon.png", sizes: "any" },
-    apple: { url: "/favicon.png" },
+    icon: "/favicon.png",
+    apple: "/icon-192.png", 
+  },
+  openGraph: {
+    title: "TodoQuest | Transforme ta vie en RPG",
+    description: "Arrête de procrastiner. Gagne de l'XP à chaque tâche accomplie !",
+    url: "/",
+    siteName: "TodoQuest",
+    locale: "fr_FR",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png", 
+        width: 1200,
+        height: 630,
+        alt: "TodoQuest Aperçu",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TodoQuest | Transforme ta vie en RPG",
+    description: "Gagne de l'XP en accomplissant tes tâches quotidiennes.",
+    images: ["/og-image.png"], 
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "TodoQuest",
   },
 };
 
@@ -32,25 +75,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <head>
-        <link rel="icon" href="/favicon.png" type="image/png" />
-        <link rel="manifest" href="/manifest.json" />
-
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-        />
-        <meta name="theme-color" content="#111827" />
-
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta
-          name="apple-mobile-web-app-status-bar-style"
-          content="black-translucent"
-        />
-        <meta name="apple-mobile-web-app-title" content="TodoQuest" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
-      </head>
-
       <body
         className={`${pressStart.variable} bg-gray-900 text-white min-h-screen font-press`}
       >
