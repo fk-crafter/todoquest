@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Sidebar from "@/components/Sidebar";
 import RetroModal from "@/components/ui/RetroModal";
+import SharePreview from "@/components/SharePreview";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import {
   ShoppingBag,
@@ -156,7 +157,7 @@ export default function ShopPage() {
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
       {
         headers: { Authorization: `Bearer ${session?.accessToken}` },
-      }
+      },
     );
     if (!res.ok) throw new Error("Erreur chargement");
     return res.json();
@@ -185,7 +186,7 @@ export default function ShopPage() {
             itemId: item.id,
             price: item.price,
           }),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -280,7 +281,7 @@ export default function ShopPage() {
           {(Object.keys(CATEGORIES) as Array<keyof typeof CATEGORIES>).map(
             (catKey) => {
               const items = SHOP_ITEMS.filter(
-                (item) => item.category === catKey
+                (item) => item.category === catKey,
               );
               if (items.length === 0) return null;
 
@@ -327,8 +328,8 @@ export default function ShopPage() {
                               isOwned
                                 ? "bg-green-700 text-white border-green-900 cursor-default"
                                 : canBuy
-                                ? "bg-yellow-500 hover:bg-yellow-400 text-black border-yellow-700 cursor-pointer"
-                                : "bg-gray-600 text-gray-400 border-gray-700 cursor-not-allowed"
+                                  ? "bg-yellow-500 hover:bg-yellow-400 text-black border-yellow-700 cursor-pointer"
+                                  : "bg-gray-600 text-gray-400 border-gray-700 cursor-not-allowed"
                             }`}
                           >
                             {isProcessing ? (
@@ -353,7 +354,7 @@ export default function ShopPage() {
                   </div>
                 </div>
               );
-            }
+            },
           )}
         </div>
       </main>
@@ -417,16 +418,16 @@ export default function ShopPage() {
         <div className="flex flex-col items-center gap-4 text-center">
           {successItem && (
             <>
-              <div className="relative">
-                <div className="absolute inset-0 bg-yellow-500 blur-xl opacity-20 animate-pulse" />
-                <div className="p-6 bg-gray-700 rounded-xl border-4 border-yellow-500 relative z-10">
-                  <successItem.icon size={64} className={successItem.color} />
-                </div>
+              <div className="flex flex-col items-center gap-4 text-center">
+                {successItem && (
+                  <SharePreview
+                    title="BUTIN LÉGENDAIRE !"
+                    message={`Je viens d'obtenir ${successItem.name} sur TodoQuest !`}
+                    icon={successItem.icon}
+                    color={successItem.color}
+                  />
+                )}
               </div>
-              <h3 className="text-xl font-bold text-white mt-2">
-                {successItem.name}
-              </h3>
-              <p className="text-gray-400 text-sm">Ajouté à ton inventaire.</p>
             </>
           )}
         </div>
