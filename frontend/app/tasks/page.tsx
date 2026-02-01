@@ -64,7 +64,9 @@ export default function TasksPage() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   const playSound = () => {
@@ -81,7 +83,7 @@ export default function TasksPage() {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks`,
         {
           headers: { Authorization: `Bearer ${session?.accessToken}` },
-        }
+        },
       );
       if (!res.ok) throw new Error("Erreur tasks");
       return res.json();
@@ -96,7 +98,7 @@ export default function TasksPage() {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
         {
           headers: { Authorization: `Bearer ${session?.accessToken}` },
-        }
+        },
       );
       return res.json();
     },
@@ -187,7 +189,7 @@ export default function TasksPage() {
             description: editDescription,
             difficulty: editDifficulty,
           }),
-        }
+        },
       );
       setShowEditModal(false);
       setEditingTask(null);
@@ -251,7 +253,7 @@ export default function TasksPage() {
             Authorization: `Bearer ${session.accessToken}`,
           },
           body: JSON.stringify({ timeSpent: totalMinutes }),
-        }
+        },
       );
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
@@ -260,7 +262,7 @@ export default function TasksPage() {
       if (data.userStats.level > (user?.level || 1)) {
         playLevelUpSound();
         setLevelUpMessage(
-          `🎉 Félicitations ! Vous avez atteint le niveau ${data.userStats.level} !`
+          `🎉 Félicitations ! Vous avez atteint le niveau ${data.userStats.level} !`,
         );
         setTimeout(() => setLevelUpMessage(""), 5000);
       } else {
@@ -297,7 +299,11 @@ export default function TasksPage() {
       <Sidebar />
 
       {achievementMessage && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-app-surface text-app-accent font-bold px-4 py-3 md:px-6 rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.5)] border-2 border-app-accent w-[90%] md:w-auto flex flex-col items-center gap-2 animate-bounce">
+        <div
+          className={`fixed left-1/2 transform -translate-x-1/2 z-50 bg-app-surface text-app-accent font-bold px-4 py-3 md:px-6 rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.5)] border-2 border-app-accent w-[90%] md:w-auto flex flex-col items-center gap-2 animate-bounce transition-all duration-300 ${
+            levelUpMessage ? "top-28 md:top-32" : "top-20"
+          }`}
+        >
           <div className="flex items-center gap-2">
             <Trophy className="text-app-accent" />
             <span>Succès Débloqué !</span>
@@ -410,7 +416,7 @@ export default function TasksPage() {
                       >
                         {d}
                       </button>
-                    )
+                    ),
                   )}
                 </div>
               </div>
@@ -440,7 +446,7 @@ export default function TasksPage() {
                   if (session?.user?.id)
                     localStorage.setItem(
                       `todoquest_tutorial_seen_${session.user.id}`,
-                      "true"
+                      "true",
                     );
                 }
               }}

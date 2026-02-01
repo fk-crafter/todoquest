@@ -105,7 +105,10 @@ export default function SharePreview({
         ></div>
 
         <div
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 ${color.replace("text-", "bg-")}/20 blur-[40px] rounded-full`}
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 ${color.replace(
+            "text-",
+            "bg-",
+          )}/20 blur-[40px] rounded-full`}
         ></div>
 
         <div className="relative z-10 flex flex-col items-center w-full h-full justify-between py-2">
