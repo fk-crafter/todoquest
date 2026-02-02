@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Gamepad2, Rocket } from "lucide-react";
 import { useSession } from "next-auth/react";
+import InstallPWA from "@/components/InstallPWA";
 
 export default function Hero() {
   const router = useRouter();
@@ -26,7 +27,9 @@ export default function Hero() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-[url('/pixel-bg.gif')] bg-contain bg-no-repeat bg-center relative px-4">
+    <main className="flex flex-col items-center justify-center min-h-screen bg-[url('/pixel-bg.gif')] bg-contain bg-no-repeat bg-center relative px-4 font-press">
+      <InstallPWA />
+
       <h1 className="text-2xl md:text-4xl font-bold text-blue-400 drop-shadow-[2px_2px_0px_black] flex items-center gap-2 text-center">
         <Gamepad2 className="w-6 h-6 md:w-8 md:h-8" />
         TodoQuest
