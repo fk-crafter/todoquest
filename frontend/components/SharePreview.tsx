@@ -7,12 +7,30 @@ import {
   Share2,
   Loader2,
   Trophy,
-  Twitter,
   Linkedin,
   Check,
   Copy,
-  X,
+  X as CloseIcon,
 } from "lucide-react";
+
+const XLogo = ({
+  size = 14,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231h0.001zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
 
 interface SharePreviewProps {
   title: string;
@@ -60,11 +78,33 @@ export default function SharePreview({
     }
   }, [cardRef]);
 
+  const performNativeShare = async (blob: Blob) => {
+    const file = new File([blob], "todoquest-share.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: "TodoQuest",
+        text: message,
+        url: "https://to-doquest.vercel.app",
+      });
+      return true;
+    }
+    return false;
+  };
+
   const handleDownload = async () => {
     setIsGenerating(true);
     try {
       const blob = await generateImageBlob();
-      if (!blob) throw new Error("Erreur");
+      if (!blob) throw new Error("Erreur génération");
+
+      const isTouchDevice =
+        "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+      if (isTouchDevice && (await performNativeShare(blob))) {
+        setIsGenerating(false);
+        return;
+      }
 
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -76,29 +116,20 @@ export default function SharePreview({
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
+      showToast("Erreur lors du téléchargement", "info");
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleNativeShare = async () => {
+  const handleNativeShareButton = async () => {
     setIsGenerating(true);
     try {
       const blob = await generateImageBlob();
       if (!blob) return;
 
-      const file = new File([blob], "todoquest-share.png", {
-        type: "image/png",
-      });
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: "TodoQuest",
-          text: message,
-          url: "https://to-doquest.vercel.app",
-        });
-      } else {
+      const shared = await performNativeShare(blob);
+      if (!shared) {
         handleDownload();
       }
     } catch (err) {
@@ -114,45 +145,39 @@ export default function SharePreview({
       const blob = await generateImageBlob();
       if (!blob) return;
 
+      const isTouchDevice =
+        "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+      if (isTouchDevice) {
+        await performNativeShare(blob);
+        return;
+      }
+
       try {
         await navigator.clipboard.write([
           new ClipboardItem({ "image/png": blob }),
         ]);
-        showToast(
-          "Image copiée ! Fais 'Coller' (Ctrl+V) dans ton tweet.",
-          "success",
-        );
+        showToast("Image copiée ! Fais 'Coller' dans ton post.", "success");
       } catch (err) {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `todoquest-share-${Date.now()}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showToast("Image téléchargée ! Ajoute-la à ton tweet.", "info");
+        handleDownload();
+        showToast("Image téléchargée ! Ajoute-la à ton post.", "info");
       }
 
       const shareText = encodeURIComponent(
-        `${message} Rejoignez l'aventure sur`,
+        `${message} ⚔️ Rejoignez la quête sur`
       );
       const shareUrl = encodeURIComponent("https://to-doquest.vercel.app");
 
       setTimeout(() => {
         window.open(
-          `https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`,
-          "_blank",
+          `https://x.com/intent/tweet?text=${shareText}&url=${shareUrl}`,
+          "_blank"
         );
-      }, 2000);
+      }, 1500);
     } finally {
       setIsGenerating(false);
     }
   };
-
-  const shareText = encodeURIComponent(
-    `${message} 🚀 Rejoignez l'aventure sur`,
-  );
-  const shareUrl = encodeURIComponent("https://to-doquest.vercel.app");
 
   return (
     <>
@@ -173,7 +198,7 @@ export default function SharePreview({
           <div
             className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 ${color.replace(
               "text-",
-              "bg-",
+              "bg-"
             )}/20 blur-[50px] rounded-full`}
           ></div>
 
@@ -218,7 +243,7 @@ export default function SharePreview({
 
         <div className="w-full space-y-2">
           <button
-            onClick={handleNativeShare}
+            onClick={handleNativeShareButton}
             disabled={isGenerating}
             className="flex items-center justify-center gap-2 px-4 py-3 bg-app-accent hover:opacity-90 text-app-bg font-bold rounded-lg shadow-md transition-transform active:scale-95 w-full text-xs"
           >
@@ -240,13 +265,15 @@ export default function SharePreview({
 
             <button
               onClick={handleTwitterShare}
-              className="flex-1 bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 border border-[#1DA1F2]/50 p-2 rounded text-[10px] font-bold flex items-center justify-center gap-1 text-[#1DA1F2] transition-colors"
+              className="flex-1 bg-black hover:bg-gray-900 border border-gray-800 p-2 rounded text-[10px] font-bold flex items-center justify-center gap-1 text-white transition-colors"
             >
-              <Twitter size={14} /> Tweet
+              <XLogo size={12} /> Post
             </button>
 
             <a
-              href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+                "https://to-doquest.vercel.app"
+              )}`}
               target="_blank"
               rel="noreferrer"
               className="flex-1 bg-[#0A66C2]/20 hover:bg-[#0A66C2]/30 border border-[#0A66C2]/50 p-2 rounded text-[10px] font-bold flex items-center justify-center gap-1 text-[#0A66C2] transition-colors"
@@ -289,7 +316,7 @@ export default function SharePreview({
               onClick={() => setToast(null)}
               className="ml-2 text-gray-500 hover:text-white transition-colors"
             >
-              <X size={14} />
+              <CloseIcon size={14} />
             </button>
           </div>
         </div>
