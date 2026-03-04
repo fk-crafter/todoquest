@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Press_Start_2P } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import SessionWrapper from "@/components/SessionWrapper";
 import { AudioProvider } from "@/context/AudioContext";
 import MusicToggleButton from "@/components/MusicToggleButton";
@@ -8,6 +8,8 @@ import QueryProvider from "@/components/QueryProvider";
 import OnboardingGuard from "@/components/OnboardingGuard";
 import ThemeProvider from "@/components/ThemeProvider";
 import RegisterServiceWorker from "@/components/RegisterServiceWorker";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 
 const pressStart = Press_Start_2P({
   subsets: ["latin"],
@@ -33,22 +35,30 @@ export const metadata: Metadata = {
     "L'application de productivité gamifiée. Gagne de l'XP, monte de niveau et collectionne des équipements en accomplissant tes tâches quotidiennes.",
   applicationName: "TodoQuest",
   authors: [{ name: "FK-Crafter" }],
-  keywords: ["todo list", "rpg", "gamification", "productivité", "jeu", "tâches"],
+  keywords: [
+    "todo list",
+    "rpg",
+    "gamification",
+    "productivité",
+    "jeu",
+    "tâches",
+  ],
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.png",
-    apple: "/icon-192.png", 
+    apple: "/icon-192.png",
   },
   openGraph: {
     title: "TodoQuest | Transforme ta vie en RPG",
-    description: "Arrête de procrastiner. Gagne de l'XP à chaque tâche accomplie !",
+    description:
+      "Arrête de procrastiner. Gagne de l'XP à chaque tâche accomplie !",
     url: "/",
     siteName: "TodoQuest",
     locale: "fr_FR",
     type: "website",
     images: [
       {
-        url: "/og-image.png", 
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "TodoQuest Aperçu",
@@ -59,7 +69,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "TodoQuest | Transforme ta vie en RPG",
     description: "Gagne de l'XP en accomplissant tes tâches quotidiennes.",
-    images: ["/og-image.png"], 
+    images: ["/og-image.png"],
   },
   appleWebApp: {
     capable: true,
@@ -68,28 +78,34 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params: { locale },
 }: {
   children: React.ReactNode;
+  params: { locale: string };
 }) {
+  const messages = await getMessages();
+
   return (
-    <html lang="fr">
+    <html lang={locale}>
       <body
         className={`${pressStart.variable} bg-gray-900 text-white min-h-screen font-press`}
       >
-        <AudioProvider>
-          <MusicToggleButton />
-          <SessionWrapper>
-            <QueryProvider>
-              <ThemeProvider>
-                <OnboardingGuard>{children}</OnboardingGuard>
-              </ThemeProvider>
-            </QueryProvider>
-          </SessionWrapper>
-        </AudioProvider>
+        <NextIntlClientProvider messages={messages}>
+          <AudioProvider>
+            <MusicToggleButton />
+            <SessionWrapper>
+              <QueryProvider>
+                <ThemeProvider>
+                  <OnboardingGuard>{children}</OnboardingGuard>
+                </ThemeProvider>
+              </QueryProvider>
+            </SessionWrapper>
+          </AudioProvider>
 
-        <RegisterServiceWorker />
+          <RegisterServiceWorker />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

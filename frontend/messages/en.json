@@ -1,0 +1,24 @@
+{
+  "Onboarding": {
+    "validation": {
+      "minLength": "Username must be at least 2 characters",
+      "maxLength": "Username is too long (max 15)",
+      "format": "Alphanumeric characters only"
+    },
+    "errors": {
+      "saveFailed": "Error saving data",
+      "alert": "An error occurred, please try again!"
+    },
+    "step1": {
+      "title": "Your Username",
+      "placeholder": "Hero...",
+      "nextButton": "NEXT"
+    },
+    "step2": {
+      "title": "Choose your Hero",
+      "male": "MALE",
+      "female": "FEMALE",
+      "creating": "Creating character..."
+    }
+  }
+}

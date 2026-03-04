@@ -1,0 +1,24 @@
+{
+  "Onboarding": {
+    "validation": {
+      "minLength": "Le pseudo doit faire au moins 2 caractères",
+      "maxLength": "Le pseudo est trop long (max 15)",
+      "format": "Caractères alphanumériques seulement"
+    },
+    "errors": {
+      "saveFailed": "Erreur lors de la sauvegarde",
+      "alert": "Une erreur est survenue, réessaie !"
+    },
+    "step1": {
+      "title": "Ton Pseudo",
+      "placeholder": "Héros...",
+      "nextButton": "SUIVANT"
+    },
+    "step2": {
+      "title": "Choisis ton Héros",
+      "male": "HOMME",
+      "female": "FEMME",
+      "creating": "Création du personnage..."
+    }
+  }
+}

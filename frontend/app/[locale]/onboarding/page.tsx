@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 
 const onboardingSchema = z.object({
   pseudo: z
@@ -21,6 +22,8 @@ const onboardingSchema = z.object({
 type OnboardingForm = z.infer<typeof onboardingSchema>;
 
 export default function OnboardingPage() {
+  const t = useTranslations("Onboarding");
+
   const { data: session, update } = useSession();
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -74,10 +77,10 @@ export default function OnboardingPage() {
             image: avatarImage,
             isOnboarded: true,
           }),
-        }
+        },
       );
 
-      if (!res.ok) throw new Error("Erreur lors de la sauvegarde");
+      if (!res.ok) throw new Error(t("errors.saveFailed"));
 
       await update({
         ...session,
@@ -96,7 +99,7 @@ export default function OnboardingPage() {
     },
     onError: (error) => {
       console.error("Erreur onboarding:", error);
-      alert("Une erreur est survenue, réessaie !");
+      alert(t("errors.alert"));
     },
   });
 
@@ -129,13 +132,15 @@ export default function OnboardingPage() {
             onSubmit={handleSubmit(handleNextStep)}
             className="space-y-6 animate-fadeIn"
           >
-            <h1 className="text-2xl text-yellow-400 text-center">Ton Pseudo</h1>
+            <h1 className="text-2xl text-yellow-400 text-center">
+              {t("step1.title")}
+            </h1>
 
             <div className="space-y-2">
               <input
                 {...register("pseudo")}
                 type="text"
-                placeholder="Héros..."
+                placeholder={t("step1.placeholder")}
                 className="w-full bg-gray-900 border-2 border-gray-600 rounded p-4 text-center text-xl text-white focus:border-yellow-400 focus:outline-none placeholder-gray-600 transition-colors"
               />
               {errors.pseudo && (
@@ -150,7 +155,7 @@ export default function OnboardingPage() {
               disabled={!isValid}
               className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded font-bold shadow-[0_4px_0_rgb(0,0,0,0.5)] active:shadow-none active:translate-y-1 transition-all"
             >
-              SUIVANT
+              {t("step1.nextButton")}
             </button>
           </form>
         )}
@@ -169,14 +174,14 @@ export default function OnboardingPage() {
             </button>
 
             <h1 className="text-2xl text-yellow-400 text-center mt-2">
-              Choisis ton Héros
+              {t("step2.title")}
             </h1>
 
             <div className="grid grid-cols-2 gap-4">
               <CharacterCard
                 gender="male"
                 imgSrc="/char-male.png"
-                label="HOMME"
+                label={t("step2.male")}
                 colorClass="text-blue-400"
                 borderColorClass="hover:border-blue-500"
                 onClick={() => handleFinish("male")}
@@ -186,7 +191,7 @@ export default function OnboardingPage() {
               <CharacterCard
                 gender="female"
                 imgSrc="/char-female.png"
-                label="FEMME"
+                label={t("step2.female")}
                 colorClass="text-pink-400"
                 borderColorClass="hover:border-pink-500"
                 onClick={() => handleFinish("female")}
@@ -197,7 +202,7 @@ export default function OnboardingPage() {
             {mutation.isPending && (
               <div className="flex items-center justify-center gap-2 text-gray-400 text-xs animate-pulse">
                 <Loader2 className="animate-spin" size={16} />
-                Création du personnage...
+                {t("step2.creating")}
               </div>
             )}
           </div>
