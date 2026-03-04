@@ -3,9 +3,11 @@
 import { useRouter } from "next/navigation";
 import { Gamepad2, Rocket } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import InstallPWA from "@/components/InstallPWA";
 
 export default function Hero() {
+  const t = useTranslations("Hero");
   const router = useRouter();
   const { status } = useSession();
 
@@ -36,7 +38,7 @@ export default function Hero() {
       </h1>
 
       <p className="mt-4 text-base md:text-lg text-gray-300 drop-shadow-[1px_1px_0px_black] text-center">
-        Transforme tes tâches en aventures !
+        {t("subtitle")}
       </p>
 
       <button
@@ -44,7 +46,7 @@ export default function Hero() {
         className="mt-6 px-4 py-2 md:px-6 md:py-3 text-sm md:text-base cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg border-[3px] border-black shadow-[3px_3px_0px_black] active:translate-x-[2px] active:translate-y-[2px] flex items-center gap-2 transition-transform"
       >
         <Rocket className="w-4 h-4 md:w-5 md:h-5" />
-        Démarrer l&apos;aventure
+        {t("cta")}
       </button>
     </main>
   );
