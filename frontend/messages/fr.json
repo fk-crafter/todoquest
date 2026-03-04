@@ -159,5 +159,66 @@
       "deleting": "Suppression...",
       "error": "Erreur lors de la suppression du compte."
     }
+  },
+  "Shop": {
+    "header": {
+      "title": "Boutique",
+      "loading": "..."
+    },
+    "treasury": {
+      "title": "Trésorerie",
+      "goldBag": "Bourse d'Or",
+      "goldValue": "1 500",
+      "beginnerTip": "Idéal pour débuter",
+      "buyGold": "2,99 €",
+      "moreSoon": "Plus d'offres bientôt..."
+    },
+    "categories": {
+      "FRAME": "Cadres d'Avatar 🖼️",
+      "TITLE": "Titres Rares 👑",
+      "THEME": "Thèmes Visuels 🎨"
+    },
+    "items": {
+      "frame_gold": "Cadre Doré",
+      "frame_fire": "Enflammé",
+      "frame_neon": "Néon Bleu",
+      "frame_emerald": "Émeraude",
+      "title_slayer": "Tueur",
+      "title_paladin": "Paladin",
+      "title_ninja": "Ombre",
+      "title_rich": "Le Bourgeois",
+      "title_legend": "Légende",
+      "theme_magma": "Magma",
+      "theme_forest": "Forêt",
+      "theme_cyber": "Cyberpunk"
+    },
+    "actions": {
+      "owned": "POSSÉDÉ",
+      "buy": "Acheter",
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "buying": "Achat...",
+      "awesome": "Génial !"
+    },
+    "modals": {
+      "confirm": {
+        "title": "Confirmation",
+        "question": "Voulez-vous acheter {name} ?"
+      },
+      "success": {
+        "title": "Butin Acquis !",
+        "shareTitle": "BUTIN LÉGENDAIRE !",
+        "shareMessage": "Je viens d'obtenir {name} sur TodoQuest !"
+      },
+      "comingSoon": {
+        "title": "Bientôt...",
+        "message": "Le système de paiement est en cours de construction par nos gobelins.",
+        "subMessage": "Revenez plus tard !"
+      },
+      "error": {
+        "title": "Erreur",
+        "default": "Erreur lors de l'achat"
+      }
+    }
   }
 }

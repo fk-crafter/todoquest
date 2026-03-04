@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import RetroModal from "@/components/ui/RetroModal";
 import SharePreview from "@/components/SharePreview";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import {
   ShoppingBag,
   Lock,
@@ -41,7 +42,7 @@ type ShopItem = {
 const SHOP_ITEMS: ShopItem[] = [
   {
     id: "frame_gold",
-    name: "Cadre Doré",
+    name: "frame_gold",
     category: "FRAME",
     price: 300,
     icon: Frame,
@@ -49,7 +50,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "frame_fire",
-    name: "Enflammé",
+    name: "frame_fire",
     category: "FRAME",
     price: 800,
     icon: Flame,
@@ -57,7 +58,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "frame_neon",
-    name: "Néon Bleu",
+    name: "frame_neon",
     category: "FRAME",
     price: 600,
     icon: Zap,
@@ -65,7 +66,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "frame_emerald",
-    name: "Émeraude",
+    name: "frame_emerald",
     category: "FRAME",
     price: 500,
     icon: Hexagon,
@@ -73,7 +74,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "title_slayer",
-    name: "Tueur",
+    name: "title_slayer",
     category: "TITLE",
     price: 200,
     icon: Sword,
@@ -81,7 +82,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "title_paladin",
-    name: "Paladin",
+    name: "title_paladin",
     category: "TITLE",
     price: 500,
     icon: Shield,
@@ -89,7 +90,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "title_ninja",
-    name: "Ombre",
+    name: "title_ninja",
     category: "TITLE",
     price: 800,
     icon: Ghost,
@@ -97,7 +98,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "title_rich",
-    name: "Le Bourgeois",
+    name: "title_rich",
     category: "TITLE",
     price: 5000,
     icon: Crown,
@@ -105,7 +106,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "title_legend",
-    name: "Légende",
+    name: "title_legend",
     category: "TITLE",
     price: 2500,
     icon: Sparkles,
@@ -113,7 +114,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "theme_magma",
-    name: "Magma",
+    name: "theme_magma",
     category: "THEME",
     price: 1000,
     icon: Mountain,
@@ -121,7 +122,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "theme_forest",
-    name: "Forêt",
+    name: "theme_forest",
     category: "THEME",
     price: 1000,
     icon: Trees,
@@ -129,7 +130,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "theme_cyber",
-    name: "Cyberpunk",
+    name: "theme_cyber",
     category: "THEME",
     price: 1500,
     icon: Cpu,
@@ -137,13 +138,8 @@ const SHOP_ITEMS: ShopItem[] = [
   },
 ];
 
-const CATEGORIES = {
-  FRAME: "Cadres d'Avatar 🖼️",
-  TITLE: "Titres Rares 👑",
-  THEME: "Thèmes Visuels 🎨",
-};
-
 export default function ShopPage() {
+  const t = useTranslations("Shop");
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
@@ -159,7 +155,7 @@ export default function ShopPage() {
         headers: { Authorization: `Bearer ${session?.accessToken}` },
       },
     );
-    if (!res.ok) throw new Error("Erreur chargement");
+    if (!res.ok) throw new Error(t("modals.error.default"));
     return res.json();
   };
 
@@ -191,7 +187,7 @@ export default function ShopPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || "Erreur lors de l'achat");
+        throw new Error(err.message || t("modals.error.default"));
       }
     },
     onSuccess: (_, item) => {
@@ -230,13 +226,13 @@ export default function ShopPage() {
           <div className="flex items-center gap-3">
             <ShoppingBag className="text-yellow-400" size={24} />
             <h1 className="text-xl md:text-2xl font-bold text-yellow-400">
-              Boutique
+              {t("header.title")}
             </h1>
           </div>
 
           <div className="bg-gray-900 px-3 py-1 rounded-lg border-2 border-yellow-500 flex items-center gap-2 shadow-[0_0_10px_rgba(234,179,8,0.3)]">
             <span className="text-yellow-400 text-lg font-bold">
-              {isLoading ? "..." : gold}
+              {isLoading ? t("header.loading") : gold}
             </span>
             <Coins className="text-yellow-500" size={18} />
           </div>
@@ -245,7 +241,7 @@ export default function ShopPage() {
         <div className="space-y-8 pb-10">
           <div>
             <h2 className="text-lg text-yellow-400 mb-3 border-b border-yellow-800 pb-1 uppercase tracking-wider flex items-center gap-2">
-              <Gem size={20} /> Trésorerie
+              <Gem size={20} /> {t("treasury.title")}
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -254,13 +250,13 @@ export default function ShopPage() {
 
                 <div className="flex flex-col gap-1 z-10">
                   <h3 className="font-bold text-yellow-100 text-sm">
-                    Bourse d'Or
+                    {t("treasury.goldBag")}
                   </h3>
                   <div className="flex items-center gap-2 text-yellow-400 font-bold text-xl">
-                    1 500 <Coins size={20} />
+                    {t("treasury.goldValue")} <Coins size={20} />
                   </div>
                   <span className="text-[10px] text-yellow-200/70">
-                    Idéal pour débuter
+                    {t("treasury.beginnerTip")}
                   </span>
                 </div>
 
@@ -268,108 +264,102 @@ export default function ShopPage() {
                   onClick={handleBuyGold}
                   className="z-10 bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-1 text-sm cursor-pointer"
                 >
-                  2,99 €
+                  {t("treasury.buyGold")}
                 </button>
               </div>
 
               <div className="bg-gray-800/50 border-2 border-gray-700 border-dashed rounded-lg p-4 flex items-center justify-center text-gray-500 gap-2 opacity-50">
-                <Lock size={16} /> Plus d'offres bientôt...
+                <Lock size={16} /> {t("treasury.moreSoon")}
               </div>
             </div>
           </div>
 
-          {(Object.keys(CATEGORIES) as Array<keyof typeof CATEGORIES>).map(
-            (catKey) => {
-              const items = SHOP_ITEMS.filter(
-                (item) => item.category === catKey,
-              );
-              if (items.length === 0) return null;
+          {(["FRAME", "TITLE", "THEME"] as const).map((catKey) => {
+            const items = SHOP_ITEMS.filter((item) => item.category === catKey);
+            if (items.length === 0) return null;
 
-              return (
-                <div key={catKey}>
-                  <h2 className="text-lg text-gray-400 mb-3 border-b border-gray-700 pb-1 uppercase tracking-wider">
-                    {CATEGORIES[catKey]}
-                  </h2>
+            return (
+              <div key={catKey}>
+                <h2 className="text-lg text-gray-400 mb-3 border-b border-gray-700 pb-1 uppercase tracking-wider">
+                  {t(`categories.${catKey}` as any)}
+                </h2>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    {items.map((item) => {
-                      const isOwned = userInventory.includes(item.id);
-                      const canBuy = gold >= item.price;
-                      const IconComponent = item.icon;
-                      const isProcessing =
-                        buyMutation.isPending &&
-                        buyMutation.variables?.id === item.id;
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {items.map((item) => {
+                    const isOwned = userInventory.includes(item.id);
+                    const canBuy = gold >= item.price;
+                    const IconComponent = item.icon;
+                    const isProcessing =
+                      buyMutation.isPending &&
+                      buyMutation.variables?.id === item.id;
 
-                      return (
-                        <div
-                          key={item.id}
-                          className={`bg-gray-800 border-2 rounded-lg p-3 flex flex-col items-center gap-2 transition-all group relative ${
+                    return (
+                      <div
+                        key={item.id}
+                        className={`bg-gray-800 border-2 rounded-lg p-3 flex flex-col items-center gap-2 transition-all group relative ${
+                          isOwned
+                            ? "border-green-600/50"
+                            : "border-gray-600 hover:border-blue-500 hover:bg-gray-750"
+                        }`}
+                      >
+                        <div className="w-12 h-12 bg-gray-700 rounded-md flex items-center justify-center border border-gray-600 group-hover:scale-105 transition-transform">
+                          <IconComponent size={28} className={item.color} />
+                        </div>
+
+                        <div className="text-center w-full">
+                          <h3 className="text-xs md:text-sm font-bold text-white truncate w-full">
+                            {t(`items.${item.id}` as any)}
+                          </h3>
+                        </div>
+
+                        <button
+                          onClick={() => !isOwned && handleRequestBuy(item)}
+                          disabled={isOwned || !canBuy || buyMutation.isPending}
+                          className={`w-full py-1.5 px-2 rounded text-xs font-bold border-b-2 active:border-b-0 active:translate-y-0.5 transition-all flex items-center justify-center gap-1 mt-auto ${
                             isOwned
-                              ? "border-green-600/50"
-                              : "border-gray-600 hover:border-blue-500 hover:bg-gray-750"
+                              ? "bg-green-700 text-white border-green-900 cursor-default"
+                              : canBuy
+                                ? "bg-yellow-500 hover:bg-yellow-400 text-black border-yellow-700 cursor-pointer"
+                                : "bg-gray-600 text-gray-400 border-gray-700 cursor-not-allowed"
                           }`}
                         >
-                          <div className="w-12 h-12 bg-gray-700 rounded-md flex items-center justify-center border border-gray-600 group-hover:scale-105 transition-transform">
-                            <IconComponent size={28} className={item.color} />
-                          </div>
-
-                          <div className="text-center w-full">
-                            <h3 className="text-xs md:text-sm font-bold text-white truncate w-full">
-                              {item.name}
-                            </h3>
-                          </div>
-
-                          <button
-                            onClick={() => !isOwned && handleRequestBuy(item)}
-                            disabled={
-                              isOwned || !canBuy || buyMutation.isPending
-                            }
-                            className={`w-full py-1.5 px-2 rounded text-xs font-bold border-b-2 active:border-b-0 active:translate-y-0.5 transition-all flex items-center justify-center gap-1 mt-auto ${
-                              isOwned
-                                ? "bg-green-700 text-white border-green-900 cursor-default"
-                                : canBuy
-                                  ? "bg-yellow-500 hover:bg-yellow-400 text-black border-yellow-700 cursor-pointer"
-                                  : "bg-gray-600 text-gray-400 border-gray-700 cursor-not-allowed"
-                            }`}
-                          >
-                            {isProcessing ? (
-                              <Loader2 className="animate-spin" size={12} />
-                            ) : isOwned ? (
-                              <>
-                                <Check size={12} /> POSSÉDÉ
-                              </>
-                            ) : canBuy ? (
-                              <>
-                                {item.price} <Coins size={12} />
-                              </>
-                            ) : (
-                              <>
-                                <Lock size={12} /> {item.price}
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
+                          {isProcessing ? (
+                            <Loader2 className="animate-spin" size={12} />
+                          ) : isOwned ? (
+                            <>
+                              <Check size={12} /> {t("actions.owned")}
+                            </>
+                          ) : canBuy ? (
+                            <>
+                              {item.price} <Coins size={12} />
+                            </>
+                          ) : (
+                            <>
+                              <Lock size={12} /> {item.price}
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            },
-          )}
+              </div>
+            );
+          })}
         </div>
       </main>
 
       <RetroModal
         isOpen={!!itemToBuy}
         onClose={() => setItemToBuy(null)}
-        title="Confirmation"
+        title={t("modals.confirm.title")}
         footer={
           <>
             <button
               onClick={() => setItemToBuy(null)}
               className="px-4 py-2 text-gray-400 hover:text-white font-bold"
             >
-              Annuler
+              {t("actions.cancel")}
             </button>
             <button
               onClick={confirmBuy}
@@ -379,7 +369,7 @@ export default function ShopPage() {
               {buyMutation.isPending && (
                 <Loader2 className="animate-spin" size={16} />
               )}
-              Acheter
+              {t("actions.buy")}
             </button>
           </>
         }
@@ -391,7 +381,9 @@ export default function ShopPage() {
                 <itemToBuy.icon size={48} className={itemToBuy.color} />
               </div>
               <p>
-                Voulez-vous acheter <strong>{itemToBuy.name}</strong> ?
+                {t("modals.confirm.question", {
+                  name: t(`items.${itemToBuy.id}` as any),
+                })}
               </p>
               <p className="text-yellow-400 font-bold text-xl flex items-center gap-2">
                 -{itemToBuy.price} <Coins size={20} />
@@ -404,31 +396,27 @@ export default function ShopPage() {
       <RetroModal
         isOpen={!!successItem}
         onClose={() => setSuccessItem(null)}
-        title="Butin Acquis !"
+        title={t("modals.success.title")}
         type="success"
         footer={
           <button
             onClick={() => setSuccessItem(null)}
             className="w-full px-6 py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded"
           >
-            Génial !
+            {t("actions.awesome")}
           </button>
         }
       >
         <div className="flex flex-col items-center gap-4 text-center">
           {successItem && (
-            <>
-              <div className="flex flex-col items-center gap-4 text-center">
-                {successItem && (
-                  <SharePreview
-                    title="BUTIN LÉGENDAIRE !"
-                    message={`Je viens d'obtenir ${successItem.name} sur TodoQuest !`}
-                    icon={successItem.icon}
-                    color={successItem.color}
-                  />
-                )}
-              </div>
-            </>
+            <SharePreview
+              title={t("modals.success.shareTitle")}
+              message={t("modals.success.shareMessage", {
+                name: t(`items.${successItem.id}` as any),
+              })}
+              icon={successItem.icon}
+              color={successItem.color}
+            />
           )}
         </div>
       </RetroModal>
@@ -436,24 +424,23 @@ export default function ShopPage() {
       <RetroModal
         isOpen={showComingSoon}
         onClose={() => setShowComingSoon(false)}
-        title="Bientôt..."
+        title={t("modals.comingSoon.title")}
       >
         <div className="text-center space-y-4">
           <div className="flex justify-center">
             <CreditCard size={48} className="text-gray-500" />
           </div>
-          <p>
-            Le système de paiement est en cours de construction par nos
-            gobelins.
+          <p>{t("modals.comingSoon.message")}</p>
+          <p className="text-sm text-gray-500">
+            {t("modals.comingSoon.subMessage")}
           </p>
-          <p className="text-sm text-gray-500">Revenez plus tard !</p>
         </div>
       </RetroModal>
 
       <RetroModal
         isOpen={!!errorMessage}
         onClose={() => setErrorMessage(null)}
-        title="Erreur"
+        title={t("modals.error.title")}
         type="danger"
       >
         <div className="flex flex-col items-center gap-4 text-center">

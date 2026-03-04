@@ -159,5 +159,66 @@
       "deleting": "Deleting...",
       "error": "Error while deleting the account."
     }
+  },
+  "Shop": {
+    "header": {
+      "title": "Shop",
+      "loading": "..."
+    },
+    "treasury": {
+      "title": "Treasury",
+      "goldBag": "Gold Bag",
+      "goldValue": "1,500",
+      "beginnerTip": "Perfect for beginners",
+      "buyGold": "$2.99",
+      "moreSoon": "More offers coming soon..."
+    },
+    "categories": {
+      "FRAME": "Avatar Frames 🖼️",
+      "TITLE": "Rare Titles 👑",
+      "THEME": "Visual Themes 🎨"
+    },
+    "items": {
+      "frame_gold": "Golden Frame",
+      "frame_fire": "Aflame",
+      "frame_neon": "Blue Neon",
+      "frame_emerald": "Emerald",
+      "title_slayer": "Slayer",
+      "title_paladin": "Paladin",
+      "title_ninja": "Shadow",
+      "title_rich": "The Wealthy",
+      "title_legend": "Legend",
+      "theme_magma": "Magma",
+      "theme_forest": "Forest",
+      "theme_cyber": "Cyberpunk"
+    },
+    "actions": {
+      "owned": "OWNED",
+      "buy": "Buy",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "buying": "Buying...",
+      "awesome": "Awesome!"
+    },
+    "modals": {
+      "confirm": {
+        "title": "Confirmation",
+        "question": "Do you want to buy {name} ?"
+      },
+      "success": {
+        "title": "Loot Acquired!",
+        "shareTitle": "LEGENDARY LOOT!",
+        "shareMessage": "I just got {name} on TodoQuest!"
+      },
+      "comingSoon": {
+        "title": "Coming Soon...",
+        "message": "The payment system is being built by our goblins.",
+        "subMessage": "Come back later!"
+      },
+      "error": {
+        "title": "Error",
+        "default": "Purchase failed"
+      }
+    }
   }
 }
