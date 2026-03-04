@@ -128,5 +128,36 @@
       "unknown": "An unknown error occurred",
       "failed": "Registration failed"
     }
+  },
+  "Settings": {
+    "loading": "Login required...",
+    "header": "⚙️ Sanctuary of Settings",
+    "audio": {
+      "title": "Sound Ambience",
+      "backgroundMusic": "Background Music",
+      "on": "On",
+      "off": "Off"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "notifications": "Quest Notifications",
+      "comingSoon": "Soon"
+    },
+    "dangerZone": {
+      "title": "Danger Zone",
+      "logout": "Log Out",
+      "deleteAccount": "Delete My Account",
+      "warning": "Warning: This action will erase all your progress."
+    },
+    "deleteModal": {
+      "title": "Danger Zone",
+      "confirm": "Are you absolutely sure?",
+      "description": "This action is {irreversible}. Your level, gold, items and all quests will be permanently deleted.",
+      "irreversible": "irreversible",
+      "cancel": "Cancel",
+      "confirmBtn": "Confirm",
+      "deleting": "Deleting...",
+      "error": "Error while deleting the account."
+    }
   }
 }

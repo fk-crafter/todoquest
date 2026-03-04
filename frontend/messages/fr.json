@@ -128,5 +128,36 @@
       "unknown": "Une erreur inconnue est survenue",
       "failed": "L'inscription a échoué"
     }
+  },
+  "Settings": {
+    "loading": "Connexion requise...",
+    "header": "⚙️ Sanctuaire des Réglages",
+    "audio": {
+      "title": "Ambiance Sonore",
+      "backgroundMusic": "Musique de fond",
+      "on": "Activée",
+      "off": "Désactivée"
+    },
+    "preferences": {
+      "title": "Préférences",
+      "notifications": "Notifications de quête",
+      "comingSoon": "Bientôt"
+    },
+    "dangerZone": {
+      "title": "Zone de Danger",
+      "logout": "Se déconnecter",
+      "deleteAccount": "Supprimer mon compte",
+      "warning": "Attention : Cette action effacera toute votre progression."
+    },
+    "deleteModal": {
+      "title": "Zone de Danger",
+      "confirm": "Êtes-vous absolument sûr ?",
+      "description": "Cette action est {irreversible}. Votre niveau, votre or, vos objets et toutes vos quêtes seront supprimés définitivement.",
+      "irreversible": "irréversible",
+      "cancel": "Annuler",
+      "confirmBtn": "Confirmer",
+      "deleting": "Suppression...",
+      "error": "Erreur lors de la suppression du compte."
+    }
   }
 }
