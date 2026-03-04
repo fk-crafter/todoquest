@@ -220,5 +220,75 @@
         "default": "Erreur lors de l'achat"
       }
     }
+  },
+  "Success": {
+    "loading": "Connexion requise...",
+    "header": {
+      "title": "Salle des Trophées",
+      "description": "Accomplis des tâches de différentes difficultés pour débloquer ces titres légendaires."
+    },
+    "tabs": {
+      "ALL": "Général",
+      "EASY": "EASY",
+      "MEDIUM": "MEDIUM",
+      "HARD": "HARD",
+      "EPIC": "EPIC"
+    },
+    "empty": "Aucun succès dans cette catégorie.",
+    "modal": {
+      "title": "Détails du Succès",
+      "completed": "COMPLÉTÉ",
+      "locked": "VERROUILLÉ"
+    },
+    "errors": {
+      "user": "Erreur user",
+      "tasks": "Erreur tasks"
+    },
+    "achievements": {
+      "gen_1": {
+        "label": "🌱 Le début du voyage",
+        "desc": "Terminer 1 tâche"
+      },
+      "gen_2": {
+        "label": "🔥 Aventurier Confirmé",
+        "desc": "Atteindre le niveau 5"
+      },
+      "gen_3": {
+        "label": "👑 Légende Vivante",
+        "desc": "Atteindre le niveau 10"
+      },
+      "easy_1": {
+        "label": "🧹 Nettoyeur",
+        "desc": "Terminer 5 tâches Faciles"
+      },
+      "easy_2": {
+        "label": "🏃‍♂️ Routine Matinale",
+        "desc": "Terminer 20 tâches Faciles"
+      },
+      "med_1": {
+        "label": "🛡️ Garde du Village",
+        "desc": "Terminer 5 tâches Moyennes"
+      },
+      "med_2": {
+        "label": "🔨 Forgeron",
+        "desc": "Terminer 15 tâches Moyennes"
+      },
+      "hard_1": {
+        "label": "👹 Chasseur de Trolls",
+        "desc": "Terminer 3 tâches Difficiles"
+      },
+      "hard_2": {
+        "label": "🌋 Survivant",
+        "desc": "Terminer 10 tâches Difficiles"
+      },
+      "epic_1": {
+        "label": "🐉 Tueur de Dragons",
+        "desc": "Terminer 1 tâche Épique"
+      },
+      "epic_2": {
+        "label": "🌌 Roi Productif",
+        "desc": "Terminer 5 tâches Épiques"
+      }
+    }
   }
 }

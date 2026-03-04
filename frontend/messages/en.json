@@ -220,5 +220,75 @@
         "default": "Purchase failed"
       }
     }
+  },
+  "Success": {
+    "loading": "Login required...",
+    "header": {
+      "title": "Trophy Room",
+      "description": "Complete tasks of different difficulties to unlock these legendary titles."
+    },
+    "tabs": {
+      "ALL": "General",
+      "EASY": "EASY",
+      "MEDIUM": "MEDIUM",
+      "HARD": "HARD",
+      "EPIC": "EPIC"
+    },
+    "empty": "No achievements in this category.",
+    "modal": {
+      "title": "Achievement Details",
+      "completed": "COMPLETED",
+      "locked": "LOCKED"
+    },
+    "errors": {
+      "user": "User error",
+      "tasks": "Tasks error"
+    },
+    "achievements": {
+      "gen_1": {
+        "label": "🌱 The Journey Begins",
+        "desc": "Complete 1 task"
+      },
+      "gen_2": {
+        "label": "🔥 Confirmed Adventurer",
+        "desc": "Reach level 5"
+      },
+      "gen_3": {
+        "label": "👑 Living Legend",
+        "desc": "Reach level 10"
+      },
+      "easy_1": {
+        "label": "🧹 Cleaner",
+        "desc": "Complete 5 Easy tasks"
+      },
+      "easy_2": {
+        "label": "🏃‍♂️ Morning Routine",
+        "desc": "Complete 20 Easy tasks"
+      },
+      "med_1": {
+        "label": "🛡️ Village Guard",
+        "desc": "Complete 5 Medium tasks"
+      },
+      "med_2": {
+        "label": "🔨 Blacksmith",
+        "desc": "Complete 15 Medium tasks"
+      },
+      "hard_1": {
+        "label": "👹 Troll Hunter",
+        "desc": "Complete 3 Hard tasks"
+      },
+      "hard_2": {
+        "label": "🌋 Survivor",
+        "desc": "Complete 10 Hard tasks"
+      },
+      "epic_1": {
+        "label": "🐉 Dragon Slayer",
+        "desc": "Complete 1 Epic task"
+      },
+      "epic_2": {
+        "label": "🌌 Productive King",
+        "desc": "Complete 5 Epic tasks"
+      }
+    }
   }
 }

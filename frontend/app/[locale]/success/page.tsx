@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import RetroModal from "@/components/ui/RetroModal";
+import { useTranslations } from "next-intl";
 import {
   Trophy,
   Star,
@@ -36,12 +37,12 @@ interface Achievement {
 }
 
 export default function SuccessPage() {
+  const t = useTranslations("Success");
   const { data: session } = useSession();
   const [selectedTab, setSelectedTab] = useState<Difficulty>("ALL");
   const [selectedAchievement, setSelectedAchievement] =
     useState<Achievement | null>(null);
 
-  // --- DATA FETCHING ---
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -49,9 +50,9 @@ export default function SuccessPage() {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
         {
           headers: { Authorization: `Bearer ${session?.accessToken}` },
-        }
+        },
       );
-      if (!res.ok) throw new Error("Erreur user");
+      if (!res.ok) throw new Error(t("errors.user"));
       return res.json();
     },
     enabled: !!session?.accessToken,
@@ -64,9 +65,9 @@ export default function SuccessPage() {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tasks`,
         {
           headers: { Authorization: `Bearer ${session?.accessToken}` },
-        }
+        },
       );
-      if (!res.ok) throw new Error("Erreur tasks");
+      if (!res.ok) throw new Error(t("errors.tasks"));
       return res.json();
     },
     enabled: !!session?.accessToken,
@@ -90,8 +91,8 @@ export default function SuccessPage() {
     {
       id: "gen_1",
       category: "ALL",
-      label: "🌱 Le début du voyage",
-      desc: "Terminer 1 tâche",
+      label: t("achievements.gen_1.label"),
+      desc: t("achievements.gen_1.desc"),
       condition: stats.total >= 1,
       progress: `${Math.min(stats.total, 1)}/1`,
       progressPercent: Math.min(stats.total, 1) * 100,
@@ -101,8 +102,8 @@ export default function SuccessPage() {
     {
       id: "gen_2",
       category: "ALL",
-      label: "🔥 Aventurier Confirmé",
-      desc: "Atteindre le niveau 5",
+      label: t("achievements.gen_2.label"),
+      desc: t("achievements.gen_2.desc"),
       condition: level >= 5,
       progress: `Niv ${Math.min(level, 5)}/5`,
       progressPercent: (Math.min(level, 5) / 5) * 100,
@@ -112,8 +113,8 @@ export default function SuccessPage() {
     {
       id: "gen_3",
       category: "ALL",
-      label: "👑 Légende Vivante",
-      desc: "Atteindre le niveau 10",
+      label: t("achievements.gen_3.label"),
+      desc: t("achievements.gen_3.desc"),
       condition: level >= 10,
       progress: `Niv ${Math.min(level, 10)}/10`,
       progressPercent: (Math.min(level, 10) / 10) * 100,
@@ -123,8 +124,8 @@ export default function SuccessPage() {
     {
       id: "easy_1",
       category: "EASY",
-      label: "🧹 Nettoyeur",
-      desc: "Terminer 5 tâches Faciles",
+      label: t("achievements.easy_1.label"),
+      desc: t("achievements.easy_1.desc"),
       condition: stats.easy >= 5,
       progress: `${Math.min(stats.easy, 5)}/5`,
       progressPercent: (Math.min(stats.easy, 5) / 5) * 100,
@@ -134,8 +135,8 @@ export default function SuccessPage() {
     {
       id: "easy_2",
       category: "EASY",
-      label: "🏃‍♂️ Routine Matinale",
-      desc: "Terminer 20 tâches Faciles",
+      label: t("achievements.easy_2.label"),
+      desc: t("achievements.easy_2.desc"),
       condition: stats.easy >= 20,
       progress: `${Math.min(stats.easy, 20)}/20`,
       progressPercent: (Math.min(stats.easy, 20) / 20) * 100,
@@ -145,8 +146,8 @@ export default function SuccessPage() {
     {
       id: "med_1",
       category: "MEDIUM",
-      label: "🛡️ Garde du Village",
-      desc: "Terminer 5 tâches Moyennes",
+      label: t("achievements.med_1.label"),
+      desc: t("achievements.med_1.desc"),
       condition: stats.medium >= 5,
       progress: `${Math.min(stats.medium, 5)}/5`,
       progressPercent: (Math.min(stats.medium, 5) / 5) * 100,
@@ -156,8 +157,8 @@ export default function SuccessPage() {
     {
       id: "med_2",
       category: "MEDIUM",
-      label: "🔨 Forgeron",
-      desc: "Terminer 15 tâches Moyennes",
+      label: t("achievements.med_2.label"),
+      desc: t("achievements.med_2.desc"),
       condition: stats.medium >= 15,
       progress: `${Math.min(stats.medium, 15)}/15`,
       progressPercent: (Math.min(stats.medium, 15) / 15) * 100,
@@ -167,8 +168,8 @@ export default function SuccessPage() {
     {
       id: "hard_1",
       category: "HARD",
-      label: "👹 Chasseur de Trolls",
-      desc: "Terminer 3 tâches Difficiles",
+      label: t("achievements.hard_1.label"),
+      desc: t("achievements.hard_1.desc"),
       condition: stats.hard >= 3,
       progress: `${Math.min(stats.hard, 3)}/3`,
       progressPercent: (Math.min(stats.hard, 3) / 3) * 100,
@@ -178,8 +179,8 @@ export default function SuccessPage() {
     {
       id: "hard_2",
       category: "HARD",
-      label: "🌋 Survivant",
-      desc: "Terminer 10 tâches Difficiles",
+      label: t("achievements.hard_2.label"),
+      desc: t("achievements.hard_2.desc"),
       condition: stats.hard >= 10,
       progress: `${Math.min(stats.hard, 10)}/10`,
       progressPercent: (Math.min(stats.hard, 10) / 10) * 100,
@@ -189,8 +190,8 @@ export default function SuccessPage() {
     {
       id: "epic_1",
       category: "EPIC",
-      label: "🐉 Tueur de Dragons",
-      desc: "Terminer 1 tâche Épique",
+      label: t("achievements.epic_1.label"),
+      desc: t("achievements.epic_1.desc"),
       condition: stats.epic >= 1,
       progress: `${Math.min(stats.epic, 1)}/1`,
       progressPercent: (Math.min(stats.epic, 1) / 1) * 100,
@@ -200,8 +201,8 @@ export default function SuccessPage() {
     {
       id: "epic_2",
       category: "EPIC",
-      label: "🌌 Roi Productif",
-      desc: "Terminer 5 tâches Épiques",
+      label: t("achievements.epic_2.label"),
+      desc: t("achievements.epic_2.desc"),
       condition: stats.epic >= 5,
       progress: `${Math.min(stats.epic, 5)}/5`,
       progressPercent: (Math.min(stats.epic, 5) / 5) * 100,
@@ -211,13 +212,13 @@ export default function SuccessPage() {
   ];
 
   const filteredAchievements = allAchievements.filter(
-    (ach) => selectedTab === "ALL" || ach.category === selectedTab
+    (ach) => selectedTab === "ALL" || ach.category === selectedTab,
   );
 
   if (!session) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white font-press">
-        <h1 className="text-xl">Connexion requise...</h1>
+        <h1 className="text-xl">{t("loading")}</h1>
       </div>
     );
   }
@@ -237,12 +238,11 @@ export default function SuccessPage() {
       <div className="flex-1 flex flex-col items-center p-4 md:p-6">
         <h1 className="text-2xl mt-12 md:mt-6 font-bold mb-4 flex items-center gap-2 md:text-3xl md:mb-2 text-yellow-400">
           <Trophy className="text-yellow-500 w-6 h-6 md:w-8 md:h-8" />
-          Salle des Trophées
+          {t("header.title")}
         </h1>
 
         <p className="text-gray-400 mb-6 text-center text-xs md:text-sm md:mb-8">
-          Accomplis des tâches de différentes difficultés pour débloquer ces
-          titres légendaires.
+          {t("header.description")}
         </p>
 
         <div className="flex flex-wrap justify-center gap-2 mb-6 bg-gray-800 p-2 rounded-lg shadow-md border border-gray-700 w-full md:w-auto md:mb-8">
@@ -256,22 +256,21 @@ export default function SuccessPage() {
                     ? diff === "EASY"
                       ? "bg-green-600 text-white shadow-lg scale-105"
                       : diff === "MEDIUM"
-                      ? "bg-yellow-600 text-white shadow-lg scale-105"
-                      : diff === "HARD"
-                      ? "bg-orange-600 text-white shadow-lg scale-105"
-                      : diff === "EPIC"
-                      ? "bg-purple-600 text-white shadow-lg scale-105"
-                      : "bg-blue-600 text-white shadow-lg scale-105"
+                        ? "bg-yellow-600 text-white shadow-lg scale-105"
+                        : diff === "HARD"
+                          ? "bg-orange-600 text-white shadow-lg scale-105"
+                          : diff === "EPIC"
+                            ? "bg-purple-600 text-white shadow-lg scale-105"
+                            : "bg-blue-600 text-white shadow-lg scale-105"
                     : "bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white"
                 }`}
               >
-                {diff === "ALL" ? "Général" : diff}
+                {t(`tabs.${diff}` as any)}
               </button>
-            )
+            ),
           )}
         </div>
 
-        {/* GRID DES SUCCES */}
         <div className="grid grid-cols-1 gap-3 w-full max-w-4xl md:grid-cols-2 md:gap-4 pb-10">
           {filteredAchievements.map((ach) => (
             <AchievementCard
@@ -283,16 +282,14 @@ export default function SuccessPage() {
         </div>
 
         {filteredAchievements.length === 0 && (
-          <p className="text-gray-500 mt-10">
-            Aucun succès dans cette catégorie.
-          </p>
+          <p className="text-gray-500 mt-10">{t("empty")}</p>
         )}
       </div>
 
       <RetroModal
         isOpen={!!selectedAchievement}
         onClose={() => setSelectedAchievement(null)}
-        title="Détails du Succès"
+        title={t("modal.title")}
         type={selectedAchievement?.condition ? "success" : "default"}
       >
         <div className="flex flex-col items-center gap-6 text-center">
@@ -335,11 +332,11 @@ export default function SuccessPage() {
 
               {selectedAchievement.condition ? (
                 <span className="text-green-400 font-bold border border-green-500 px-3 py-1 rounded bg-green-900/20">
-                  COMPLÉTÉ
+                  {t("modal.completed")}
                 </span>
               ) : (
                 <span className="text-gray-500 font-bold border border-gray-600 px-3 py-1 rounded bg-gray-900/20">
-                  VERROUILLÉ
+                  {t("modal.locked")}
                 </span>
               )}
             </>
@@ -365,12 +362,12 @@ function AchievementCard({
           ? achievement.category === "EPIC"
             ? "bg-purple-900/30 border-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:bg-purple-900/40"
             : achievement.category === "HARD"
-            ? "bg-orange-900/30 border-orange-500 text-white hover:bg-orange-900/40"
-            : achievement.category === "MEDIUM"
-            ? "bg-yellow-900/30 border-yellow-500 text-white hover:bg-yellow-900/40"
-            : achievement.category === "EASY"
-            ? "bg-green-900/30 border-green-500 text-white hover:bg-green-900/40"
-            : "bg-blue-900/30 border-blue-500 text-white hover:bg-blue-900/40"
+              ? "bg-orange-900/30 border-orange-500 text-white hover:bg-orange-900/40"
+              : achievement.category === "MEDIUM"
+                ? "bg-yellow-900/30 border-yellow-500 text-white hover:bg-yellow-900/40"
+                : achievement.category === "EASY"
+                  ? "bg-green-900/30 border-green-500 text-white hover:bg-green-900/40"
+                  : "bg-blue-900/30 border-blue-500 text-white hover:bg-blue-900/40"
           : "bg-gray-800 border-gray-700 text-gray-500 grayscale opacity-70 hover:opacity-90"
       }`}
     >
