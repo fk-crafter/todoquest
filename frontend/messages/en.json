@@ -379,5 +379,9 @@
       "MAGE": "Mage",
       "ARCHER": "Archer"
     }
+  },
+  "Hero": {
+    "subtitle": "Turn your tasks into adventures!",
+    "cta": "Start the adventure"
   }
 }
