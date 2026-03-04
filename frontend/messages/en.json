@@ -355,38 +355,29 @@
         "MEDIUM": "Medium (+30 XP)",
         "HARD": "Hard (+50 XP)",
         "EPIC": "Epic (+100 XP)"
+      },
+      "statsSection": {
+        "level": "Level {level}"
       }
-    },
-    "statsSection": {
-      "level": "Level {level}"
     }
   },
-
-  "taskForm": {
-    "titlePlaceholder": "Task Title",
-    "descPlaceholder": "Description (optional)",
-    "difficultyLabel": "Difficulty & Reward:",
-    "difficulties": {
-      "EASY": "Easy (10 XP)",
-      "MEDIUM": "Medium (30 XP)",
-      "HARD": "Hard (50 XP)",
-      "EPIC": "Epic (100 XP)"
+  "Sidebar": {
+    "fallbackName": "Hero",
+    "fallbackClass": "Adventurer",
+    "level": "Lvl {level}",
+    "nav": {
+      "tasks": "Personal Quests",
+      "profile": "Hero Sheet",
+      "shop": "Shop",
+      "success": "Achievements",
+      "settings": "Sanctuary of Settings"
     },
-    "submitting": "Adding...",
-    "submit": "Add Quest"
-  },
-  "taskItem": {
-    "time": {
-      "days": "d",
-      "hours": "h",
-      "mins": "min",
-      "spent": "⏱ Time spent: "
-    },
-    "badges": {
-      "EASY": "Easy (+10 XP)",
-      "MEDIUM": "Medium (+30 XP)",
-      "HARD": "Hard (+50 XP)",
-      "EPIC": "Epic (+100 XP)"
+    "back": "Back",
+    "classes": {
+      "ADVENTURER": "Adventurer",
+      "WARRIOR": "Warrior",
+      "MAGE": "Mage",
+      "ARCHER": "Archer"
     }
   }
 }

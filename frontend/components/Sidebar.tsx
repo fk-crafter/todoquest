@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import {
   Menu,
   X,
@@ -18,6 +19,7 @@ import {
 import ClassSelectionModal from "./ClassSelectionModal";
 
 export default function Sidebar() {
+  const t = useTranslations("Sidebar");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showClassModal, setShowClassModal] = useState(false);
   const pathname = usePathname();
@@ -29,7 +31,7 @@ export default function Sidebar() {
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
       {
         headers: { Authorization: `Bearer ${session.accessToken}` },
-      }
+      },
     );
     if (!res.ok) return null;
     return res.json();
@@ -54,11 +56,11 @@ export default function Sidebar() {
   }, [user]);
 
   const navItems = [
-    { name: "Quêtes perso", href: "/tasks", icon: Sword },
-    { name: "Fiche de Héros", href: "/profile", icon: ScrollText },
-    { name: "Boutique", href: "/shop", icon: ShoppingBag },
-    { name: "Succès", href: "/success", icon: Trophy },
-    { name: "Sanctuaire des réglages", href: "/settings", icon: Settings2 },
+    { name: t("nav.tasks"), href: "/tasks", icon: Sword },
+    { name: t("nav.profile"), href: "/profile", icon: ScrollText },
+    { name: t("nav.shop"), href: "/shop", icon: ShoppingBag },
+    { name: t("nav.success"), href: "/success", icon: Trophy },
+    { name: t("nav.settings"), href: "/settings", icon: Settings2 },
   ];
 
   return (
@@ -66,7 +68,7 @@ export default function Sidebar() {
       {showClassModal && user && (
         <ClassSelectionModal
           userGender={user.gender || "male"}
-          userName={user.name || "Héros"}
+          userName={user.name || t("fallbackName")}
         />
       )}
 
@@ -114,11 +116,17 @@ export default function Sidebar() {
                     />
                   </div>
                   <div className="overflow-hidden">
-                    <p className="font-bold truncate text-sm">{user.name}</p>
+                    <p className="font-bold truncate text-sm">
+                      {user.name || t("fallbackName")}
+                    </p>
                     <p className="text-[10px] text-gray-400">
-                      Lvl {user.level} -{" "}
+                      {t("level", { level: user.level || 1 })} -{" "}
                       <span className="capitalize">
-                        {user.class ? user.class.toLowerCase() : "Aventurier"}
+                        {user.class
+                          ? t.has(`classes.${user.class}`)
+                            ? t(`classes.${user.class}`)
+                            : user.class.toLowerCase()
+                          : t("fallbackClass")}
                       </span>
                     </p>
                   </div>
@@ -127,7 +135,10 @@ export default function Sidebar() {
 
               <nav className="flex flex-col gap-3 text-sm">
                 {navItems.map((item) => {
-                  const isActive = pathname === item.href;
+                  const isActive =
+                    pathname === item.href ||
+                    pathname === `/en${item.href}` ||
+                    pathname === `/fr${item.href}`;
                   return (
                     <Link
                       key={item.href}
@@ -155,7 +166,7 @@ export default function Sidebar() {
               onClick={() => setSidebarOpen(false)}
               className="text-sm text-gray-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors mt-auto p-2"
             >
-              <ArrowLeft size={16} /> Retour
+              <ArrowLeft size={16} /> {t("back")}
             </Link>
           </div>
         </>
