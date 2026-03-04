@@ -104,5 +104,29 @@
     "errors": {
       "fetch": "Erreur stats"
     }
+  },
+  "Register": {
+    "title": "Créer un compte",
+    "form": {
+      "name": "Pseudo",
+      "email": "Email",
+      "password": "Mot de passe",
+      "submitting": "Inscription...",
+      "submit": "Inscription"
+    },
+    "footer": {
+      "hasAccount": "Vous avez déjà un compte ?",
+      "login": "Connexion"
+    },
+    "modal": {
+      "success": "Inscription réussie ! 📧",
+      "sentTo": "Un email de confirmation vient d'être envoyé à {email}.",
+      "instruction": "Veuillez cliquer sur le lien reçu pour activer votre compte avant de vous connecter.",
+      "backToLogin": "Retour à la connexion"
+    },
+    "errors": {
+      "unknown": "Une erreur inconnue est survenue",
+      "failed": "L'inscription a échoué"
+    }
   }
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Le pseudo doit faire au moins 2 caractères"),
@@ -17,6 +18,7 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
+  const t = useTranslations("Register");
   const router = useRouter();
   const [error, setError] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -46,7 +48,7 @@ export default function RegisterPage() {
       const resData = await res.json();
 
       if (!res.ok) {
-        throw new Error(resData.message || "Registration failed");
+        throw new Error(resData.message || t("errors.failed"));
       }
 
       setShowSuccessModal(true);
@@ -54,7 +56,7 @@ export default function RegisterPage() {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Une erreur inconnue est survenue");
+        setError(t("errors.unknown"));
       }
     }
   };
@@ -67,7 +69,7 @@ export default function RegisterPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen relative p-4">
       <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">
-        Créer un compte
+        {t("title")}
       </h1>
 
       {error && (
@@ -81,7 +83,7 @@ export default function RegisterPage() {
         <div className="flex flex-col gap-1">
           <input
             type="text"
-            placeholder="Pseudo"
+            placeholder={t("form.name")}
             {...register("name")}
             className="p-2 rounded bg-gray-700 text-white w-full"
           />
@@ -93,7 +95,7 @@ export default function RegisterPage() {
         <div className="flex flex-col gap-1">
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t("form.email")}
             {...register("email")}
             className="p-2 rounded bg-gray-700 text-white w-full"
           />
@@ -105,7 +107,7 @@ export default function RegisterPage() {
         <div className="flex flex-col gap-1">
           <input
             type="password"
-            placeholder="Mot de passe"
+            placeholder={t("form.password")}
             {...register("password")}
             className="p-2 rounded bg-gray-700 text-white w-full"
           />
@@ -122,12 +124,12 @@ export default function RegisterPage() {
           disabled={isSubmitting}
           className="p-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold w-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? "Inscription..." : "Inscription"}
+          {isSubmitting ? t("form.submitting") : t("form.submit")}
         </button>
       </form>
 
       <p className="mt-4 text-gray-300 text-center">
-        Vous avez déjà un compte ?{" "}
+        {t("footer.hasAccount")}{" "}
         <span
           onClick={() => {
             playSound();
@@ -135,7 +137,7 @@ export default function RegisterPage() {
           }}
           className="text-blue-400 cursor-pointer hover:underline whitespace-nowrap"
         >
-          Connexion
+          {t("footer.login")}
         </span>
       </p>
 
@@ -143,23 +145,20 @@ export default function RegisterPage() {
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg w-full max-w-md text-center border border-gray-600">
             <h2 className="text-2xl font-bold mb-4 text-green-400">
-              Inscription réussie ! 📧
+              {t("modal.success")}
             </h2>
             <p className="mb-4 leading-relaxed text-gray-300">
-              Un email de confirmation vient d'être envoyé à{" "}
-              <span className="text-white font-bold">{getValues("email")}</span>
-              .
+              {t("modal.sentTo", { email: getValues("email") })}
             </p>
             <p className="text-sm text-gray-400 mb-6 italic">
-              Veuillez cliquer sur le lien reçu pour activer votre compte avant
-              de vous connecter.
+              {t("modal.instruction")}
             </p>
 
             <button
               onClick={() => router.push("/auth")}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold w-full transition-colors"
             >
-              Retour à la connexion
+              {t("modal.backToLogin")}
             </button>
           </div>
         </div>

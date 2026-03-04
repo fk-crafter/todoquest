@@ -104,5 +104,29 @@
     "errors": {
       "fetch": "Stats error"
     }
+  },
+  "Register": {
+    "title": "Create an account",
+    "form": {
+      "name": "Username",
+      "email": "Email",
+      "password": "Password",
+      "submitting": "Registering...",
+      "submit": "Register"
+    },
+    "footer": {
+      "hasAccount": "Already have an account?",
+      "login": "Login"
+    },
+    "modal": {
+      "success": "Registration successful! 📧",
+      "sentTo": "A confirmation email has been sent to {email}.",
+      "instruction": "Please click the link in the email to activate your account before logging in.",
+      "backToLogin": "Back to login"
+    },
+    "errors": {
+      "unknown": "An unknown error occurred",
+      "failed": "Registration failed"
+    }
   }
 }
