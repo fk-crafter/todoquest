@@ -89,5 +89,20 @@
         "frame_emerald": "Émeraude"
       }
     }
+  },
+  "Progress": {
+    "loading": "Connexion requise...",
+    "welcome": "Bienvenue, {name} !",
+    "stats": {
+      "level": "Niveau",
+      "totalXp": "XP Total"
+    },
+    "buttons": {
+      "viewTasks": "VOIR MES QUÊTES",
+      "logout": "SE DÉCONNECTER"
+    },
+    "errors": {
+      "fetch": "Erreur stats"
+    }
   }
 }

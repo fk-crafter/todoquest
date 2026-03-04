@@ -89,5 +89,20 @@
         "frame_emerald": "Emerald"
       }
     }
+  },
+  "Progress": {
+    "loading": "Login required...",
+    "welcome": "Welcome, {name} !",
+    "stats": {
+      "level": "Level",
+      "totalXp": "Total XP"
+    },
+    "buttons": {
+      "viewTasks": "VIEW MY QUESTS",
+      "logout": "LOG OUT"
+    },
+    "errors": {
+      "fetch": "Stats error"
+    }
   }
 }
