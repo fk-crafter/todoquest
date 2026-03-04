@@ -383,5 +383,24 @@
   "Hero": {
     "subtitle": "Turn your tasks into adventures!",
     "cta": "Start the adventure"
+  },
+  "Auth": {
+    "title": "Authentication",
+    "globalError": "Incorrect email or password",
+    "form": {
+      "email": "Email",
+      "password": "Password",
+      "submitting": "Logging in...",
+      "submit": "Login"
+    },
+    "social": {
+      "github": "Login with GitHub",
+      "google": "Login with Google"
+    },
+    "footer": {
+      "noAccount": "No account?",
+      "register": "Create an account"
+    },
+    "backToHome": "Back to Home"
   }
 }

@@ -7,6 +7,7 @@ import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { ArrowLeft } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
+import { useTranslations, useLocale } from "next-intl";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +21,8 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function AuthPage() {
+  const t = useTranslations("Auth");
+  const locale = useLocale();
   const router = useRouter();
   const { stopMusic } = useAudio();
   const [globalError, setGlobalError] = useState("");
@@ -42,10 +45,10 @@ export default function AuthPage() {
     });
 
     if (result?.error) {
-      setGlobalError("Email ou mot de passe incorrect");
+      setGlobalError(t("globalError"));
     } else {
       stopMusic();
-      router.push("/progress");
+      router.push(`/${locale}/progress`);
     }
   };
 
@@ -57,7 +60,7 @@ export default function AuthPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">
-        Authentification
+        {t("title")}
       </h1>
 
       {globalError && (
@@ -71,7 +74,7 @@ export default function AuthPage() {
         <div className="flex flex-col gap-1">
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t("form.email")}
             {...register("email")}
             className="p-2 rounded bg-gray-700 text-white w-full"
           />
@@ -83,7 +86,7 @@ export default function AuthPage() {
         <div className="flex flex-col gap-1">
           <input
             type="password"
-            placeholder="Mot de passe"
+            placeholder={t("form.password")}
             {...register("password")}
             className="p-2 rounded bg-gray-700 text-white w-full"
           />
@@ -100,7 +103,7 @@ export default function AuthPage() {
           disabled={isSubmitting}
           className="p-2 bg-blue-500 hover:bg-blue-600 rounded text-white font-bold w-full disabled:opacity-50"
         >
-          {isSubmitting ? "Connexion..." : "Connexion"}
+          {isSubmitting ? t("form.submitting") : t("form.submit")}
         </button>
       </form>
 
@@ -109,35 +112,35 @@ export default function AuthPage() {
           type="button"
           onClick={() => {
             playSound();
-            signIn("github", { callbackUrl: "/progress" });
+            signIn("github", { callbackUrl: `/${locale}/progress` });
           }}
           className="flex items-center justify-center gap-2 p-2 bg-gray-900 hover:bg-gray-700 text-white rounded w-full"
         >
-          <FaGithub size={20} /> Connexion avec GitHub
+          <FaGithub size={20} /> {t("social.github")}
         </button>
 
         <button
           type="button"
           onClick={() => {
             playSound();
-            signIn("google", { callbackUrl: "/progress" });
+            signIn("google", { callbackUrl: `/${locale}/progress` });
           }}
           className="flex items-center justify-center gap-2 p-2 bg-orange-300 hover:bg-orange-400 text-white rounded w-full"
         >
-          <FcGoogle size={20} /> Connexion avec Google
+          <FcGoogle size={20} /> {t("social.google")}
         </button>
       </div>
 
       <p className="mt-4 text-gray-300 text-center">
-        Pas de compte ?{" "}
+        {t("footer.noAccount")}{" "}
         <span
           onClick={() => {
             playSound();
-            router.push("/register");
+            router.push(`/${locale}/register`);
           }}
           className="text-blue-400 cursor-pointer hover:underline whitespace-nowrap"
         >
-          Créer un compte
+          {t("footer.register")}
         </span>
       </p>
 
@@ -145,11 +148,11 @@ export default function AuthPage() {
         type="button"
         onClick={() => {
           playSound();
-          router.push("/");
+          router.push(`/${locale}`);
         }}
         className="mt-6 flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg shadow-md transition-all text-sm px-4 py-2 w-full whitespace-nowrap md:text-lg md:px-6 md:py-3 md:w-auto"
       >
-        <ArrowLeft className="w-5 h-5 md:w-6 md:h-6" /> Retour à l&apos;accueil
+        <ArrowLeft className="w-5 h-5 md:w-6 md:h-6" /> {t("backToHome")}
       </button>
     </div>
   );

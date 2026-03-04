@@ -383,5 +383,24 @@
   "Hero": {
     "subtitle": "Transforme tes tâches en aventures !",
     "cta": "Démarrer l'aventure"
+  },
+  "Auth": {
+    "title": "Authentification",
+    "globalError": "Email ou mot de passe incorrect",
+    "form": {
+      "email": "Email",
+      "password": "Mot de passe",
+      "submitting": "Connexion...",
+      "submit": "Connexion"
+    },
+    "social": {
+      "github": "Connexion avec GitHub",
+      "google": "Connexion avec Google"
+    },
+    "footer": {
+      "noAccount": "Pas de compte ?",
+      "register": "Créer un compte"
+    },
+    "backToHome": "Retour à l'accueil"
   }
 }
