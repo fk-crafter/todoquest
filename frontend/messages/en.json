@@ -293,9 +293,7 @@
   },
   "Tasks": {
     "loading": "Login required",
-    "errors": {
-      "tasks": "Tasks error"
-    },
+    "errors": { "tasks": "Tasks error" },
     "achievementUnlocked": "Achievement Unlocked!",
     "levelUp": "🎉 Congratulations! You have reached level {level}!",
     "timeModal": {
@@ -355,10 +353,10 @@
         "MEDIUM": "Medium (+30 XP)",
         "HARD": "Hard (+50 XP)",
         "EPIC": "Epic (+100 XP)"
-      },
-      "statsSection": {
-        "level": "Level {level}"
       }
+    },
+    "statsSection": {
+      "level": "Level {level}"
     }
   },
   "Sidebar": {

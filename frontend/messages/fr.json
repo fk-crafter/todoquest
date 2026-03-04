@@ -355,10 +355,10 @@
         "MEDIUM": "Moyen (+30 XP)",
         "HARD": "Difficile (+50 XP)",
         "EPIC": "Épique (+100 XP)"
-      },
-      "statsSection": {
-        "level": "Niveau {level}"
       }
+    },
+    "statsSection": {
+      "level": "Niveau {level}"
     }
   },
   "Sidebar": {
