@@ -290,5 +290,102 @@
         "desc": "Terminer 5 tâches Épiques"
       }
     }
+  },
+  "Tasks": {
+    "loading": "Connexion requise",
+    "errors": {
+      "tasks": "Erreur tasks"
+    },
+    "achievementUnlocked": "Succès Débloqué !",
+    "levelUp": "🎉 Félicitations ! Vous avez atteint le niveau {level} !",
+    "timeModal": {
+      "title": "Temps passé sur la tâche",
+      "days": "Jours",
+      "hours": "Heures",
+      "minutes": "Min",
+      "cancel": "Annuler",
+      "confirm": "Valider",
+      "invalidDuration": "Durée invalide !"
+    },
+    "editModal": {
+      "title": "Modifier la quête",
+      "taskTitle": "Titre",
+      "description": "Description",
+      "difficulty": "Difficulté",
+      "save": "Sauvegarder"
+    },
+    "tutorial": {
+      "step1": "Ô vaillant héros, sois le bienvenu dans TodoQuest !",
+      "step2": "Transforme tes corvées en épopées : chaque tâche est une quête.",
+      "step3": "Choisis la difficulté pour gagner plus d'expérience (XP).",
+      "step4": "Utilise le Crayon ✏️ pour modifier une quête en cours de route.",
+      "step5": "À toi de jouer, ta destinée t'attend !",
+      "next": "Suivant",
+      "finish": "Terminer"
+    },
+    "main": {
+      "title": "Vos Tâches",
+      "todo": "À faire",
+      "noTodo": "Aucune tâche en cours.",
+      "completed": "Tâches complétées",
+      "noCompleted": "Aucune tâche complétée pour l'instant."
+    },
+    "taskForm": {
+      "titlePlaceholder": "Titre de la tâche",
+      "descPlaceholder": "Description (optionnel)",
+      "difficultyLabel": "Difficulté & Récompense :",
+      "difficulties": {
+        "EASY": "Facile (10 XP)",
+        "MEDIUM": "Moyen (30 XP)",
+        "HARD": "Difficile (50 XP)",
+        "EPIC": "Épique (100 XP)"
+      },
+      "submitting": "Ajout...",
+      "submit": "Ajouter la tâche"
+    },
+    "taskItem": {
+      "time": {
+        "days": "j",
+        "hours": "h",
+        "mins": "min",
+        "spent": "⏱ Temps passé : "
+      },
+      "badges": {
+        "EASY": "Facile (+10 XP)",
+        "MEDIUM": "Moyen (+30 XP)",
+        "HARD": "Difficile (+50 XP)",
+        "EPIC": "Épique (+100 XP)"
+      },
+      "statsSection": {
+        "level": "Niveau {level}"
+      }
+    }
+  },
+  "taskForm": {
+    "titlePlaceholder": "Titre de la tâche",
+    "descPlaceholder": "Description (optionnel)",
+    "difficultyLabel": "Difficulté & Récompense :",
+    "difficulties": {
+      "EASY": "Facile (10 XP)",
+      "MEDIUM": "Moyen (30 XP)",
+      "HARD": "Difficile (50 XP)",
+      "EPIC": "Épique (100 XP)"
+    },
+    "submitting": "Ajout...",
+    "submit": "Ajouter la tâche"
+  },
+  "taskItem": {
+    "time": {
+      "days": "j",
+      "hours": "h",
+      "mins": "min",
+      "spent": "⏱ Temps passé : "
+    },
+    "badges": {
+      "EASY": "Facile (+10 XP)",
+      "MEDIUM": "Moyen (+30 XP)",
+      "HARD": "Difficile (+50 XP)",
+      "EPIC": "Épique (+100 XP)"
+    }
   }
 }

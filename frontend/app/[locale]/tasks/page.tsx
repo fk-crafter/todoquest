@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Sidebar from "@/components/Sidebar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import {
   DndContext,
   closestCenter,
@@ -33,6 +34,7 @@ import {
 } from "@/types/todo";
 
 export default function TasksPage() {
+  const t = useTranslations("Tasks");
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const { setMusicSource } = useAudio();
@@ -85,7 +87,7 @@ export default function TasksPage() {
           headers: { Authorization: `Bearer ${session?.accessToken}` },
         },
       );
-      if (!res.ok) throw new Error("Erreur tasks");
+      if (!res.ok) throw new Error(t("errors.tasks"));
       return res.json();
     },
     enabled: !!session?.accessToken,
@@ -235,7 +237,7 @@ export default function TasksPage() {
       parseInt(hoursInput || "0") * 60 +
       parseInt(minutesInput || "0");
     if (totalMinutes <= 0) {
-      alert("Durée invalide !");
+      alert(t("timeModal.invalidDuration"));
       return;
     }
 
@@ -261,9 +263,7 @@ export default function TasksPage() {
       checkAchievements(task.difficulty);
       if (data.userStats.level > (user?.level || 1)) {
         playLevelUpSound();
-        setLevelUpMessage(
-          `🎉 Félicitations ! Vous avez atteint le niveau ${data.userStats.level} !`,
-        );
+        setLevelUpMessage(t("levelUp", { level: data.userStats.level }));
         setTimeout(() => setLevelUpMessage(""), 5000);
       } else {
         playSound();
@@ -280,17 +280,17 @@ export default function TasksPage() {
   const incompleteTasks = tasks.filter((t) => !t.completed);
   const completedTasks = tasks.filter((t) => t.completed);
   const tutorialMessages = [
-    "Ô vaillant héros, sois le bienvenu dans TodoQuest !",
-    "Transforme tes corvées en épopées : chaque tâche est une quête.",
-    "Choisis la difficulté pour gagner plus d'expérience (XP).",
-    "Utilise le Crayon ✏️ pour modifier une quête en cours de route.",
-    "À toi de jouer, ta destinée t'attend !",
+    t("tutorial.step1"),
+    t("tutorial.step2"),
+    t("tutorial.step3"),
+    t("tutorial.step4"),
+    t("tutorial.step5"),
   ];
 
   if (!session)
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <h1 className="text-3xl font-bold">Connexion requise</h1>
+        <h1 className="text-3xl font-bold">{t("loading")}</h1>
       </div>
     );
 
@@ -306,7 +306,7 @@ export default function TasksPage() {
         >
           <div className="flex items-center gap-2">
             <Trophy className="text-app-accent" />
-            <span>Succès Débloqué !</span>
+            <span>{t("achievementUnlocked")}</span>
           </div>
           <p className="text-sm md:text-base text-white">
             {achievementMessage.label}
@@ -323,13 +323,17 @@ export default function TasksPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="bg-app-surface p-6 rounded-lg shadow-xl w-full max-w-sm border-2 border-app-border">
             <h2 className="text-xl font-bold mb-4 text-app-accent">
-              Temps passé sur la tâche
+              {t("timeModal.title")}
             </h2>
             <div className="flex gap-2 mb-6">
               {[
-                { l: "Jours", v: daysInput, s: setDaysInput },
-                { l: "Heures", v: hoursInput, s: setHoursInput },
-                { l: "Min", v: minutesInput, s: setMinutesInput },
+                { l: t("timeModal.days"), v: daysInput, s: setDaysInput },
+                { l: t("timeModal.hours"), v: hoursInput, s: setHoursInput },
+                {
+                  l: t("timeModal.minutes"),
+                  v: minutesInput,
+                  s: setMinutesInput,
+                },
               ].map((f, i) => (
                 <div key={i} className="flex-1">
                   <label className="text-xs font-bold text-gray-400 uppercase">
@@ -351,13 +355,13 @@ export default function TasksPage() {
                 onClick={() => setShowTimeModal(false)}
                 className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 text-white"
               >
-                Annuler
+                {t("timeModal.cancel")}
               </button>
               <button
                 onClick={handleConfirmTime}
                 className="px-4 py-2 rounded bg-app-accent hover:opacity-80 text-app-bg font-bold"
               >
-                Valider
+                {t("timeModal.confirm")}
               </button>
             </div>
           </div>
@@ -374,12 +378,12 @@ export default function TasksPage() {
               <X size={24} />
             </button>
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-app-accent">
-              <Pencil size={24} /> Modifier la quête
+              <Pencil size={24} /> {t("editModal.title")}
             </h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1 text-gray-300">
-                  Titre
+                  {t("editModal.taskTitle")}
                 </label>
                 <input
                   type="text"
@@ -390,7 +394,7 @@ export default function TasksPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1 text-gray-300">
-                  Description
+                  {t("editModal.description")}
                 </label>
                 <textarea
                   value={editDescription}
@@ -400,7 +404,7 @@ export default function TasksPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-300">
-                  Difficulté
+                  {t("editModal.difficulty")}
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["EASY", "MEDIUM", "HARD", "EPIC"] as Difficulty[]).map(
@@ -424,7 +428,7 @@ export default function TasksPage() {
                 onClick={saveEdit}
                 className="w-full py-3 mt-4 bg-app-accent hover:opacity-90 text-app-bg rounded font-bold shadow-lg transition-transform active:scale-95"
               >
-                Sauvegarder
+                {t("editModal.save")}
               </button>
             </div>
           </div>
@@ -453,8 +457,8 @@ export default function TasksPage() {
               className="px-4 py-2 bg-app-accent text-app-bg font-bold rounded hover:opacity-80 cursor-pointer w-full md:w-auto"
             >
               {tutorialStep < tutorialMessages.length - 1
-                ? "Suivant"
-                : "Terminer"}
+                ? t("tutorial.next")
+                : t("tutorial.finish")}
             </button>
           </div>
         </div>
@@ -464,15 +468,17 @@ export default function TasksPage() {
         <div className="flex flex-col md:flex-row items-start justify-center min-h-screen gap-6 md:gap-8">
           <div className="w-full md:w-1/2">
             <h1 className="text-2xl md:text-3xl font-bold mb-4 text-app-accent">
-              Vos Tâches
+              {t("main.title")}
             </h1>
             <StatsSection user={user} />
             <TaskForm onAdd={addTask} isSubmitting={isSubmitting} />
 
             <div className="mt-6">
-              <h2 className="text-xl font-semibold mb-2 text-white">À faire</h2>
+              <h2 className="text-xl font-semibold mb-2 text-white">
+                {t("main.todo")}
+              </h2>
               {incompleteTasks.length === 0 ? (
-                <p className="text-gray-400">Aucune tâche en cours.</p>
+                <p className="text-gray-400">{t("main.noTodo")}</p>
               ) : (
                 <DndContext
                   sensors={sensors}
@@ -502,12 +508,10 @@ export default function TasksPage() {
 
           <div className="w-full md:w-1/2">
             <h2 className="text-xl font-semibold mb-4 text-white">
-              Tâches complétées
+              {t("main.completed")}
             </h2>
             {completedTasks.length === 0 ? (
-              <p className="text-gray-400">
-                Aucune tâche complétée pour l&apos;instant.
-              </p>
+              <p className="text-gray-400">{t("main.noCompleted")}</p>
             ) : (
               completedTasks.map((task) => (
                 <div

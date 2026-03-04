@@ -3,6 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Pencil, Check, Trash } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Task, Difficulty } from "@/types/todo";
 
 interface TaskItemProps {
@@ -18,6 +19,8 @@ export default function TaskItem({
   onCheck,
   onDelete,
 }: TaskItemProps) {
+  const t = useTranslations("Tasks.taskItem");
+
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: task.id });
 
@@ -31,9 +34,9 @@ export default function TaskItem({
     const h = Math.floor((min % 1440) / 60);
     const m = min % 60;
     let res = "";
-    if (d > 0) res += `${d}j `;
-    if (h > 0) res += `${h}h `;
-    if (m > 0 || res === "") res += `${m}min`;
+    if (d > 0) res += `${d}${t("time.days")} `;
+    if (h > 0) res += `${h}${t("time.hours")} `;
+    if (m > 0 || res === "") res += `${m}${t("time.mins")}`;
     return res.trim();
   };
 
@@ -45,10 +48,10 @@ export default function TaskItem({
       EPIC: "bg-purple-900/50 text-purple-300 border-purple-700",
     };
     const labels = {
-      EASY: "Facile (+10 XP)",
-      MEDIUM: "Moyen (+30 XP)",
-      HARD: "Difficile (+50 XP)",
-      EPIC: "Épique (+100 XP)",
+      EASY: t("badges.EASY"),
+      MEDIUM: t("badges.MEDIUM"),
+      HARD: t("badges.HARD"),
+      EPIC: t("badges.EPIC"),
     };
 
     return (
@@ -82,7 +85,8 @@ export default function TaskItem({
         )}
         {task.timeSpent != null && (
           <p className="text-sm text-app-accent italic mt-1 font-bold">
-            ⏱ Temps passé : {formatTimeSpent(task.timeSpent)}
+            {t("time.spent")}
+            {formatTimeSpent(task.timeSpent)}
           </p>
         )}
       </div>

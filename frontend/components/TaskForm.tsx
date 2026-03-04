@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function TaskForm({
   onTaskAdded,
 }: {
   onTaskAdded: (task: { title: string; description: string }) => void;
 }) {
+  const t = useTranslations("Tasks.form");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
@@ -23,17 +25,17 @@ export default function TaskForm({
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 p-4 bg-gray-800 rounded-lg shadow-md w-full max-w-md"
     >
-      <h2 className="text-xl font-bold">Ajouter une tâche</h2>
+      <h2 className="text-xl font-bold">{t("title")}</h2>
       <input
         type="text"
-        placeholder="Titre de la tâche"
+        placeholder={t("placeholderTitle")}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         className="p-2 rounded bg-gray-700 text-white"
         required
       />
       <textarea
-        placeholder="Description"
+        placeholder={t("placeholderDesc")}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         className="p-2 rounded bg-gray-700 text-white"
@@ -42,7 +44,7 @@ export default function TaskForm({
         type="submit"
         className="p-2 bg-blue-500 hover:bg-blue-600 rounded text-white font-bold"
       >
-        Ajouter
+        {t("submit")}
       </button>
     </form>
   );

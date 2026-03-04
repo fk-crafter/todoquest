@@ -1,8 +1,11 @@
 "use client";
 
 import { Coins } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function StatsSection({ user }: { user: any }) {
+  const t = useTranslations("Tasks.statsSection");
+
   const xp = user?.xp || 0;
   const level = user?.level || 1;
   const gold = user?.gold || 0;
@@ -13,7 +16,7 @@ export default function StatsSection({ user }: { user: any }) {
     <div className="mb-4">
       <div className="flex justify-between items-center mb-2">
         <p className="text-base md:text-lg font-semibold text-white">
-          Niveau {level}
+          {t("level", { level: level })}
         </p>
         <div className="flex items-center gap-2 bg-app-surface px-3 py-1 rounded-lg border border-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.2)]">
           <span className="text-yellow-400 font-bold">{gold}</span>

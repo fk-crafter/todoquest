@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { TaskFormData, taskSchema, Difficulty } from "@/types/todo";
 
 interface TaskFormProps {
@@ -11,6 +12,8 @@ interface TaskFormProps {
 }
 
 export default function TaskForm({ onAdd, isSubmitting }: TaskFormProps) {
+  const t = useTranslations("Tasks.taskForm");
+
   const {
     register,
     handleSubmit,
@@ -32,7 +35,7 @@ export default function TaskForm({ onAdd, isSubmitting }: TaskFormProps) {
       <div>
         <input
           type="text"
-          placeholder="Titre de la tâche"
+          placeholder={t("titlePlaceholder")}
           {...register("title")}
           className="p-2 rounded bg-app-bg text-white w-full border border-app-border focus:border-app-accent outline-none"
         />
@@ -42,14 +45,14 @@ export default function TaskForm({ onAdd, isSubmitting }: TaskFormProps) {
       </div>
 
       <textarea
-        placeholder="Description (optionnel)"
+        placeholder={t("descPlaceholder")}
         {...register("description")}
         className="p-2 resize-none rounded bg-app-bg text-white w-full border border-app-border focus:border-app-accent outline-none h-20 md:h-auto"
       />
 
       <div className="flex flex-col gap-2">
         <label className="text-sm font-semibold text-gray-300">
-          Difficulté & Récompense :
+          {t("difficultyLabel")}
         </label>
         <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap">
           {(["EASY", "MEDIUM", "HARD", "EPIC"] as Difficulty[]).map((d) => (
@@ -62,20 +65,14 @@ export default function TaskForm({ onAdd, isSubmitting }: TaskFormProps) {
                   ? d === "EASY"
                     ? "bg-green-600 border-green-400 text-white"
                     : d === "MEDIUM"
-                    ? "bg-yellow-600 border-yellow-400 text-white"
-                    : d === "HARD"
-                    ? "bg-orange-600 border-orange-400 text-white"
-                    : "bg-purple-600 border-purple-400 text-white"
+                      ? "bg-yellow-600 border-yellow-400 text-white"
+                      : d === "HARD"
+                        ? "bg-orange-600 border-orange-400 text-white"
+                        : "bg-purple-600 border-purple-400 text-white"
                   : "bg-app-bg border-app-border text-gray-400 hover:bg-gray-700"
               }`}
             >
-              {d === "EASY"
-                ? "Facile (10 XP)"
-                : d === "MEDIUM"
-                ? "Moyen (30 XP)"
-                : d === "HARD"
-                ? "Difficile (50 XP)"
-                : "Épique (100 XP)"}
+              {t(`difficulties.${d}` as any)}
             </button>
           ))}
         </div>
@@ -86,7 +83,7 @@ export default function TaskForm({ onAdd, isSubmitting }: TaskFormProps) {
         disabled={isSubmitting}
         className="p-3 bg-app-accent hover:opacity-90 rounded text-app-bg font-bold w-full flex items-center justify-center gap-2 cursor-pointer transition-colors mt-2 text-sm md:text-base disabled:opacity-50"
       >
-        {isSubmitting ? "Ajout..." : "Ajouter la tâche"} <Plus size={18} />
+        {isSubmitting ? t("submitting") : t("submit")} <Plus size={18} />
       </button>
     </form>
   );

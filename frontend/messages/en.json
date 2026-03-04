@@ -290,5 +290,103 @@
         "desc": "Complete 5 Epic tasks"
       }
     }
+  },
+  "Tasks": {
+    "loading": "Login required",
+    "errors": {
+      "tasks": "Tasks error"
+    },
+    "achievementUnlocked": "Achievement Unlocked!",
+    "levelUp": "🎉 Congratulations! You have reached level {level}!",
+    "timeModal": {
+      "title": "Time spent on task",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Min",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "invalidDuration": "Invalid duration!"
+    },
+    "editModal": {
+      "title": "Edit Quest",
+      "taskTitle": "Title",
+      "description": "Description",
+      "difficulty": "Difficulty",
+      "save": "Save"
+    },
+    "tutorial": {
+      "step1": "O valiant hero, welcome to TodoQuest!",
+      "step2": "Turn your chores into epics: every task is a quest.",
+      "step3": "Choose the difficulty to gain more experience (XP).",
+      "step4": "Use the Pencil ✏️ to edit a quest along the way.",
+      "step5": "Now it's your turn, destiny awaits!",
+      "next": "Next",
+      "finish": "Finish"
+    },
+    "main": {
+      "title": "Your Quests",
+      "todo": "To Do",
+      "noTodo": "No pending quests.",
+      "completed": "Completed Quests",
+      "noCompleted": "No completed quests yet."
+    },
+    "taskForm": {
+      "titlePlaceholder": "Task Title",
+      "descPlaceholder": "Description (optional)",
+      "difficultyLabel": "Difficulty & Reward:",
+      "difficulties": {
+        "EASY": "Easy (10 XP)",
+        "MEDIUM": "Medium (30 XP)",
+        "HARD": "Hard (50 XP)",
+        "EPIC": "Epic (100 XP)"
+      },
+      "submitting": "Adding...",
+      "submit": "Add Quest"
+    },
+    "taskItem": {
+      "time": {
+        "days": "d",
+        "hours": "h",
+        "mins": "min",
+        "spent": "⏱ Time spent: "
+      },
+      "badges": {
+        "EASY": "Easy (+10 XP)",
+        "MEDIUM": "Medium (+30 XP)",
+        "HARD": "Hard (+50 XP)",
+        "EPIC": "Epic (+100 XP)"
+      }
+    },
+    "statsSection": {
+      "level": "Level {level}"
+    }
+  },
+
+  "taskForm": {
+    "titlePlaceholder": "Task Title",
+    "descPlaceholder": "Description (optional)",
+    "difficultyLabel": "Difficulty & Reward:",
+    "difficulties": {
+      "EASY": "Easy (10 XP)",
+      "MEDIUM": "Medium (30 XP)",
+      "HARD": "Hard (50 XP)",
+      "EPIC": "Epic (100 XP)"
+    },
+    "submitting": "Adding...",
+    "submit": "Add Quest"
+  },
+  "taskItem": {
+    "time": {
+      "days": "d",
+      "hours": "h",
+      "mins": "min",
+      "spent": "⏱ Time spent: "
+    },
+    "badges": {
+      "EASY": "Easy (+10 XP)",
+      "MEDIUM": "Medium (+30 XP)",
+      "HARD": "Hard (+50 XP)",
+      "EPIC": "Epic (+100 XP)"
+    }
   }
 }
