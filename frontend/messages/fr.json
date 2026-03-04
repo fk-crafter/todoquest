@@ -20,5 +20,74 @@
       "female": "FEMME",
       "creating": "Création du personnage..."
     }
+  },
+  "Profile": {
+    "errors": {
+      "loadProfile": "Erreur chargement profil",
+      "equipItem": "Impossible d'équiper cet objet.",
+      "updateName": "Erreur modification pseudo"
+    },
+    "loading": {
+      "authRequired": "Connexion requise...",
+      "loading": "Chargement..."
+    },
+    "defaultName": "Héros",
+    "levelTitles": {
+      "novice": "Novice du To-Do",
+      "adventurer": "Aventurier Organisé",
+      "master": "Maître des Quêtes",
+      "hero": "Héros de la Productivité",
+      "legend": "Légende Vivante"
+    },
+    "classes": {
+      "archerFemale": "Archère",
+      "archerMale": "Archer",
+      "mage": "Mage",
+      "swordsman": "Escrim",
+      "unknown": "???"
+    },
+    "ui": {
+      "title": "Fiche de Héros",
+      "level": "Niveau {level}",
+      "xp": "{xp} / {xpToNextLevel} XP",
+      "stats": {
+        "quests": "Quêtes",
+        "completed": "Finies",
+        "efficiency": "Efficacité",
+        "class": "Classe"
+      },
+      "sections": {
+        "frames": "🖼️ Mes Cadres d'Avatar",
+        "themes": "🎨 Mes Thèmes",
+        "titles": "👑 Mes Titres"
+      },
+      "actions": {
+        "equipped": "ÉQUIPÉ",
+        "choose": "CHOISIR"
+      }
+    },
+    "metadata": {
+      "themes": {
+        "default": "Classique",
+        "theme_magma": "Magma",
+        "theme_forest": "Forêt",
+        "theme_cyber": "Cyberpunk"
+      },
+      "titles": {
+        "default": "Rang de Niveau",
+        "title_rich": "Le Bourgeois",
+        "title_slayer": "Tueur",
+        "title_paladin": "Paladin",
+        "title_ninja": "Ombre",
+        "title_legend": "Légende"
+      },
+      "frames": {
+        "default": "Standard",
+        "frame_gold": "Cadre Doré",
+        "frame_fire": "Enflammé",
+        "frame_neon": "Néon Bleu",
+        "frame_emerald": "Émeraude"
+      }
+    }
   }
 }

@@ -20,5 +20,74 @@
       "female": "FEMALE",
       "creating": "Creating character..."
     }
+  },
+  "Profile": {
+    "errors": {
+      "loadProfile": "Error loading profile",
+      "equipItem": "Cannot equip this item.",
+      "updateName": "Error updating username"
+    },
+    "loading": {
+      "authRequired": "Login required...",
+      "loading": "Loading..."
+    },
+    "defaultName": "Hero",
+    "levelTitles": {
+      "novice": "To-Do Novice",
+      "adventurer": "Organized Adventurer",
+      "master": "Quest Master",
+      "hero": "Productivity Hero",
+      "legend": "Living Legend"
+    },
+    "classes": {
+      "archerFemale": "Archer",
+      "archerMale": "Archer",
+      "mage": "Mage",
+      "swordsman": "Swordsman",
+      "unknown": "???"
+    },
+    "ui": {
+      "title": "Hero Sheet",
+      "level": "Level {level}",
+      "xp": "{xp} / {xpToNextLevel} XP",
+      "stats": {
+        "quests": "Quests",
+        "completed": "Done",
+        "efficiency": "Efficiency",
+        "class": "Class"
+      },
+      "sections": {
+        "frames": "🖼️ My Avatar Frames",
+        "themes": "🎨 My Themes",
+        "titles": "👑 My Titles"
+      },
+      "actions": {
+        "equipped": "EQUIPPED",
+        "choose": "EQUIP"
+      }
+    },
+    "metadata": {
+      "themes": {
+        "default": "Classic",
+        "theme_magma": "Magma",
+        "theme_forest": "Forest",
+        "theme_cyber": "Cyberpunk"
+      },
+      "titles": {
+        "default": "Level Rank",
+        "title_rich": "The Bourgeois",
+        "title_slayer": "Slayer",
+        "title_paladin": "Paladin",
+        "title_ninja": "Shadow",
+        "title_legend": "Legend"
+      },
+      "frames": {
+        "default": "Standard",
+        "frame_gold": "Golden Frame",
+        "frame_fire": "Aflame",
+        "frame_neon": "Blue Neon",
+        "frame_emerald": "Emerald"
+      }
+    }
   }
 }

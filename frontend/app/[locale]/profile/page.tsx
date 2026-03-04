@@ -26,51 +26,47 @@ import {
   Loader2,
 } from "lucide-react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 
 const THEMES_METADATA: Record<string, any> = {
-  default: { name: "Classique", icon: Moon, color: "text-gray-400" },
-  theme_magma: { name: "Magma", icon: Mountain, color: "text-red-500" },
-  theme_forest: { name: "Forêt", icon: Trees, color: "text-green-500" },
-  theme_cyber: { name: "Cyberpunk", icon: Cpu, color: "text-purple-500" },
+  default: { icon: Moon, color: "text-gray-400" },
+  theme_magma: { icon: Mountain, color: "text-red-500" },
+  theme_forest: { icon: Trees, color: "text-green-500" },
+  theme_cyber: { icon: Cpu, color: "text-purple-500" },
 };
 
 const TITLES_METADATA: Record<string, any> = {
-  default: { name: "Rang de Niveau", icon: Star, color: "text-gray-400" },
-  title_rich: { name: "Le Bourgeois", icon: Crown, color: "text-yellow-400" },
-  title_slayer: { name: "Tueur", icon: Sword, color: "text-red-500" },
-  title_paladin: { name: "Paladin", icon: Shield, color: "text-blue-300" },
-  title_ninja: { name: "Ombre", icon: Ghost, color: "text-gray-400" },
-  title_legend: { name: "Légende", icon: Sparkles, color: "text-purple-400" },
+  default: { icon: Star, color: "text-gray-400" },
+  title_rich: { icon: Crown, color: "text-yellow-400" },
+  title_slayer: { icon: Sword, color: "text-red-500" },
+  title_paladin: { icon: Shield, color: "text-blue-300" },
+  title_ninja: { icon: Ghost, color: "text-gray-400" },
+  title_legend: { icon: Sparkles, color: "text-purple-400" },
 };
 
 const FRAMES_METADATA: Record<string, any> = {
   default: {
-    name: "Standard",
     icon: Frame,
     style: "border-gray-500 shadow-none",
     color: "text-gray-400",
   },
   frame_gold: {
-    name: "Cadre Doré",
     icon: Frame,
     style: "border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.6)]",
     color: "text-yellow-400",
   },
   frame_fire: {
-    name: "Enflammé",
     icon: Flame,
     style:
       "border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.8)] animate-pulse",
     color: "text-orange-500",
   },
   frame_neon: {
-    name: "Néon Bleu",
     icon: Zap,
     style: "border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.8)]",
     color: "text-cyan-400",
   },
   frame_emerald: {
-    name: "Émeraude",
     icon: Hexagon,
     style: "border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.6)]",
     color: "text-green-400",
@@ -78,6 +74,8 @@ const FRAMES_METADATA: Record<string, any> = {
 };
 
 export default function ProfilePage() {
+  const t = useTranslations("Profile");
+
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
@@ -90,9 +88,9 @@ export default function ProfilePage() {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
         {
           headers: { Authorization: `Bearer ${session?.accessToken}` },
-        }
+        },
       );
-      if (!res.ok) throw new Error("Erreur chargement profil");
+      if (!res.ok) throw new Error(t("errors.loadProfile"));
       return res.json();
     },
     enabled: !!session?.accessToken,
@@ -119,14 +117,14 @@ export default function ProfilePage() {
             Authorization: `Bearer ${session?.accessToken}`,
           },
           body: JSON.stringify({ itemId, category }),
-        }
+        },
       );
       if (!res.ok) throw new Error("Erreur équipement");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
-    onError: () => alert("Impossible d'équiper cet objet."),
+    onError: () => alert(t("errors.equipItem")),
   });
 
   const updateNameMutation = useMutation({
@@ -140,7 +138,7 @@ export default function ProfilePage() {
             Authorization: `Bearer ${session?.accessToken}`,
           },
           body: JSON.stringify({ name }),
-        }
+        },
       );
       if (!res.ok) throw new Error("Erreur update");
     },
@@ -148,15 +146,19 @@ export default function ProfilePage() {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       setIsEditing(false);
     },
-    onError: () => alert("Erreur modification pseudo"),
+    onError: () => alert(t("errors.updateName")),
   });
 
   if (!session)
     return (
-      <div className="text-center mt-20 text-white">Connexion requise...</div>
+      <div className="text-center mt-20 text-white">
+        {t("loading.authRequired")}
+      </div>
     );
   if (isLoading)
-    return <div className="text-center mt-20 text-white">Chargement...</div>;
+    return (
+      <div className="text-center mt-20 text-white">{t("loading.loading")}</div>
+    );
 
   const level = user?.level || 1;
   const xp = user?.xp || 0;
@@ -166,7 +168,7 @@ export default function ProfilePage() {
   const xpProgressPercent = Math.min((xp / xpToNextLevel) * 100, 100);
   const successRate =
     tasksCreated > 0 ? Math.round((tasksCompleted / tasksCreated) * 100) : 0;
-  const currentName = user?.name || session?.user?.name || "Héros";
+  const currentName = user?.name || session?.user?.name || t("defaultName");
 
   let avatarFileName =
     user?.avatar || user?.image || session?.user?.image || "char-male.png";
@@ -178,17 +180,18 @@ export default function ProfilePage() {
     FRAMES_METADATA[equippedFrameId] || FRAMES_METADATA["default"];
 
   const getLevelTitle = (lvl: number) => {
-    if (lvl < 5) return "Novice du To-Do";
-    if (lvl < 10) return "Aventurier Organisé";
-    if (lvl < 20) return "Maître des Quêtes";
-    if (lvl < 40) return "Héros de la Productivité";
-    return "Légende Vivante";
+    if (lvl < 5) return t("levelTitles.novice");
+    if (lvl < 10) return t("levelTitles.adventurer");
+    if (lvl < 20) return t("levelTitles.master");
+    if (lvl < 40) return t("levelTitles.hero");
+    return t("levelTitles.legend");
   };
 
   const equippedTitleId = user?.equippedTitle || "default";
+
   const displayTitle =
     equippedTitleId !== "default" && TITLES_METADATA[equippedTitleId]
-      ? TITLES_METADATA[equippedTitleId].name
+      ? t(`metadata.titles.${equippedTitleId}` as any)
       : getLevelTitle(level);
 
   const userClass = user?.class || "ADVENTURER";
@@ -196,13 +199,15 @@ export default function ProfilePage() {
   const displayClassName = (() => {
     switch (userClass) {
       case "ARCHER":
-        return userGender === "female" ? "Archère" : "Archer";
+        return userGender === "female"
+          ? t("classes.archerFemale")
+          : t("classes.archerMale");
       case "MAGE":
-        return "Mage";
+        return t("classes.mage");
       case "SWORDSMAN":
-        return "Escrim";
+        return t("classes.swordsman");
       default:
-        return "???";
+        return t("classes.unknown");
     }
   })();
 
@@ -212,7 +217,7 @@ export default function ProfilePage() {
 
       <main className="flex-1 p-4 md:p-8 flex flex-col items-center">
         <h1 className="text-xl md:text-4xl font-bold mb-8 mt-15 text-yellow-400 drop-shadow-md">
-          Fiche de Héros
+          {t("ui.title")}
         </h1>
 
         <div className="w-full max-w-2xl flex flex-col gap-6">
@@ -296,10 +301,10 @@ export default function ProfilePage() {
                 <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
                   <div className="flex justify-between items-end mb-2">
                     <span className="text-yellow-400 font-bold text-lg">
-                      Niveau {level}
+                      {t("ui.level", { level })}
                     </span>
                     <span className="text-gray-400 text-xs">
-                      {xp} / {xpToNextLevel} XP
+                      {t("ui.xp", { xp, xpToNextLevel })}
                     </span>
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden border border-gray-600">
@@ -313,19 +318,19 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-2 gap-3">
                   <StatCard
                     icon={Scroll}
-                    label="Quêtes"
+                    label={t("ui.stats.quests")}
                     value={tasksCreated}
                     color="text-blue-400"
                   />
                   <StatCard
                     icon={Sword}
-                    label="Finies"
+                    label={t("ui.stats.completed")}
                     value={tasksCompleted}
                     color="text-green-400"
                   />
                   <StatCard
                     icon={Trophy}
-                    label="Efficacité"
+                    label={t("ui.stats.efficiency")}
                     value={`${successRate}%`}
                     color="text-purple-400"
                   />
@@ -342,7 +347,7 @@ export default function ProfilePage() {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase">
-                        Classe
+                        {t("ui.stats.class")}
                       </p>
                       <p className="font-bold text-sm text-yellow-400 capitalize">
                         {displayClassName}
@@ -357,11 +362,12 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
             <div className="md:col-span-2">
               <CustomizationSection
-                title="🖼️ Mes Cadres d'Avatar"
+                title={t("ui.sections.frames")}
                 category="FRAME"
                 equippedId={user?.equippedFrame || "default"}
                 inventory={user?.inventory || []}
                 metadata={FRAMES_METADATA}
+                metadataKey="frames"
                 onEquip={(id) =>
                   equipMutation.mutate({ itemId: id, category: "FRAME" })
                 }
@@ -370,11 +376,12 @@ export default function ProfilePage() {
             </div>
 
             <CustomizationSection
-              title="🎨 Mes Thèmes"
+              title={t("ui.sections.themes")}
               category="THEME"
               equippedId={user?.equippedTheme || "default"}
               inventory={user?.inventory || []}
               metadata={THEMES_METADATA}
+              metadataKey="themes"
               onEquip={(id) =>
                 equipMutation.mutate({ itemId: id, category: "THEME" })
               }
@@ -382,11 +389,12 @@ export default function ProfilePage() {
             />
 
             <CustomizationSection
-              title="👑 Mes Titres"
+              title={t("ui.sections.titles")}
               category="TITLE"
               equippedId={user?.equippedTitle || "default"}
               inventory={user?.inventory || []}
               metadata={TITLES_METADATA}
+              metadataKey="titles"
               onEquip={(id) =>
                 equipMutation.mutate({ itemId: id, category: "TITLE" })
               }
@@ -429,6 +437,7 @@ function CustomizationSection({
   equippedId,
   inventory,
   metadata,
+  metadataKey,
   onEquip,
   isLoading,
 }: {
@@ -437,9 +446,12 @@ function CustomizationSection({
   equippedId: string;
   inventory: string[];
   metadata: Record<string, any>;
+  metadataKey: string;
   onEquip: (id: string) => void;
   isLoading: boolean;
 }) {
+  const t = useTranslations("Profile");
+
   const prefix = category.toLowerCase() + "_";
   const ownedItems = inventory.filter((id: string) => id.startsWith(prefix));
   const allItems = ["default", ...ownedItems];
@@ -457,7 +469,6 @@ function CustomizationSection({
       >
         {allItems.map((itemId) => {
           const meta = metadata[itemId] || {
-            name: itemId,
             icon: Star,
             color: "text-white",
           };
@@ -475,7 +486,7 @@ function CustomizationSection({
             >
               <Icon size={28} className={meta.color} />
               <span className="font-bold text-[10px] text-center truncate w-full">
-                {meta.name}
+                {t(`metadata.${metadataKey}.${itemId}` as any)}
               </span>
               <button
                 onClick={() => onEquip(itemId)}
@@ -486,7 +497,7 @@ function CustomizationSection({
                     : "bg-gray-600 hover:bg-blue-600 text-white"
                 }`}
               >
-                {isEquipped ? "ÉQUIPÉ" : "CHOISIR"}
+                {isEquipped ? t("ui.actions.equipped") : t("ui.actions.choose")}
               </button>
             </div>
           );
