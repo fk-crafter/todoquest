@@ -434,5 +434,21 @@
       }
     },
     "error": "Une erreur est survenue. Réessaie !"
+  },
+  "InstallPWA": {
+    "button": "Installer l'app",
+    "modal": {
+      "title": "Installer l'App",
+      "description": "Installe TodoQuest sur ton écran d'accueil pour jouer en plein écran !",
+      "step1": {
+        "title": "1. Appuie sur Partager",
+        "desc": "L'icône carrée avec une flèche, en bas de Safari ou dans le menu Chrome."
+      },
+      "step2": {
+        "title": "2. Sur l'écran d'accueil",
+        "desc": "Cherche \"Ajouter à l'écran d'accueil\"."
+      },
+      "close": "OK, J'ai compris"
+    }
   }
 }

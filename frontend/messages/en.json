@@ -432,5 +432,21 @@
       }
     },
     "error": "An error occurred. Try again!"
+  },
+  "InstallPWA": {
+    "button": "Install App",
+    "modal": {
+      "title": "Install the App",
+      "description": "Install TodoQuest on your home screen to play in full screen!",
+      "step1": {
+        "title": "1. Tap Share",
+        "desc": "The square icon with an arrow, at the bottom of Safari or in the Chrome menu."
+      },
+      "step2": {
+        "title": "2. Add to Home Screen",
+        "desc": "Look for \"Add to Home Screen\"."
+      },
+      "close": "OK, I got it"
+    }
   }
 }
