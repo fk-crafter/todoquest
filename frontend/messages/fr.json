@@ -402,5 +402,37 @@
       "register": "Créer un compte"
     },
     "backToHome": "Retour à l'accueil"
+  },
+  "ClassSelection": {
+    "guide": {
+      "title": "Guide de l'Aventure",
+      "dialogue1": "Halte là, {name} ! Je t'observe depuis tes débuts...",
+      "dialogue2": "Tu n'es plus un simple aventurier. Ton âme réclame plus de puissance. Il est temps pour toi de choisir ta véritable voie !",
+      "button": "JE SUIS PRÊT !"
+    },
+    "selection": {
+      "title": "Choisis ta Destinée",
+      "transformation": "TRANSFORMATION...",
+      "action": "DEVENIR {className}",
+      "placeholder": "CHOISIS UNE CLASSE"
+    },
+    "options": {
+      "ARCHER": {
+        "male": "Archer",
+        "female": "Archère",
+        "desc": "Maître de la distance, rapide et précis."
+      },
+      "MAGE": {
+        "male": "Mage",
+        "female": "Magicienne",
+        "desc": "Manipule les éléments pour détruire ses ennemis."
+      },
+      "SWORDSMAN": {
+        "male": "Escrimeur",
+        "female": "Escrimeuse",
+        "desc": "Combattant au corps-à-corps, résistant et puissant."
+      }
+    },
+    "error": "Une erreur est survenue. Réessaie !"
   }
 }

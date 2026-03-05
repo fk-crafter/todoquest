@@ -400,5 +400,37 @@
       "register": "Create an account"
     },
     "backToHome": "Back to Home"
+  },
+  "ClassSelection": {
+    "guide": {
+      "title": "Adventure Guide",
+      "dialogue1": "Halt there, {name}! I've been watching you since the beginning...",
+      "dialogue2": "You are no longer a simple adventurer. Your soul craves more power. It is time for you to choose your true path!",
+      "button": "I AM READY!"
+    },
+    "selection": {
+      "title": "Choose your Destiny",
+      "transformation": "TRANSFORMING...",
+      "action": "BECOME {className}",
+      "placeholder": "CHOOSE A CLASS"
+    },
+    "options": {
+      "ARCHER": {
+        "male": "Archer",
+        "female": "Archer",
+        "desc": "Master of distance, fast and precise."
+      },
+      "MAGE": {
+        "male": "Mage",
+        "female": "Sorceress",
+        "desc": "Manipulates the elements to destroy enemies."
+      },
+      "SWORDSMAN": {
+        "male": "Swordsman",
+        "female": "Swordswoman",
+        "desc": "Close-quarters fighter, resilient and powerful."
+      }
+    },
+    "error": "An error occurred. Try again!"
   }
 }
