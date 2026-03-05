@@ -2,6 +2,7 @@
 
 import { useRef, useState, useCallback } from "react";
 import { toBlob } from "html-to-image";
+import { useTranslations } from "next-intl";
 import {
   Download,
   Share2,
@@ -47,6 +48,7 @@ export default function SharePreview({
   color,
   level,
 }: SharePreviewProps) {
+  const t = useTranslations("Share");
   const cardRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -55,8 +57,8 @@ export default function SharePreview({
     type: "success" | "info";
   } | null>(null);
 
-  const showToast = (message: string, type: "success" | "info" = "success") => {
-    setToast({ message, type });
+  const showToast = (msg: string, type: "success" | "info" = "success") => {
+    setToast({ message: msg, type });
     setTimeout(() => setToast(null), 5000);
   };
 
@@ -74,20 +76,25 @@ export default function SharePreview({
       return blob;
     } catch (err) {
       console.error(err);
+      showToast(t("notifications.errorGen"), "info");
       return null;
     }
-  }, [cardRef]);
+  }, [cardRef, t]);
 
   const performNativeShare = async (blob: Blob) => {
     const file = new File([blob], "todoquest-share.png", { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: "TodoQuest",
-        text: message,
-        url: "https://to-doquest.vercel.app",
-      });
-      return true;
+      try {
+        await navigator.share({
+          files: [file],
+          title: "TodoQuest",
+          text: message,
+          url: "https://to-doquest.vercel.app",
+        });
+        return true;
+      } catch (err) {
+        return false;
+      }
     }
     return false;
   };
@@ -96,7 +103,7 @@ export default function SharePreview({
     setIsGenerating(true);
     try {
       const blob = await generateImageBlob();
-      if (!blob) throw new Error("Erreur génération");
+      if (!blob) throw new Error("Generation error");
 
       const isTouchDevice =
         "ontouchstart" in window || navigator.maxTouchPoints > 0;
@@ -116,7 +123,7 @@ export default function SharePreview({
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
-      showToast("Erreur lors du téléchargement", "info");
+      showToast(t("notifications.errorDownload"), "info");
     } finally {
       setIsGenerating(false);
     }
@@ -157,21 +164,19 @@ export default function SharePreview({
         await navigator.clipboard.write([
           new ClipboardItem({ "image/png": blob }),
         ]);
-        showToast("Image copiée ! Fais 'Coller' dans ton post.", "success");
+        showToast(t("notifications.imageCopied"), "success");
       } catch (err) {
         handleDownload();
-        showToast("Image téléchargée ! Ajoute-la à ton post.", "info");
+        showToast(t("notifications.imageDownloaded"), "info");
       }
 
-      const shareText = encodeURIComponent(
-        `${message} ⚔️ Rejoignez la quête sur`
-      );
+      const shareText = encodeURIComponent(`${message} ⚔️`);
       const shareUrl = encodeURIComponent("https://to-doquest.vercel.app");
 
       setTimeout(() => {
         window.open(
           `https://x.com/intent/tweet?text=${shareText}&url=${shareUrl}`,
-          "_blank"
+          "_blank",
         );
       }, 1500);
     } finally {
@@ -198,7 +203,7 @@ export default function SharePreview({
           <div
             className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 ${color.replace(
               "text-",
-              "bg-"
+              "bg-",
             )}/20 blur-[50px] rounded-full`}
           ></div>
 
@@ -230,12 +235,12 @@ export default function SharePreview({
                 <div className="bg-gray-800 px-3 py-1 rounded-full border border-gray-600 flex items-center gap-1 shadow-lg">
                   <Trophy size={12} className="text-yellow-500" />
                   <span className="text-yellow-400 font-bold text-[10px]">
-                    NIV {level}
+                    {t("card.level", { level })}
                   </span>
                 </div>
               )}
               <div className="text-[8px] text-gray-500 font-mono bg-black/40 px-2 py-0.5 rounded">
-                to-doquest.vercel.app
+                {t("card.site")}
               </div>
             </div>
           </div>
@@ -252,7 +257,7 @@ export default function SharePreview({
             ) : (
               <Share2 size={16} />
             )}
-            {isGenerating ? "Génération..." : "Partager l'image"}
+            {isGenerating ? t("actions.generating") : t("actions.share")}
           </button>
 
           <div className="flex gap-2 justify-center">
@@ -260,25 +265,25 @@ export default function SharePreview({
               onClick={handleDownload}
               className="flex-1 bg-gray-700 hover:bg-gray-600 p-2 rounded text-[10px] font-bold flex items-center justify-center gap-1 text-gray-300 transition-colors"
             >
-              <Download size={14} /> DL
+              <Download size={14} /> {t("actions.download")}
             </button>
 
             <button
               onClick={handleTwitterShare}
               className="flex-1 bg-black hover:bg-gray-900 border border-gray-800 p-2 rounded text-[10px] font-bold flex items-center justify-center gap-1 text-white transition-colors"
             >
-              <XLogo size={12} /> Post
+              <XLogo size={12} /> {t("actions.twitter")}
             </button>
 
             <a
               href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-                "https://to-doquest.vercel.app"
+                "https://to-doquest.vercel.app",
               )}`}
               target="_blank"
               rel="noreferrer"
               className="flex-1 bg-[#0A66C2]/20 hover:bg-[#0A66C2]/30 border border-[#0A66C2]/50 p-2 rounded text-[10px] font-bold flex items-center justify-center gap-1 text-[#0A66C2] transition-colors"
             >
-              <Linkedin size={14} /> Post
+              <Linkedin size={14} /> {t("actions.linkedin")}
             </a>
           </div>
         </div>
@@ -304,9 +309,11 @@ export default function SharePreview({
                 <Copy size={16} />
               )}
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col text-left">
               <span className="text-xs font-bold font-press uppercase tracking-wide text-white mb-0.5">
-                {toast.type === "success" ? "Succès" : "Info"}
+                {toast.type === "success"
+                  ? t("notifications.successTitle")
+                  : t("notifications.infoTitle")}
               </span>
               <span className="text-xs font-medium text-gray-300">
                 {toast.message}

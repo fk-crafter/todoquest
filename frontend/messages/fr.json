@@ -450,5 +450,26 @@
       },
       "close": "OK, J'ai compris"
     }
+  },
+  "Share": {
+    "card": {
+      "level": "NIV {level}",
+      "site": "to-doquest.vercel.app"
+    },
+    "actions": {
+      "share": "Partager l'image",
+      "generating": "Génération...",
+      "download": "DL",
+      "twitter": "Post",
+      "linkedin": "Post"
+    },
+    "notifications": {
+      "successTitle": "Succès",
+      "infoTitle": "Info",
+      "imageCopied": "Image copiée ! Fais 'Coller' dans ton post.",
+      "imageDownloaded": "Image téléchargée ! Ajoute-la à ton post.",
+      "errorGen": "Erreur lors de la génération",
+      "errorDownload": "Erreur lors du téléchargement"
+    }
   }
 }

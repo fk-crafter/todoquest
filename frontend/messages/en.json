@@ -448,5 +448,26 @@
       },
       "close": "OK, I got it"
     }
+  },
+  "Share": {
+    "card": {
+      "level": "LVL {level}",
+      "site": "to-doquest.vercel.app"
+    },
+    "actions": {
+      "share": "Share Image",
+      "generating": "Generating...",
+      "download": "DL",
+      "twitter": "Post",
+      "linkedin": "Post"
+    },
+    "notifications": {
+      "successTitle": "Success",
+      "infoTitle": "Info",
+      "imageCopied": "Image copied! Use 'Paste' in your post.",
+      "imageDownloaded": "Image downloaded! Add it to your post.",
+      "errorGen": "Error during generation",
+      "errorDownload": "Error during download"
+    }
   }
 }
