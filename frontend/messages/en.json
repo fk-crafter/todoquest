@@ -469,5 +469,20 @@
       "errorGen": "Error during generation",
       "errorDownload": "Error during download"
     }
+  },
+  "Admin": {
+    "title": "Administration Panel",
+    "subtitle": "Player Management",
+    "loading": "Loading archives...",
+    "error": "Error fetching players.",
+    "unauthorized": "Access denied. You are not the Dungeon Master.",
+    "table": {
+      "player": "Player",
+      "email": "Email",
+      "stats": "Level / XP",
+      "class": "Class",
+      "role": "Role",
+      "joined": "Joined"
+    }
   }
 }
