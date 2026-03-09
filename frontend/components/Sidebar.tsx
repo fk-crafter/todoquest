@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   Trophy,
   ShoppingBag,
+  ShieldAlert,
 } from "lucide-react";
 import ClassSelectionModal from "./ClassSelectionModal";
 
@@ -62,6 +63,14 @@ export default function Sidebar() {
     { name: t("nav.success"), href: "/success", icon: Trophy },
     { name: t("nav.settings"), href: "/settings", icon: Settings2 },
   ];
+
+  if (session?.user?.role === "ADMIN") {
+    navItems.push({
+      name: "Admin",
+      href: "/admin",
+      icon: ShieldAlert,
+    });
+  }
 
   return (
     <>
@@ -149,7 +158,9 @@ export default function Sidebar() {
                         ${
                           isActive
                             ? "text-yellow-400 bg-gray-800 border-l-4 border-yellow-400"
-                            : "hover:text-white hover:bg-gray-800 text-gray-400"
+                            : item.href === "/admin"
+                              ? "hover:text-white hover:bg-gray-800 text-red-400" // Couleur spéciale pour l'admin
+                              : "hover:text-white hover:bg-gray-800 text-gray-400"
                         }
                       `}
                     >

@@ -12,6 +12,7 @@ declare module "next-auth" {
       level: number;
       gender?: string;
       isOnboarded?: boolean;
+      role?: string;
     } & DefaultSession["user"];
     accessToken: string;
   }
@@ -23,6 +24,7 @@ declare module "next-auth" {
     accessToken: string;
     gender?: string;
     isOnboarded?: boolean;
+    role?: string;
   }
 }
 
@@ -34,6 +36,7 @@ declare module "next-auth/jwt" {
     accessToken: string;
     gender?: string;
     isOnboarded?: boolean;
+    role?: string;
   }
 }
 
@@ -79,6 +82,7 @@ export const authOptions: AuthOptions = {
               level: data.user.level,
               gender: data.user.gender,
               isOnboarded: data.user.isOnboarded,
+              role: data.user.role,
               accessToken: data.access_token,
             };
           }
@@ -99,6 +103,7 @@ export const authOptions: AuthOptions = {
         token.isOnboarded = session.user.isOnboarded;
         token.gender = session.user.gender;
         token.name = session.user.name;
+        if (session.user.role) token.role = session.user.role;
         return token;
       }
 
@@ -114,6 +119,7 @@ export const authOptions: AuthOptions = {
           token.level = user.level;
           token.gender = user.gender;
           token.isOnboarded = user.isOnboarded;
+          token.role = user.role;
         } else {
           try {
             const backendUrl =
@@ -137,6 +143,7 @@ export const authOptions: AuthOptions = {
               token.level = data.user.level;
               token.gender = data.user.gender;
               token.isOnboarded = data.user.isOnboarded;
+              token.role = data.user.role;
             }
           } catch (error) {
             console.error("Erreur sync backend:", error);
@@ -154,6 +161,7 @@ export const authOptions: AuthOptions = {
         session.user.level = token.level;
         session.user.gender = token.gender;
         session.user.isOnboarded = token.isOnboarded;
+        session.user.role = token.role;
       }
       session.accessToken = token.accessToken;
       return session;

@@ -138,4 +138,19 @@ export class UsersService {
       where: { id: userId },
     });
   }
+
+  async getAllUsers() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        level: true,
+        xp: true,
+        class: true,
+        createdAt: true,
+      },
+    });
+  }
 }

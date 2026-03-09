@@ -89,4 +89,14 @@ export class UsersController {
     console.log('Suppression du compte ID:', req.user.id);
     return this.usersService.deleteUser(req.user.id);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/all')
+  async getAllUsers(@Req() req: RequestWithUser) {
+    const user = await this.usersService.getProfile(req.user.id);
+    if (user.role !== 'ADMIN') {
+      throw new BadRequestException('Accès refusé');
+    }
+    return this.usersService.getAllUsers();
+  }
 }
