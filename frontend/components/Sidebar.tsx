@@ -18,11 +18,15 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import ClassSelectionModal from "./ClassSelectionModal";
+import DailyRewardModal from "./DailyRewardModal";
 
 export default function Sidebar() {
   const t = useTranslations("Sidebar");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showClassModal, setShowClassModal] = useState(false);
+
+  const [showDailyReward, setShowDailyReward] = useState(false);
+
   const pathname = usePathname();
   const { data: session } = useSession();
 
@@ -53,8 +57,44 @@ export default function Sidebar() {
       if (level >= 20 && currentClass === "ADVENTURER") {
         setShowClassModal(true);
       }
+
+      if (user.lastRewardClaimedAt) {
+        const lastClaim = new Date(user.lastRewardClaimedAt);
+        const now = new Date();
+
+        const isSameDay =
+          lastClaim.getFullYear() === now.getFullYear() &&
+          lastClaim.getMonth() === now.getMonth() &&
+          lastClaim.getDate() === now.getDate();
+
+        if (!isSameDay) {
+          setShowDailyReward(true);
+        }
+      } else {
+        setShowDailyReward(true);
+      }
     }
   }, [user]);
+
+  const handleClaimReward = async () => {
+    if (!session?.accessToken) throw new Error("Non autorisé");
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/daily-reward`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Erreur lors de la récupération");
+    }
+  };
 
   const navItems = [
     { name: t("nav.tasks"), href: "/tasks", icon: Sword },
@@ -79,6 +119,10 @@ export default function Sidebar() {
           userGender={user.gender || "male"}
           userName={user.name || t("fallbackName")}
         />
+      )}
+
+      {showDailyReward && user && (
+        <DailyRewardModal onClaim={handleClaimReward} />
       )}
 
       <button
@@ -159,7 +203,7 @@ export default function Sidebar() {
                           isActive
                             ? "text-yellow-400 bg-gray-800 border-l-4 border-yellow-400"
                             : item.href === "/admin"
-                              ? "hover:text-white hover:bg-gray-800 text-red-400" // Couleur spéciale pour l'admin
+                              ? "hover:text-white hover:bg-gray-800 text-red-400"
                               : "hover:text-white hover:bg-gray-800 text-gray-400"
                         }
                       `}

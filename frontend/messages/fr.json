@@ -486,5 +486,13 @@
       "role": "Rôle",
       "joined": "Rejoint le"
     }
+  },
+  "DailyReward": {
+    "title": "Récompense du Jour !",
+    "description": "Félicitations Aventurier ! Voici ton or quotidien pour t'aider dans tes quêtes.",
+    "amount": "+50 Or",
+    "claim": "Récupérer le trésor",
+    "success": "Or ajouté à ta bourse !",
+    "error": "Impossible d'ouvrir le coffre."
   }
 }

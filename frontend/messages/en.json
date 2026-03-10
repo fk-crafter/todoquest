@@ -484,5 +484,13 @@
       "role": "Role",
       "joined": "Joined"
     }
+  },
+  "DailyReward": {
+    "title": "Daily Reward!",
+    "description": "Congratulations Adventurer! Here is your daily gold to help you on your quests.",
+    "amount": "+50 Gold",
+    "claim": "Claim Treasure",
+    "success": "Gold added to your purse!",
+    "error": "Could not open the chest."
   }
 }
