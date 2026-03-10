@@ -37,6 +37,7 @@ export class UsersService {
         equippedTheme: true,
         equippedFrame: true,
         equippedTitle: true,
+        lastRewardClaimedAt: true, // <-- AJOUTÉ ICI
       },
     });
 
@@ -133,6 +134,7 @@ export class UsersService {
       data: updateData,
     });
   }
+
   async deleteUser(userId: string) {
     return this.prisma.user.delete({
       where: { id: userId },
@@ -151,6 +153,43 @@ export class UsersService {
         class: true,
         createdAt: true,
       },
+    });
+  }
+
+  async claimDailyReward(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { gold: true, lastRewardClaimedAt: true },
+    });
+
+    if (!user) throw new NotFoundException('Utilisateur introuvable');
+
+    const now = new Date();
+
+    if (user.lastRewardClaimedAt) {
+      const lastClaim = new Date(user.lastRewardClaimedAt);
+
+      const isSameDay =
+        lastClaim.getFullYear() === now.getFullYear() &&
+        lastClaim.getMonth() === now.getMonth() &&
+        lastClaim.getDate() === now.getDate();
+
+      if (isSameDay) {
+        throw new BadRequestException(
+          "Tu as déjà récupéré ton or aujourd'hui ! Reviens demain.",
+        );
+      }
+    }
+
+    const rewardAmount = 50;
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        gold: { increment: rewardAmount },
+        lastRewardClaimedAt: now,
+      },
+      select: { gold: true, lastRewardClaimedAt: true },
     });
   }
 }

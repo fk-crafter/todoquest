@@ -33,6 +33,7 @@ model User {
   class      GameClass @default(ADVENTURER)
 
   gold       Int      @default(0)
+  lastRewardClaimedAt DateTime?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

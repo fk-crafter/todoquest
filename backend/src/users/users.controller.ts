@@ -91,6 +91,21 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post('daily-reward')
+  async claimDailyReward(@Req() req: RequestWithUser) {
+    try {
+      return await this.usersService.claimDailyReward(req.user.id);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException(
+        'Erreur lors de la récupération de la récompense',
+      );
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('admin/all')
   async getAllUsers(@Req() req: RequestWithUser) {
     const user = await this.usersService.getProfile(req.user.id);
