@@ -60,6 +60,8 @@ export default function TasksPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [xpPopup, setXpPopup] = useState<number | null>(null);
+
   useEffect(() => {
     setMusicSource("/tasks.wav");
   }, [setMusicSource]);
@@ -259,6 +261,11 @@ export default function TasksPage() {
       );
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
+
+      const xpMap = { EASY: 10, MEDIUM: 20, HARD: 40, EPIC: 100 };
+      const earnedXp = xpMap[task.difficulty] || 10;
+      setXpPopup(earnedXp);
+      setTimeout(() => setXpPopup(null), 2000);
 
       checkAchievements(task.difficulty);
       if (data.userStats.level > (user?.level || 1)) {
@@ -460,6 +467,16 @@ export default function TasksPage() {
                 ? t("tutorial.next")
                 : t("tutorial.finish")}
             </button>
+          </div>
+        </div>
+      )}
+
+      {xpPopup !== null && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none animate-bounce">
+          <div className="transition-all duration-1000 transform -translate-y-20">
+            <span className="text-5xl md:text-7xl font-black text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.8)]">
+              + {xpPopup} XP
+            </span>
           </div>
         </div>
       )}
