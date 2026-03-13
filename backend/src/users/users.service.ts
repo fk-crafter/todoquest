@@ -37,7 +37,7 @@ export class UsersService {
         equippedTheme: true,
         equippedFrame: true,
         equippedTitle: true,
-        lastRewardClaimedAt: true, // <-- AJOUTÉ ICI
+        lastRewardClaimedAt: true,
       },
     });
 
@@ -152,6 +152,7 @@ export class UsersService {
         xp: true,
         class: true,
         createdAt: true,
+        gold: true,
       },
     });
   }
