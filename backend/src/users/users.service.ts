@@ -193,4 +193,37 @@ export class UsersService {
       select: { gold: true, lastRewardClaimedAt: true },
     });
   }
+
+  async addGoldToUserAdmin(
+    adminId: string,
+    targetUserId: string,
+    amount: number,
+  ) {
+    const admin = await this.prisma.user.findUnique({
+      where: { id: adminId },
+      select: { role: true },
+    });
+
+    if (!admin || admin.role !== 'ADMIN') {
+      throw new BadRequestException(
+        'Accès refusé. Seul un Game Master peut faire ça.',
+      );
+    }
+
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: targetUserId },
+    });
+
+    if (!targetUser) {
+      throw new NotFoundException('Joueur introuvable.');
+    }
+
+    return this.prisma.user.update({
+      where: { id: targetUserId },
+      data: {
+        gold: { increment: amount },
+      },
+      select: { id: true, name: true, gold: true },
+    });
+  }
 }

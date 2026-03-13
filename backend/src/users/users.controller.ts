@@ -8,6 +8,7 @@ import {
   Post,
   BadRequestException,
   Delete,
+  Param,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -113,5 +114,30 @@ export class UsersController {
       throw new BadRequestException('Accès refusé');
     }
     return this.usersService.getAllUsers();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('admin/:id/gold')
+  async addGold(
+    @Req() req: RequestWithUser,
+    @Param('id') targetUserId: string,
+    @Body('amount') amount: number,
+  ) {
+    try {
+      if (!amount || amount <= 0) {
+        throw new BadRequestException('Le montant doit être supérieur à 0');
+      }
+
+      return await this.usersService.addGoldToUserAdmin(
+        req.user.id,
+        targetUserId,
+        amount,
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException("Erreur lors de l'ajout d'or");
+    }
   }
 }
