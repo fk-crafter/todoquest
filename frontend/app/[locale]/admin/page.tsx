@@ -76,42 +76,35 @@ export default function AdminPage() {
 
       <div className="overflow-x-auto bg-gray-800 rounded-xl border-2 border-gray-700 shadow-2xl">
         <table className="w-full text-left text-sm text-gray-300">
-          <thead className="text-[10px] md:text-xs text-gray-400 uppercase bg-gray-900 border-b-2 border-gray-700">
+          <thead className="text-[10px] md:text-xs text-gray-400 uppercase bg-gray-900 border-b-2 border-gray-700 whitespace-nowrap">
             <tr>
               <th className="px-4 py-4">{t("table.player")}</th>
               <th className="px-4 py-4">{t("table.email")}</th>
               <th className="px-4 py-4">{t("table.stats")}</th>
-              <th className="px-4 py-4 hidden md:table-cell">
-                {t("table.class")}
-              </th>
+              <th className="px-4 py-4">{t("table.class")}</th>
               <th className="px-4 py-4">{t("table.role")}</th>
-              <th className="px-4 py-4 hidden sm:table-cell">
-                {t("table.joined")}
-              </th>
+              <th className="px-4 py-4">{t("table.joined")}</th>
             </tr>
           </thead>
           <tbody>
             {users?.map((u: any) => (
               <tr
                 key={u.id}
-                className="border-b border-gray-700/50 hover:bg-gray-700/50 transition-colors"
+                className="border-b border-gray-700/50 hover:bg-gray-700/50 transition-colors whitespace-nowrap"
               >
                 <td className="px-4 py-4 font-bold text-white">
                   {u.name || "Aventurier"}
                 </td>
                 <td className="px-4 py-4">
                   <div className="flex items-center gap-2">
-                    <Mail size={14} className="text-gray-500 hidden md:block" />
-                    <span
-                      className="truncate max-w-[120px] md:max-w-[200px] text-xs md:text-sm"
-                      title={u.email}
-                    >
+                    <Mail size={14} className="text-gray-500" />
+                    <span className="text-xs md:text-sm font-mono text-gray-300">
                       {u.email}
                     </span>
                   </div>
                 </td>
                 <td className="px-4 py-4">
-                  <div className="flex flex-col md:flex-row md:items-center gap-1">
+                  <div className="flex items-center gap-2">
                     <span className="text-yellow-400 font-bold text-xs md:text-sm">
                       Lvl {u.level}
                     </span>
@@ -120,7 +113,7 @@ export default function AdminPage() {
                     </span>
                   </div>
                 </td>
-                <td className="px-4 py-4 hidden md:table-cell capitalize">
+                <td className="px-4 py-4 capitalize">
                   <div className="flex items-center gap-2">
                     <Sword size={14} className="text-gray-500" />
                     {u.class?.toLowerCase() || "adventurer"}
@@ -128,14 +121,14 @@ export default function AdminPage() {
                 </td>
                 <td className="px-4 py-4">
                   <span
-                    className={`px-2 py-1 rounded text-[8px] md:text-[10px] font-bold ${u.role === "ADMIN" ? "bg-red-500/20 text-red-400 border border-red-500" : "bg-blue-500/20 text-blue-400 border border-blue-500"}`}
+                    className={`px-2 py-1 rounded text-[10px] font-bold ${u.role === "ADMIN" ? "bg-red-500/20 text-red-400 border border-red-500" : "bg-blue-500/20 text-blue-400 border border-blue-500"}`}
                   >
                     {u.role}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-[10px] md:text-xs text-gray-500 hidden sm:table-cell">
+                <td className="px-4 py-4 text-xs text-gray-500">
                   <div className="flex items-center gap-2">
-                    <Calendar size={14} className="hidden md:block" />
+                    <Calendar size={14} className="text-gray-500" />
                     {new Date(u.createdAt).toLocaleDateString()}
                   </div>
                 </td>
