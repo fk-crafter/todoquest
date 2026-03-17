@@ -315,9 +315,10 @@
     "tutorial": {
       "step1": "O valiant hero, welcome to TodoQuest!",
       "step2": "Turn your chores into epics: every task is a quest.",
-      "step3": "Choose the difficulty to gain more experience (XP).",
-      "step4": "Use the Pencil ✏️ to edit a quest along the way.",
-      "step5": "Now it's your turn, destiny awaits!",
+      "step3": "Choose the difficulty to earn more experience (XP).",
+      "step4": "You earn Gold 🪙 by logging in daily, and by completing quests based on their difficulty.",
+      "step5": "Use the Pencil ✏️ to edit a quest along the way.",
+      "step6": "Now it's your turn, your destiny awaits!",
       "next": "Next",
       "finish": "Finish"
     },

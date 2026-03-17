@@ -318,8 +318,9 @@
       "step1": "Ô vaillant héros, sois le bienvenu dans TodoQuest !",
       "step2": "Transforme tes corvées en épopées : chaque tâche est une quête.",
       "step3": "Choisis la difficulté pour gagner plus d'expérience (XP).",
-      "step4": "Utilise le Crayon ✏️ pour modifier une quête en cours de route.",
-      "step5": "À toi de jouer, ta destinée t'attend !",
+      "step4": "Tu gagnes de l'Or 🪙 chaque jour à ta connexion, et en terminant des quêtes selon leur difficulté.",
+      "step5": "Utilise le Crayon ✏️ pour modifier une quête en cours de route.",
+      "step6": "À toi de jouer, ta destinée t'attend !",
       "next": "Suivant",
       "finish": "Terminer"
     },

@@ -285,6 +285,7 @@ export default function TasksPage() {
     t("tutorial.step3"),
     t("tutorial.step4"),
     t("tutorial.step5"),
+    t("tutorial.step6"),
   ];
 
   if (!session)
