@@ -90,7 +90,7 @@ export default function TaskItem({
           </p>
         )}
       </div>
-      <div className="flex gap-2 self-end sm:self-center">
+      <div className="flex gap-4 sm:gap-2 self-end sm:self-center">
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => onEdit(task)}
