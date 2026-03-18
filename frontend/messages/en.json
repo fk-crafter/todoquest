@@ -493,5 +493,10 @@
     "claim": "Claim Treasure",
     "success": "Gold added to your purse!",
     "error": "Could not open the chest."
+  },
+  "NotFound": {
+    "title": "Page Not Found",
+    "message": "Oops! The page you're looking for seems to have gotten lost in the digital cosmos. Maybe it's on another quest?",
+    "backToHome": "Back to Home"
   }
 }

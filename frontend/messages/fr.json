@@ -495,5 +495,10 @@
     "claim": "Récupérer le trésor",
     "success": "Or ajouté à ta bourse !",
     "error": "Impossible d'ouvrir le coffre."
+  },
+  "NotFound": {
+    "title": "Page Introuvable",
+    "message": "Oups ! La page que vous cherchez semble s'être perdue dans le cosmos numérique. Peut-être est-elle partie pour une autre quête ?",
+    "backToHome": "Retour à l'accueil"
   }
 }
