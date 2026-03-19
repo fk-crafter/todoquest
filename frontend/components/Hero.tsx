@@ -48,6 +48,15 @@ export default function Hero() {
         <Rocket className="w-4 h-4 md:w-5 md:h-5" />
         {t("cta")}
       </button>
+
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce opacity-70">
+        <span className="text-gray-300 text-[10px] md:text-xs tracking-widest uppercase">
+          Scroll pour découvrir
+        </span>
+        <div className="w-5 h-8 md:w-6 md:h-10 border-2 border-gray-400 rounded-full flex justify-center pt-2">
+          <div className="w-1 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+        </div>
+      </div>
     </main>
   );
 }
