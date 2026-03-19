@@ -50,7 +50,7 @@ export default function Hero() {
       </button>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce opacity-70">
-        <span className="text-gray-300 text-[10px] md:text-xs tracking-widest uppercase">
+        <span className="text-white text-[10px] md:text-xs tracking-widest whitespace-nowrap uppercase text-center w-full px-4">
           {t("scroll")}
         </span>
         <div className="w-5 h-8 md:w-6 md:h-10 border-2 border-gray-400 rounded-full flex justify-center pt-2">
