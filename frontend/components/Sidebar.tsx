@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import ClassSelectionModal from "./ClassSelectionModal";
 import DailyRewardModal from "./DailyRewardModal";
+import { motion, AnimatePresence } from "motion/react";
 
 export default function Sidebar() {
   const t = useTranslations("Sidebar");
@@ -132,100 +133,112 @@ export default function Sidebar() {
         <Menu size={24} />
       </button>
 
-      {sidebarOpen && (
-        <>
-          <div
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black bg-opacity-70 z-40 backdrop-blur-sm"
-          />
-
-          <div className="fixed top-0 left-0 h-full w-72 bg-gray-900 text-white p-6 z-50 shadow-2xl animate-in slide-in-from-left duration-200 border-r-4 border-gray-700 flex flex-col justify-between">
-            <button
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               onClick={() => setSidebarOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-red-400 cursor-pointer transition-colors"
+              className="fixed inset-0 bg-black/70 z-40 backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+              className="fixed top-0 left-0 h-full w-72 bg-gray-900 text-white p-6 z-50 shadow-2xl border-r-4 border-gray-700 flex flex-col justify-between"
             >
-              <X size={24} />
-            </button>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-red-400 cursor-pointer transition-colors"
+              >
+                <X size={24} />
+              </button>
 
-            <div>
-              <h1 className="text-2xl font-bold mb-6 pt-2 font-press text-yellow-400 text-center">
-                TodoQuest
-              </h1>
+              <div>
+                <h1 className="text-2xl font-bold mb-6 pt-2 font-press text-yellow-400 text-center">
+                  TodoQuest
+                </h1>
 
-              {user && (
-                <div className="flex items-center gap-3 mb-8 p-3 bg-gray-800 rounded-lg border border-gray-600">
-                  <div className="w-10 h-10 rounded overflow-hidden border border-gray-500">
-                    <img
-                      src={
-                        user.image
-                          ? user.image.startsWith("/")
-                            ? user.image
-                            : `/${user.image}`
-                          : "/char-male.png"
-                      }
-                      alt="Avatar"
-                      className="w-full h-full object-cover"
-                      style={{ imageRendering: "pixelated" }}
-                    />
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="font-bold truncate text-sm">
-                      {user.name || t("fallbackName")}
-                    </p>
-                    <p className="text-[10px] text-gray-400">
-                      {t("level", { level: user.level || 1 })} -{" "}
-                      <span className="capitalize">
-                        {user.class
-                          ? t.has(`classes.${user.class}`)
-                            ? t(`classes.${user.class}`)
-                            : user.class.toLowerCase()
-                          : t("fallbackClass")}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              <nav className="flex flex-col gap-3 text-sm">
-                {navItems.map((item) => {
-                  const isActive =
-                    pathname === item.href ||
-                    pathname === `/en${item.href}` ||
-                    pathname === `/fr${item.href}`;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setSidebarOpen(false)}
-                      className={`
-                        flex items-center gap-3 cursor-pointer transition-all p-3 rounded-lg font-bold
-                        ${
-                          isActive
-                            ? "text-yellow-400 bg-gray-800 border-l-4 border-yellow-400"
-                            : item.href === "/admin"
-                              ? "hover:text-white hover:bg-gray-800 text-red-400"
-                              : "hover:text-white hover:bg-gray-800 text-gray-400"
+                {user && (
+                  <div className="flex items-center gap-3 mb-8 p-3 bg-gray-800 rounded-lg border border-gray-600">
+                    <div className="w-10 h-10 rounded overflow-hidden border border-gray-500">
+                      <img
+                        src={
+                          user.image
+                            ? user.image.startsWith("/")
+                              ? user.image
+                              : `/${user.image}`
+                            : "/char-male.png"
                         }
-                      `}
-                    >
-                      <item.icon size={18} />
-                      <span>{item.name}</span>
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                        style={{ imageRendering: "pixelated" }}
+                      />
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="font-bold truncate text-sm">
+                        {user.name || t("fallbackName")}
+                      </p>
+                      <p className="text-[10px] text-gray-400">
+                        {t("level", { level: user.level || 1 })} -{" "}
+                        <span className="capitalize">
+                          {user.class
+                            ? t.has(`classes.${user.class}`)
+                              ? t(`classes.${user.class}`)
+                              : user.class.toLowerCase()
+                            : t("fallbackClass")}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-            <Link
-              href="/progress"
-              onClick={() => setSidebarOpen(false)}
-              className="text-sm text-gray-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors mt-auto p-2"
-            >
-              <ArrowLeft size={16} /> {t("back")}
-            </Link>
-          </div>
-        </>
-      )}
+                <nav className="flex flex-col gap-3 text-sm">
+                  {navItems.map((item) => {
+                    const isActive =
+                      pathname === item.href ||
+                      pathname === `/en${item.href}` ||
+                      pathname === `/fr${item.href}`;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`
+                          flex items-center gap-3 cursor-pointer transition-all p-3 rounded-lg font-bold
+                          ${
+                            isActive
+                              ? "text-yellow-400 bg-gray-800 border-l-4 border-yellow-400"
+                              : item.href === "/admin"
+                                ? "hover:text-white hover:bg-gray-800 text-red-400"
+                                : "hover:text-white hover:bg-gray-800 text-gray-400"
+                          }
+                        `}
+                      >
+                        <item.icon size={18} />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
+
+              <Link
+                href="/progress"
+                onClick={() => setSidebarOpen(false)}
+                className="text-sm text-gray-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors mt-auto p-2"
+              >
+                <ArrowLeft size={16} /> {t("back")}
+              </Link>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }
