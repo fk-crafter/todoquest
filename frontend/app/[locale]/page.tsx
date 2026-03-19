@@ -39,7 +39,7 @@ export default function Home() {
 
   return (
     <main ref={containerRef} className="relative w-full">
-      <div className="sticky top-0 h-screen w-full -z-10">
+      <div className="sticky top-0 h-screen w-full z-0">
         <Hero />
       </div>
 
