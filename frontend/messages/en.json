@@ -492,7 +492,8 @@
     "amount": "+50 Gold",
     "claim": "Claim Treasure",
     "success": "Gold added to your purse!",
-    "error": "Could not open the chest."
+    "error": "Could not open the chest.",
+    "close": "Close"
   },
   "NotFound": {
     "title": "Page Not Found",

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Coins, Loader2, Sparkles } from "lucide-react";
+import { Coins, Loader2, Sparkles, X } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface DailyRewardModalProps {
@@ -21,8 +21,14 @@ export default function DailyRewardModal({ onClaim }: DailyRewardModalProps) {
       toast.success(t("success"), { icon: "🪙" });
       setTimeout(() => setIsVisible(false), 500);
     } catch (error) {
-      toast.error(t("error"));
-      setIsClaiming(false);
+      const errorMessage = error instanceof Error ? error.message : t("error");
+      if (errorMessage.includes("déjà récupéré")) {
+        toast.error(errorMessage);
+        setTimeout(() => setIsVisible(false), 800);
+      } else {
+        toast.error(errorMessage);
+        setIsClaiming(false);
+      }
     }
   };
 
@@ -30,7 +36,15 @@ export default function DailyRewardModal({ onClaim }: DailyRewardModalProps) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4 animate-in fade-in duration-300">
-      <div className="bg-gray-900 border-4 border-yellow-500 rounded-2xl p-6 md:p-8 max-w-sm w-full text-center shadow-[0_0_30px_rgba(234,179,8,0.3)] animate-in zoom-in-95 duration-300">
+      <div className="relative bg-gray-900 border-4 border-yellow-500 rounded-2xl p-6 md:p-8 max-w-sm w-full text-center shadow-[0_0_30px_rgba(234,179,8,0.3)] animate-in zoom-in-95 duration-300">
+        <button
+          onClick={() => setIsVisible(false)}
+          className="absolute top-3 right-3 text-gray-500 hover:text-white hover:bg-gray-700 rounded-full p-1 transition-colors"
+          aria-label={t("close")}
+        >
+          <X className="w-5 h-5" />
+        </button>
+
         <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center bg-yellow-500/20 rounded-full animate-bounce">
           <Sparkles className="absolute top-0 right-0 text-yellow-300 w-6 h-6 animate-pulse" />
           <Coins className="text-yellow-400 w-16 h-16" />

@@ -494,7 +494,8 @@
     "amount": "+50 Or",
     "claim": "Récupérer le trésor",
     "success": "Or ajouté à ta bourse !",
-    "error": "Impossible d'ouvrir le coffre."
+    "error": "Impossible d'ouvrir le coffre.",
+    "close": "Fermer"
   },
   "NotFound": {
     "title": "Page Introuvable",

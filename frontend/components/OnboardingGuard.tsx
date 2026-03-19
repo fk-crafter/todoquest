@@ -17,7 +17,10 @@ export default function OnboardingGuard({
     if (status === "loading") return;
 
     if (session?.user) {
-      if (session.user.isOnboarded === false && pathname !== "/onboarding") {
+      const { isOnboarded, level, xp } = session.user;
+      const isNewUser = level <= 1 && xp === 0;
+
+      if (isOnboarded === false && isNewUser && pathname !== "/onboarding") {
         router.push("/onboarding");
       }
     }
