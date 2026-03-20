@@ -107,6 +107,7 @@
   },
   "Register": {
     "title": "Créer un compte",
+    "bonusMessage": "Inscrivez-vous et recevez 150 pièces d'or pour commencer votre aventure !",
     "form": {
       "name": "Pseudo",
       "email": "Email",

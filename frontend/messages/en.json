@@ -107,6 +107,7 @@
   },
   "Register": {
     "title": "Create an account",
+    "bonusMessage": "Sign up and receive 150 gold to start your adventure!",
     "form": {
       "name": "Username",
       "email": "Email",

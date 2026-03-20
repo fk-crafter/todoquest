@@ -72,6 +72,8 @@ export default function RegisterPage() {
         {t("title")}
       </h1>
 
+      <p className="text-yellow-400 mb-4 font-bold text-center">{t("bonusMessage")}</p>
+
       {error && (
         <p className="text-red-400 mb-4 font-bold text-center">{error}</p>
       )}
