@@ -43,6 +43,7 @@ export class AuthService {
         level: 1,
         gender: 'adventurer',
         isOnboarded: false,
+        gold: 200,
       },
     });
 
@@ -136,6 +137,7 @@ export class AuthService {
           gender: 'adventurer',
           isOnboarded: false,
           isVerified: true,
+          gold: 200,
         },
       });
     }
