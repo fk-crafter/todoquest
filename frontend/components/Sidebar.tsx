@@ -61,9 +61,9 @@ export default function Sidebar() {
         setShowClassModal(true);
       }
 
+      const now = new Date();
       if (user.lastRewardClaimedAt) {
         const lastClaim = new Date(user.lastRewardClaimedAt);
-        const now = new Date();
 
         const isSameDay =
           lastClaim.getFullYear() === now.getFullYear() &&
@@ -74,7 +74,15 @@ export default function Sidebar() {
           setShowDailyReward(true);
         }
       } else {
-        setShowDailyReward(true);
+        const createdAt = new Date(user.createdAt);
+        const isRegistrationDay =
+          createdAt.getFullYear() === now.getFullYear() &&
+          createdAt.getMonth() === now.getMonth() &&
+          createdAt.getDate() === now.getDate();
+
+        if (!isRegistrationDay) {
+          setShowDailyReward(true);
+        }
       }
     }
   }, [user]);
