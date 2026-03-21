@@ -166,6 +166,9 @@
       "title": "Boutique",
       "loading": "..."
     },
+    "tutorial": {
+      "step1": "Bienvenue dans la boutique ! Ici, tu peux acheter des objets stylés avec ton or. N'hésite pas à jeter un œil !"
+    },
     "treasury": {
       "title": "Trésorerie",
       "goldBag": "Bourse d'Or",
@@ -322,6 +325,7 @@
       "step4": "Tu gagnes de l'Or 🪙 chaque jour à ta connexion, et en terminant des quêtes selon leur difficulté.",
       "step5": "Utilise le Crayon ✏️ pour modifier une quête en cours de route.",
       "step6": "À toi de jouer, ta destinée t'attend !",
+      "step7": "Tu as reçu 150 pièces d'or pour commencer. Allons voir ce que tu peux acheter ! Clique sur l'icône de la Boutique dans la barre latérale.",
       "next": "Suivant",
       "finish": "Terminer"
     },

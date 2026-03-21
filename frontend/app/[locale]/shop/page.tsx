@@ -7,6 +7,7 @@ import RetroModal from "@/components/ui/RetroModal";
 import SharePreview from "@/components/SharePreview";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { useTutorial } from "@/context/TutorialContext";
 import {
   ShoppingBag,
   Lock,
@@ -140,7 +141,9 @@ const SHOP_ITEMS: ShopItem[] = [
 
 export default function ShopPage() {
   const t = useTranslations("Shop");
+  const tTasks = useTranslations("Tasks");
   const { data: session } = useSession();
+  const { isTutorialActive, tutorialStep, endTutorial } = useTutorial();
   const queryClient = useQueryClient();
 
   const [itemToBuy, setItemToBuy] = useState<ShopItem | null>(null);
@@ -348,6 +351,24 @@ export default function ShopPage() {
           })}
         </div>
       </main>
+
+      {isTutorialActive && tutorialStep === 7 && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-end gap-4 p-6 justify-center md:justify-start">
+          <div className="w-20 h-20 md:w-24 md:h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat flex-shrink-0" />
+          <div className="bg-app-surface text-white p-4 rounded-lg shadow-lg border-2 border-app-accent max-w-sm w-full">
+            <p className="mb-4">{t("tutorial.step1")}</p>
+            <button
+              onClick={() => {
+                new Audio("/click-sound.wav").play().catch(() => {});
+                endTutorial();
+              }}
+              className="px-4 py-2 bg-app-accent text-app-bg font-bold rounded hover:opacity-80 cursor-pointer w-full md:w-auto"
+            >
+              {tTasks("tutorial.finish")}
+            </button>
+          </div>
+        </div>
+      )}
 
       <RetroModal
         isOpen={!!itemToBuy}

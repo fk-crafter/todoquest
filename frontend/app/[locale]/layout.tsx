@@ -10,6 +10,7 @@ import ThemeProvider from "@/components/ThemeProvider";
 import RegisterServiceWorker from "@/components/RegisterServiceWorker";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
+import { TutorialProvider } from "@/context/TutorialContext";
 
 const pressStart = Press_Start_2P({
   subsets: ["latin"],
@@ -99,7 +100,9 @@ export default async function RootLayout({
             <SessionWrapper>
               <QueryProvider>
                 <ThemeProvider>
-                  <OnboardingGuard>{children}</OnboardingGuard>
+                  <TutorialProvider>
+                    <OnboardingGuard>{children}</OnboardingGuard>
+                  </TutorialProvider>
                 </ThemeProvider>
               </QueryProvider>
             </SessionWrapper>

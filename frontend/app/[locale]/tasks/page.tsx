@@ -22,6 +22,7 @@ import {
 } from "@dnd-kit/sortable";
 import { Trophy, X, Pencil, Trash } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
+import { useTutorial } from "@/context/TutorialContext";
 
 import TaskItem from "@/components/tasks/TaskItem";
 import TaskForm from "@/components/tasks/TaskForm";
@@ -43,8 +44,13 @@ export default function TasksPage() {
     label: string;
   } | null>(null);
   const [levelUpMessage, setLevelUpMessage] = useState("");
-  const [showTutorial, setShowTutorial] = useState(false);
-  const [tutorialStep, setTutorialStep] = useState(0);
+  const {
+    isTutorialActive: showTutorial,
+    tutorialStep,
+    nextTutorialStep,
+    startTutorial,
+    endTutorial,
+  } = useTutorial();
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -110,14 +116,10 @@ export default function TasksPage() {
   const isNewUser = user?.level === 1 && user?.xp === 0;
 
   useEffect(() => {
-    if (
-      isNewUser &&
-      session?.user?.id &&
-      !localStorage.getItem(`todoquest_tutorial_seen_${session.user.id}`)
-    ) {
-      setShowTutorial(true);
+    if (isNewUser) {
+      startTutorial();
     }
-  }, [isNewUser, session]);
+  }, [isNewUser, startTutorial]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -286,6 +288,7 @@ export default function TasksPage() {
     t("tutorial.step4"),
     t("tutorial.step5"),
     t("tutorial.step6"),
+    t("tutorial.step7"),
   ];
 
   if (!session)
@@ -436,7 +439,7 @@ export default function TasksPage() {
         </div>
       )}
 
-      {showTutorial && (
+      {showTutorial && tutorialStep < tutorialMessages.length && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end gap-4 p-6 justify-center md:justify-start">
           <div className="w-20 h-20 md:w-24 md:h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat flex-shrink-0" />
           <div className="bg-app-surface text-white p-4 rounded-lg shadow-lg border-2 border-app-accent max-w-sm w-full">
@@ -444,22 +447,11 @@ export default function TasksPage() {
             <button
               onClick={() => {
                 playSound();
-                if (tutorialStep < tutorialMessages.length - 1)
-                  setTutorialStep(tutorialStep + 1);
-                else {
-                  setShowTutorial(false);
-                  if (session?.user?.id)
-                    localStorage.setItem(
-                      `todoquest_tutorial_seen_${session.user.id}`,
-                      "true",
-                    );
-                }
+                nextTutorialStep();
               }}
               className="px-4 py-2 bg-app-accent text-app-bg font-bold rounded hover:opacity-80 cursor-pointer w-full md:w-auto"
             >
-              {tutorialStep < tutorialMessages.length - 1
-                ? t("tutorial.next")
-                : t("tutorial.finish")}
+              {t("tutorial.next")}
             </button>
           </div>
         </div>

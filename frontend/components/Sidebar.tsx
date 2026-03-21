@@ -20,6 +20,7 @@ import {
 import ClassSelectionModal from "./ClassSelectionModal";
 import DailyRewardModal from "./DailyRewardModal";
 import { motion, AnimatePresence } from "motion/react";
+import { useTutorial } from "@/context/TutorialContext";
 
 export default function Sidebar() {
   const t = useTranslations("Sidebar");
@@ -30,6 +31,7 @@ export default function Sidebar() {
 
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { isTutorialActive, tutorialStep } = useTutorial();
 
   const fetchUserData = async () => {
     if (!session?.accessToken) return null;
@@ -204,6 +206,8 @@ export default function Sidebar() {
                       pathname === item.href ||
                       pathname === `/en${item.href}` ||
                       pathname === `/fr${item.href}`;
+                    const isShopAndTutorialStep =
+                      isTutorialActive && item.href === "/shop" && tutorialStep === 6;
                     return (
                       <Link
                         key={item.href}
@@ -218,6 +222,7 @@ export default function Sidebar() {
                                 ? "hover:text-white hover:bg-gray-800 text-red-400"
                                 : "hover:text-white hover:bg-gray-800 text-gray-400"
                           }
+                          ${isShopAndTutorialStep ? "animate-pulse bg-yellow-500/20 border-2 border-yellow-400" : ""}
                         `}
                       >
                         <item.icon size={18} />
