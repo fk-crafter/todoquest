@@ -160,12 +160,24 @@ export class UsersService {
   async claimDailyReward(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { gold: true, lastRewardClaimedAt: true },
+      select: { gold: true, lastRewardClaimedAt: true, createdAt: true },
     });
 
     if (!user) throw new NotFoundException('Utilisateur introuvable');
 
     const now = new Date();
+    const createdAt = new Date(user.createdAt);
+
+    const isRegistrationDay =
+      createdAt.getFullYear() === now.getFullYear() &&
+      createdAt.getMonth() === now.getMonth() &&
+      createdAt.getDate() === now.getDate();
+
+    if (isRegistrationDay) {
+      throw new BadRequestException(
+        "Tu pourras commencer à récupérer ta récompense journalière demain !",
+      );
+    }
 
     if (user.lastRewardClaimedAt) {
       const lastClaim = new Date(user.lastRewardClaimedAt);
@@ -182,7 +194,7 @@ export class UsersService {
       }
     }
 
-    const rewardAmount = 50;
+    const rewardAmount = 25;
 
     return this.prisma.user.update({
       where: { id: userId },

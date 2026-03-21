@@ -107,7 +107,6 @@
   },
   "Register": {
     "title": "Créer un compte",
-    "bonusMessage": "Inscrivez-vous et recevez 150 pièces d'or pour commencer votre aventure !",
     "form": {
       "name": "Pseudo",
       "email": "Email",
@@ -322,10 +321,10 @@
       "step1": "Ô vaillant héros, sois le bienvenu dans TodoQuest !",
       "step2": "Transforme tes corvées en épopées : chaque tâche est une quête.",
       "step3": "Choisis la difficulté pour gagner plus d'expérience (XP).",
-      "step4": "Tu gagnes de l'Or 🪙 chaque jour à ta connexion, et en terminant des quêtes selon leur difficulté.",
+      "step4": "Tu gagnes de l'Or 🪙 chaque jour à ta connexion (dès demain !), et en terminant des quêtes selon leur difficulté.",
       "step5": "Utilise le Crayon ✏️ pour modifier une quête en cours de route.",
       "step6": "À toi de jouer, ta destinée t'attend !",
-      "step7": "Tu as reçu 150 pièces d'or pour commencer. Allons voir ce que tu peux acheter ! Clique sur l'icône de la Boutique dans la barre latérale.",
+      "step7": "Tu recevras ta première récompense journalière demain. Pour l'instant, créons ta première quête !",
       "next": "Suivant",
       "finish": "Terminer"
     },
@@ -497,7 +496,7 @@
   "DailyReward": {
     "title": "Récompense du Jour !",
     "description": "Félicitations Aventurier ! Voici ton or quotidien pour t'aider dans tes quêtes.",
-    "amount": "+50 Or",
+    "amount": "+25 Or",
     "claim": "Récupérer le trésor",
     "success": "Or ajouté à ta bourse !",
     "error": "Impossible d'ouvrir le coffre.",

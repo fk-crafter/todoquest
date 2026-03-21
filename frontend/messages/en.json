@@ -107,7 +107,6 @@
   },
   "Register": {
     "title": "Create an account",
-    "bonusMessage": "Sign up and receive 150 gold to start your adventure!",
     "form": {
       "name": "Username",
       "email": "Email",
@@ -320,10 +319,10 @@
       "step1": "O valiant hero, welcome to TodoQuest!",
       "step2": "Turn your chores into epics: every task is a quest.",
       "step3": "Choose the difficulty to earn more experience (XP).",
-      "step4": "You earn Gold 🪙 by logging in daily, and by completing quests based on their difficulty.",
+      "step4": "You earn Gold 🪙 by logging in daily (starting tomorrow!), and by completing quests based on their difficulty.",
       "step5": "Use the Pencil ✏️ to edit a quest along the way.",
       "step6": "Now it's your turn, your destiny awaits!",
-      "step7": "You received 150 gold to start. Let's see what you can buy! Click on the Shop icon in the sidebar.",
+      "step7": "You will receive your first daily reward tomorrow. For now, let's create your first quest!",
       "next": "Next",
       "finish": "Finish"
     },
@@ -495,7 +494,7 @@
   "DailyReward": {
     "title": "Daily Reward!",
     "description": "Congratulations Adventurer! Here is your daily gold to help you on your quests.",
-    "amount": "+50 Gold",
+    "amount": "+25 Gold",
     "claim": "Claim Treasure",
     "success": "Gold added to your purse!",
     "error": "Could not open the chest.",
