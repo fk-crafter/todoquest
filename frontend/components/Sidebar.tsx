@@ -21,13 +21,14 @@ import ClassSelectionModal from "./ClassSelectionModal";
 import DailyRewardModal from "./DailyRewardModal";
 import { motion, AnimatePresence } from "motion/react";
 import { useTutorial } from "@/context/TutorialContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Sidebar() {
   const t = useTranslations("Sidebar");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showClassModal, setShowClassModal] = useState(false);
-
   const [showDailyReward, setShowDailyReward] = useState(false);
+  const queryClient = useQueryClient();
 
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -102,9 +103,18 @@ export default function Sidebar() {
     );
 
     if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Erreur lors de la récupération");
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch (e) {
+        throw new Error("Erreur inattendue du serveur.");
+      }
+      throw new Error(
+        errorData.message || "Erreur lors de la récupération",
+      );
     }
+
+    await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
   };
 
   const navItems = [
