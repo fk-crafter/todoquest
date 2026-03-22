@@ -175,7 +175,7 @@ export class UsersService {
 
     if (isRegistrationDay) {
       throw new BadRequestException(
-        "Tu pourras commencer à récupérer ta récompense journalière demain !",
+        'Tu pourras commencer à récupérer ta récompense journalière demain !',
       );
     }
 

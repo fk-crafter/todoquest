@@ -75,7 +75,9 @@ export const TutorialProvider = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <TutorialContext.Provider value={value}>{children}</TutorialContext.Provider>
+    <TutorialContext.Provider value={value}>
+      {children}
+    </TutorialContext.Provider>
   );
 };
 
