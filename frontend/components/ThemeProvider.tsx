@@ -18,7 +18,7 @@ export default function ThemeProvider({
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me`,
       {
         headers: { Authorization: `Bearer ${session.accessToken}` },
-      }
+      },
     );
     return res.json();
   };

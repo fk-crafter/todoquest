@@ -4,7 +4,7 @@ import TaskForm from "@/components/TaskForm";
 
 export default function TaskManager() {
   const [tasks, setTasks] = useState<{ title: string; description: string }[]>(
-    []
+    [],
   );
 
   const addTask = (task: { title: string; description: string }) => {
