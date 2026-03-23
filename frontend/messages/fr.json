@@ -152,8 +152,7 @@
     "deleteModal": {
       "title": "Zone de Danger",
       "confirm": "Êtes-vous absolument sûr ?",
-      "description": "Cette action est {irreversible}. Votre niveau, votre or, vos objets et toutes vos quêtes seront supprimés définitivement.",
-      "irreversible": "irréversible",
+      "description": "Cette action est <danger>irréversible</danger>. Votre niveau, votre or, vos objets et toutes vos quêtes seront supprimés définitivement.",
       "cancel": "Annuler",
       "confirmBtn": "Confirmer",
       "deleting": "Suppression...",

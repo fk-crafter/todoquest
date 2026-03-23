@@ -181,7 +181,7 @@ export default function SettingsPage() {
           <p className="font-bold text-lg">{t("deleteModal.confirm")}</p>
           <p className="text-sm text-gray-400">
             {t.rich("deleteModal.description", {
-              irreversible: (chunks) => (
+              danger: (chunks) => (
                 <span className="text-red-400 underline">{chunks}</span>
               ),
             })}

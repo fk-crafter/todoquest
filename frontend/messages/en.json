@@ -152,8 +152,7 @@
     "deleteModal": {
       "title": "Danger Zone",
       "confirm": "Are you absolutely sure?",
-      "description": "This action is {irreversible}. Your level, gold, items and all quests will be permanently deleted.",
-      "irreversible": "irreversible",
+      "description": "This action is <danger>irreversible</danger>. Your level, gold, items and all quests will be permanently deleted.",
       "cancel": "Cancel",
       "confirmBtn": "Confirm",
       "deleting": "Deleting...",
