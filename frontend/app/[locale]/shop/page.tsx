@@ -352,7 +352,7 @@ export default function ShopPage() {
         </div>
       </main>
 
-      {isTutorialActive && tutorialStep === 7 && (
+      {isTutorialActive && tutorialStep === 10 && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end gap-4 p-6 justify-center md:justify-start">
           <div className="w-20 h-20 md:w-24 md:h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat flex-shrink-0" />
           <div className="bg-app-surface text-white p-4 rounded-lg shadow-lg border-2 border-app-accent max-w-sm w-full">

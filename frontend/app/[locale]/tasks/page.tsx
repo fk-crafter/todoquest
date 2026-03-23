@@ -145,6 +145,11 @@ export default function TasksPage() {
         },
         body: JSON.stringify(data),
       });
+
+      if (showTutorial && tutorialStep === 7) {
+        nextTutorialStep();
+      }
+
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     } catch (e) {
@@ -262,6 +267,10 @@ export default function TasksPage() {
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
 
+      if (showTutorial && tutorialStep === 8) {
+        nextTutorialStep();
+      }
+
       checkAchievements(task.difficulty);
       if (data.userStats.level > (user?.level || 1)) {
         playLevelUpSound();
@@ -281,6 +290,7 @@ export default function TasksPage() {
 
   const incompleteTasks = tasks.filter((t) => !t.completed);
   const completedTasks = tasks.filter((t) => t.completed);
+
   const tutorialMessages = [
     t("tutorial.step1"),
     t("tutorial.step2"),
@@ -289,7 +299,14 @@ export default function TasksPage() {
     t("tutorial.step5"),
     t("tutorial.step6"),
     t("tutorial.step7"),
+    t("tutorial.step8"),
+    t("tutorial.step9"),
+    t("tutorial.step10"),
   ];
+
+  const isWaitingForTaskCreation = showTutorial && tutorialStep === 7;
+  const isWaitingForTaskCompletion = showTutorial && tutorialStep === 8;
+  const isFinalStep = showTutorial && tutorialStep === 9;
 
   if (!session)
     return (
@@ -440,33 +457,48 @@ export default function TasksPage() {
       )}
 
       {showTutorial && tutorialStep < tutorialMessages.length && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-end gap-4 p-6 justify-center md:justify-start">
+        <div
+          className={`fixed inset-0 z-50 flex items-end gap-4 p-6 justify-center md:justify-start ${isWaitingForTaskCreation || isWaitingForTaskCompletion ? "pointer-events-none" : "bg-black/60"}`}
+        >
           <div className="w-20 h-20 md:w-24 md:h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat flex-shrink-0" />
-          <div className="bg-app-surface text-white p-4 rounded-lg shadow-lg border-2 border-app-accent max-w-sm w-full">
+          <div className="bg-app-surface text-white p-4 rounded-lg shadow-lg border-2 border-app-accent max-w-sm w-full pointer-events-auto relative">
+            {(isWaitingForTaskCreation || isWaitingForTaskCompletion) && (
+              <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 animate-bounce text-app-accent text-3xl">
+                ⬆️
+              </div>
+            )}
+
             <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
-            <button
-              onClick={() => {
-                playSound();
-                nextTutorialStep();
-              }}
-              className="px-4 py-2 bg-app-accent text-app-bg font-bold rounded hover:opacity-80 cursor-pointer w-full md:w-auto"
-            >
-              {t("tutorial.next")}
-            </button>
+
+            {!isWaitingForTaskCreation && !isWaitingForTaskCompletion && (
+              <button
+                onClick={() => {
+                  playSound();
+                  nextTutorialStep();
+                }}
+                className="px-4 py-2 bg-app-accent text-app-bg font-bold rounded hover:opacity-80 cursor-pointer w-full md:w-auto"
+              >
+                {isFinalStep ? t("tutorial.finish") : t("tutorial.next")}
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      <main className="w-full p-4 md:p-6 mt-12 md:mt-12 mb-16 md:mb-0">
+      <main className="w-full p-4 md:p-6 mt-12 md:mt-12 mb-16 md:mb-0 relative z-10">
         <div className="flex flex-col md:flex-row items-start justify-center min-h-screen gap-6 md:gap-8">
-          <div className="w-full md:w-1/2">
+          <div
+            className={`w-full md:w-1/2 ${isWaitingForTaskCreation ? "relative z-[60] ring-4 ring-app-accent rounded-xl p-2 bg-black/20" : ""}`}
+          >
             <h1 className="text-2xl md:text-3xl font-bold mb-4 text-app-accent">
               {t("main.title")}
             </h1>
             <StatsSection user={user} />
             <TaskForm onAdd={addTask} isSubmitting={isSubmitting} />
 
-            <div className="mt-6">
+            <div
+              className={`mt-6 ${isWaitingForTaskCompletion ? "relative z-[60] ring-4 ring-app-accent rounded-xl p-2 bg-black/20" : ""}`}
+            >
               <h2 className="text-xl font-semibold mb-2 text-white">
                 {t("main.todo")}
               </h2>
