@@ -456,50 +456,58 @@ export default function TasksPage() {
         </div>
       )}
 
-      {showTutorial && tutorialStep < tutorialMessages.length && (
-        <div
-          className={`fixed inset-0 z-50 flex items-end gap-4 p-6 justify-center md:justify-start ${isWaitingForTaskCreation || isWaitingForTaskCompletion ? "pointer-events-none" : "bg-black/60"}`}
-        >
-          <div className="w-20 h-20 md:w-24 md:h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat flex-shrink-0" />
-          <div className="bg-app-surface text-white p-4 rounded-lg shadow-lg border-2 border-app-accent max-w-sm w-full pointer-events-auto relative">
-            {(isWaitingForTaskCreation || isWaitingForTaskCompletion) && (
-              <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 animate-bounce text-app-accent text-3xl">
-                ⬆️
-              </div>
-            )}
-
-            <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
-
-            {!isWaitingForTaskCreation && !isWaitingForTaskCompletion && (
+      {showTutorial &&
+        tutorialStep < tutorialMessages.length &&
+        !isWaitingForTaskCreation &&
+        !isWaitingForTaskCompletion && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-end gap-4 p-6 justify-center md:justify-start">
+            <div className="w-20 h-20 md:w-24 md:h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat flex-shrink-0" />
+            <div className="bg-app-surface text-white p-4 rounded-lg shadow-lg border-2 border-app-accent max-w-sm w-full">
+              <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
               <button
                 onClick={() => {
                   playSound();
-                  nextTutorialStep();
+                  if (isFinalStep) {
+                    endTutorial();
+                  } else {
+                    nextTutorialStep();
+                  }
                 }}
                 className="px-4 py-2 bg-app-accent text-app-bg font-bold rounded hover:opacity-80 cursor-pointer w-full md:w-auto"
               >
                 {isFinalStep ? t("tutorial.finish") : t("tutorial.next")}
               </button>
-            )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       <main className="w-full p-4 md:p-6 mt-12 md:mt-12 mb-16 md:mb-0 relative z-10">
         <div className="flex flex-col md:flex-row items-start justify-center min-h-screen gap-6 md:gap-8">
           <div
-            className={`w-full md:w-1/2 ${isWaitingForTaskCreation ? "relative z-[60] ring-4 ring-app-accent rounded-xl p-2 bg-black/20" : ""}`}
+            className={`w-full md:w-1/2 ${isWaitingForTaskCreation ? "relative z-[60] ring-4 ring-app-accent rounded-xl p-2 bg-black/60" : ""}`}
           >
-            <h1 className="text-2xl md:text-3xl font-bold mb-4 text-app-accent">
+            {isWaitingForTaskCreation && (
+              <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-app-accent text-app-bg px-4 py-3 rounded-lg font-bold text-xs md:text-sm shadow-xl w-[95%] md:w-[90%] max-w-[450px] text-center animate-bounce z-[70] leading-relaxed">
+                {tutorialMessages[tutorialStep]}
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-app-accent"></div>
+              </div>
+            )}
+
+            <h1 className="text-2xl md:text-3xl font-bold mb-4 text-app-accent mt-2">
               {t("main.title")}
             </h1>
             <StatsSection user={user} />
             <TaskForm onAdd={addTask} isSubmitting={isSubmitting} />
-
             <div
-              className={`mt-6 ${isWaitingForTaskCompletion ? "relative z-[60] ring-4 ring-app-accent rounded-xl p-2 bg-black/20" : ""}`}
+              className={`mt-6 ${isWaitingForTaskCompletion ? "relative z-[60] ring-4 ring-app-accent rounded-xl p-2 bg-black/60" : ""}`}
             >
-              <h2 className="text-xl font-semibold mb-2 text-white">
+              {isWaitingForTaskCompletion && (
+                <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 bg-app-accent text-app-bg px-4 py-3 rounded-lg font-bold text-xs md:text-sm shadow-xl w-[95%] md:w-[90%] max-w-[450px] text-center animate-bounce z-[70] leading-relaxed">
+                  {tutorialMessages[tutorialStep]}
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-app-accent"></div>
+                </div>
+              )}
+              <h2 className="text-xl font-semibold mb-2 text-white mt-2">
                 {t("main.todo")}
               </h2>
               {incompleteTasks.length === 0 ? (
