@@ -72,6 +72,57 @@ export class TasksService {
       xpCap = this.getXpCap(newLevel);
     }
 
+    let extraGold = 10;
+    let monsterUpdate: {
+      monsterHp?: number | null;
+      monsterMaxHp?: number | null;
+      monsterEndTime?: Date | null;
+      nextInvasionTime?: Date | null;
+    } = {};
+    let monsterResult = null;
+    const now = new Date();
+
+    if (
+      user.monsterHp &&
+      user.monsterHp > 0 &&
+      user.monsterEndTime &&
+      user.monsterEndTime > now
+    ) {
+      const damageMap = { EASY: 10, MEDIUM: 30, HARD: 50, EPIC: 100 };
+      const dmg = damageMap[task.difficulty] || 10;
+      const newHp = user.monsterHp - dmg;
+
+      if (newHp <= 0) {
+        extraGold += 50;
+        const cooldownHours = Math.floor(Math.random() * (72 - 24 + 1)) + 24;
+        const nextInvasion = new Date(
+          Date.now() + cooldownHours * 60 * 60 * 1000,
+        );
+
+        monsterUpdate = {
+          monsterHp: null,
+          monsterMaxHp: null,
+          monsterEndTime: null,
+          nextInvasionTime: nextInvasion,
+        };
+        monsterResult = { type: 'DEFEATED', bonusGold: 50 };
+      } else {
+        monsterUpdate = { monsterHp: newHp };
+        monsterResult = { type: 'DAMAGED', damage: dmg, hpLeft: newHp };
+      }
+    } else if (user.monsterEndTime && user.monsterEndTime < now) {
+      const cooldownHours = Math.floor(Math.random() * (72 - 24 + 1)) + 24;
+      const nextInvasion = new Date(
+        Date.now() + cooldownHours * 60 * 60 * 1000,
+      );
+      monsterUpdate = {
+        monsterHp: null,
+        monsterMaxHp: null,
+        monsterEndTime: null,
+        nextInvasionTime: nextInvasion,
+      };
+    }
+
     const [updatedTask, updatedUser] = await this.prisma.$transaction([
       this.prisma.task.update({
         where: { id: taskId },
@@ -87,7 +138,8 @@ export class TasksService {
         data: {
           xp: newXP,
           level: newLevel,
-          gold: { increment: 10 },
+          gold: { increment: extraGold },
+          ...monsterUpdate,
         },
       }),
     ]);
@@ -95,12 +147,13 @@ export class TasksService {
     return {
       message: 'Tâche complétée !',
       task: updatedTask,
+      monster: monsterResult,
       userStats: {
         level: updatedUser.level,
         xp: updatedUser.xp,
         xpToNextLevel: this.getXpCap(updatedUser.level),
         gainedXp: xpGained,
-        goldGained: 10,
+        goldGained: extraGold,
         levelUp: newLevel > user.level,
       },
     };

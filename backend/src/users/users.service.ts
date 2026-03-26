@@ -38,6 +38,10 @@ export class UsersService {
         equippedFrame: true,
         equippedTitle: true,
         lastRewardClaimedAt: true,
+        monsterHp: true,
+        monsterMaxHp: true,
+        monsterEndTime: true,
+        nextInvasionTime: true,
       },
     });
 

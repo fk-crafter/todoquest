@@ -42,6 +42,11 @@ model User {
 
   inventory String[]
 
+  monsterHp        Int?
+  monsterMaxHp     Int?
+  monsterEndTime   DateTime?
+  nextInvasionTime DateTime?
+
   equippedTheme String?
   equippedFrame String?
   equippedTitle String?
