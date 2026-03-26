@@ -58,6 +58,27 @@ export class UsersService {
       }),
     ]);
 
+    const now = new Date();
+    if (
+      !user.monsterHp &&
+      (!user.nextInvasionTime || user.nextInvasionTime <= now)
+    ) {
+      const newEndTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          monsterHp: 100,
+          monsterMaxHp: 100,
+          monsterEndTime: newEndTime,
+          nextInvasionTime: null,
+        },
+      });
+      user.monsterHp = 100;
+      user.monsterMaxHp = 100;
+      user.monsterEndTime = newEndTime;
+      user.nextInvasionTime = null;
+    }
+
     return {
       ...user,
       stats: {

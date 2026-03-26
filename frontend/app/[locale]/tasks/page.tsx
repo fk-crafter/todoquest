@@ -80,40 +80,6 @@ export default function TasksPage() {
   }, [setMusicSource]);
 
   useEffect(() => {
-    const savedMonster = localStorage.getItem("todoquest_monster");
-    const nextInvasionTime = localStorage.getItem("todoquest_next_invasion");
-
-    if (savedMonster) {
-      const parsed = JSON.parse(savedMonster);
-      if (Date.now() < parsed.endTime && parsed.hp > 0) {
-        setMonster(parsed);
-      } else {
-        localStorage.removeItem("todoquest_monster");
-        if (!nextInvasionTime) {
-          const cooldown =
-            Math.floor(Math.random() * (72 - 24 + 1) + 24) * 60 * 60 * 1000;
-          localStorage.setItem(
-            "todoquest_next_invasion",
-            (Date.now() + cooldown).toString(),
-          );
-        }
-      }
-    } else {
-      if (!nextInvasionTime || Date.now() >= parseInt(nextInvasionTime)) {
-        const newMonster = {
-          hp: 100,
-          maxHp: 100,
-          endTime: Date.now() + 12 * 60 * 60 * 1000,
-        };
-        localStorage.setItem("todoquest_monster", JSON.stringify(newMonster));
-        setMonster(newMonster);
-        localStorage.removeItem("todoquest_next_invasion");
-        setTimeout(() => setShowMonsterModal(true), 1500);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
     if (!monster) return;
     const interval = setInterval(() => {
       const diff = monster.endTime - Date.now();
@@ -177,6 +143,25 @@ export default function TasksPage() {
     },
     enabled: !!session?.accessToken,
   });
+
+  useEffect(() => {
+    if (user) {
+      if (user.monsterHp && user.monsterHp > 0 && user.monsterEndTime) {
+        const endTime = new Date(user.monsterEndTime).getTime();
+        if (endTime > Date.now()) {
+          setMonster({
+            hp: user.monsterHp,
+            maxHp: user.monsterMaxHp,
+            endTime: endTime,
+          });
+        } else {
+          setMonster(null);
+        }
+      } else {
+        setMonster(null);
+      }
+    }
+  }, [user]);
 
   const isNewUser = user?.level === 1 && user?.xp === 0;
 
