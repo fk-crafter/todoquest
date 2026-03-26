@@ -364,6 +364,15 @@
     },
     "statsSection": {
       "level": "Level {level}"
+    },
+    "Monster": {
+      "invasion": "An invasion is in progress!",
+      "title": "Goblin Thief",
+      "description": "This monster is patrolling around your camp. Complete tasks to deal damage to it!",
+      "hp": "HP",
+      "timeLeft": "Time left:",
+      "victory": "Monster defeated! You win!",
+      "close": "Close"
     }
   },
   "Sidebar": {

@@ -366,6 +366,15 @@
     },
     "statsSection": {
       "level": "Niveau {level}"
+    },
+    "Monster": {
+      "invasion": "Une invasion est en cours !",
+      "title": "Gobelin Voleur",
+      "description": "Ce monstre rôde autour de votre camp. Accomplissez des tâches pour lui infliger des dégâts !",
+      "hp": "PV",
+      "timeLeft": "Temps restant :",
+      "victory": "Monstre vaincu ! Vous avez gagné !",
+      "close": "Fermer"
     }
   },
   "Sidebar": {

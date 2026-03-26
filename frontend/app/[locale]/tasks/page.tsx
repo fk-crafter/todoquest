@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+
 import Sidebar from "@/components/Sidebar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -20,7 +21,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Trophy, X, Pencil, Trash } from "lucide-react";
+import { Trophy, X, Pencil, Trash, Swords } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import { useTutorial } from "@/context/TutorialContext";
 
@@ -65,10 +66,74 @@ export default function TasksPage() {
   const [minutesInput, setMinutesInput] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [monster, setMonster] = useState<{
+    hp: number;
+    maxHp: number;
+    endTime: number;
+  } | null>(null);
+  const [showMonsterModal, setShowMonsterModal] = useState(false);
+  const [monsterMessage, setMonsterMessage] = useState("");
+  const [timeLeftStr, setTimeLeftStr] = useState("");
 
   useEffect(() => {
     setMusicSource("/tasks.wav");
   }, [setMusicSource]);
+
+  useEffect(() => {
+    const savedMonster = localStorage.getItem("todoquest_monster");
+    const nextInvasionTime = localStorage.getItem("todoquest_next_invasion");
+
+    if (savedMonster) {
+      const parsed = JSON.parse(savedMonster);
+      if (Date.now() < parsed.endTime && parsed.hp > 0) {
+        setMonster(parsed);
+      } else {
+        localStorage.removeItem("todoquest_monster");
+        if (!nextInvasionTime) {
+          const cooldown =
+            Math.floor(Math.random() * (72 - 24 + 1) + 24) * 60 * 60 * 1000;
+          localStorage.setItem(
+            "todoquest_next_invasion",
+            (Date.now() + cooldown).toString(),
+          );
+        }
+      }
+    } else {
+      if (!nextInvasionTime || Date.now() >= parseInt(nextInvasionTime)) {
+        const newMonster = {
+          hp: 100,
+          maxHp: 100,
+          endTime: Date.now() + 12 * 60 * 60 * 1000,
+        };
+        localStorage.setItem("todoquest_monster", JSON.stringify(newMonster));
+        setMonster(newMonster);
+        localStorage.removeItem("todoquest_next_invasion");
+        setTimeout(() => setShowMonsterModal(true), 1500);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!monster) return;
+    const interval = setInterval(() => {
+      const diff = monster.endTime - Date.now();
+      if (diff <= 0) {
+        setMonster(null);
+        localStorage.removeItem("todoquest_monster");
+        const cooldown =
+          Math.floor(Math.random() * (72 - 24 + 1) + 24) * 60 * 60 * 1000;
+        localStorage.setItem(
+          "todoquest_next_invasion",
+          (Date.now() + cooldown).toString(),
+        );
+      } else {
+        const h = Math.floor(diff / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        setTimeLeftStr(`${h}h ${m}m`);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [monster]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -266,6 +331,36 @@ export default function TasksPage() {
       );
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
+
+      if (monster) {
+        const damageMap = { EASY: 10, MEDIUM: 30, HARD: 50, EPIC: 100 };
+        const dmg = damageMap[task.difficulty] || 10;
+        const newHp = monster.hp - dmg;
+
+        if (newHp <= 0) {
+          playLevelUpSound();
+          setMonsterMessage("⚔️ Monstre vaincu ! Vous avez protégé le camp !");
+          setMonster(null);
+          setShowMonsterModal(false);
+          localStorage.removeItem("todoquest_monster");
+
+          const cooldown =
+            Math.floor(Math.random() * (72 - 24 + 1) + 24) * 60 * 60 * 1000;
+          localStorage.setItem(
+            "todoquest_next_invasion",
+            (Date.now() + cooldown).toString(),
+          );
+
+          setTimeout(() => setMonsterMessage(""), 5000);
+        } else {
+          const updatedMonster = { ...monster, hp: newHp };
+          setMonster(updatedMonster);
+          localStorage.setItem(
+            "todoquest_monster",
+            JSON.stringify(updatedMonster),
+          );
+        }
+      }
 
       if (showTutorial && tutorialStep === 8) {
         nextTutorialStep();
@@ -480,7 +575,61 @@ export default function TasksPage() {
             </div>
           </div>
         )}
+      {monsterMessage && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white font-bold px-4 py-3 md:px-6 rounded-xl shadow-[0_0_20px_rgba(34,197,94,0.5)] border-2 border-white w-[90%] md:w-auto text-center animate-bounce">
+          {monsterMessage}
+        </div>
+      )}
 
+      {monster && !showTutorial && (
+        <button
+          onClick={() => setShowMonsterModal(true)}
+          className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-40 bg-red-600 hover:bg-red-500 text-white p-3 md:p-4 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.7)] border-2 border-black flex items-center justify-center animate-pulse"
+        >
+          <Swords size={28} />
+        </button>
+      )}
+
+      {showMonsterModal && monster && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="bg-gray-900 p-6 rounded-xl shadow-2xl w-full max-w-sm border-4 border-red-900 text-center relative">
+            <button
+              onClick={() => setShowMonsterModal(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-white"
+            >
+              <X size={24} />
+            </button>
+
+            <h2 className="text-xl font-bold mb-1 text-red-500 animate-pulse">
+              ⚠️ {t("Monster.invasion") || "Invasion !"} ⚠️
+            </h2>
+            <h3 className="text-lg text-white mb-4">
+              {t("Monster.title") || "Gobelin"}
+            </h3>
+
+            <div className="w-24 h-24 mx-auto mb-4 bg-[url('/ennemy.png')] bg-contain bg-center bg-no-repeat drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]"></div>
+
+            <p className="text-xs text-gray-400 mb-4 px-2">
+              {t("Monster.description") ||
+                "Faites vos tâches pour l'attaquer !"}
+            </p>
+
+            <div className="w-full bg-gray-950 border-2 border-gray-700 rounded-full h-6 mb-2 relative overflow-hidden">
+              <div
+                className="bg-red-600 h-full transition-all duration-500 ease-out"
+                style={{ width: `${(monster.hp / monster.maxHp) * 100}%` }}
+              ></div>
+              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white text-shadow">
+                {monster.hp} / {monster.maxHp} {t("Monster.hp") || "PV"}
+              </span>
+            </div>
+
+            <p className="text-yellow-400 font-bold text-sm mt-4">
+              ⏳ {t("Monster.timeLeft") || "Temps :"} {timeLeftStr}
+            </p>
+          </div>
+        </div>
+      )}
       <main className="w-full p-4 md:p-6 mt-12 md:mt-12 mb-16 md:mb-0 relative z-10">
         <div className="flex flex-col md:flex-row items-start justify-center min-h-screen gap-6 md:gap-8">
           <div
