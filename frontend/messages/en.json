@@ -518,16 +518,18 @@
   },
   "Landing": {
     "problemTitle": "Your brain craves ",
-    "problemHighlight": "Dopamine",
-    "problemDesc": "Standard to-do lists are boring. TodoQuest turns your daily chores into a retro RPG. Earn XP, Gold, and defeat procrastination!",
-    "step1Title": "1. Add your quests",
-    "step1Desc": "Dishes, workout, reading... Turn your chores into missions.",
-    "step2Title": "2. Defeat the Boss",
-    "step2Desc": "Choose the task difficulty. The harder it is, the bigger the reward.",
-    "step3Title": "3. Level Up",
-    "step3Desc": "Earn XP and spend your gold in the shop to customize your hero.",
+    "problemHighlight": "Dopamine.",
+    "readyTitle": "Ready to start your quest?",
+    "problemDesc": "Standard to-do lists are cold, boring, and often forgotten. TodoQuest turns your daily chores into a true retro RPG. Earn XP, hoard Gold, and defeat the dreadful Procrastination monster every time you check off a task!",
+    "step1Title": "1. The Quest Grimoire",
+    "step1Desc": "Dishes, workout, reading... Turn your real-life chores into epic missions. No more excuses to push it to tomorrow.",
+    "step2Title": "2. Defeat the Bosses",
+    "step2Desc": "Monsters are invading your camp! Complete your tasks to deal damage before the timer runs out and loot their treasure.",
+    "step3Title": "3. Level Up & Customize",
+    "step3Desc": "Gather XP and spend your gold in the secret shop. Unlock noble titles, animated frames, and unique themes.",
     "socialTitle": "The Guild Wall",
-    "review1": "\"This app is really fun, it’s a briliant idea.\"",
+    "socialSubtitle": "Join the adventurers who have already defeated their laziness.",
+    "review1": "\"This app is really fun, it’s a brilliant idea.\"",
     "author1": "- AsyaAimLive",
     "review2": "\"I love it, it feels very good.\"",
     "author2": "- TrippyBlocks",
@@ -536,6 +538,7 @@
     "review4": "\"THIS IS A GREAT IDEA, it’s AMAZING.\"",
     "author4": "- Borkkito",
     "review5": "\"It’s pretty cool, the art’s style good.\"",
-    "author5": "- Desperate_Sky9997"
+    "author5": "- Desperate_Sky9997",
+    "bottomCta": "Start the Adventure"
   }
 }

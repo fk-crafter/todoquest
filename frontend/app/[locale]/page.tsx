@@ -4,6 +4,11 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { Gamepad2 } from "lucide-react";
+
 import Hero from "@/components/Hero";
 import ProblemSection from "@/components/ProblemSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
@@ -15,6 +20,9 @@ if (typeof window !== "undefined") {
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const { status } = useSession();
+  const tLanding = useTranslations("Landing");
 
   useGSAP(
     () => {
@@ -37,6 +45,17 @@ export default function Home() {
     { scope: containerRef },
   );
 
+  const handleStart = () => {
+    new Audio("/click-sound.wav").play().catch(() => {});
+    setTimeout(() => {
+      if (status === "authenticated") {
+        router.push("/tasks");
+      } else {
+        router.push("/auth");
+      }
+    }, 200);
+  };
+
   return (
     <main ref={containerRef} className="relative w-full">
       <div className="sticky top-0 h-screen w-full z-0">
@@ -48,6 +67,19 @@ export default function Home() {
           <ProblemSection />
           <HowItWorksSection />
           <SocialProofSection />
+
+          <section className="reveal-section text-center py-12 border-t border-gray-800">
+            <h2 className="text-xl md:text-3xl font-bold mb-8 text-white font-press">
+              {tLanding("readyTitle")}
+            </h2>
+            <button
+              onClick={handleStart}
+              className="px-8 py-4 text-sm md:text-xl cursor-pointer bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-lg border-4 border-black shadow-[6px_6px_0px_black] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[0px_0px_0px_black] transition-all inline-flex items-center gap-3 font-press"
+            >
+              <Gamepad2 className="w-6 h-6 md:w-8 md:h-8" />
+              {tLanding("bottomCta")}
+            </button>
+          </section>
         </div>
       </div>
     </main>

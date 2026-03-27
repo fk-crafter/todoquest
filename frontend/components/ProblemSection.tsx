@@ -4,12 +4,14 @@ export default function ProblemSection() {
   const t = useTranslations("Landing");
 
   return (
-    <section className="reveal-section text-center max-w-3xl mx-auto">
-      <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 font-press">
-        {t("problemTitle")}
-        <span className="text-yellow-400">{t("problemHighlight")}</span>.
+    <section className="reveal-section text-center max-w-4xl mx-auto relative">
+      <h2 className="text-2xl md:text-4xl font-bold mb-6 leading-tight flex flex-wrap justify-center items-center gap-x-4 gap-y-2 font-press text-white">
+        <span>{t("problemTitle")}</span>
+        <span className="text-yellow-400 drop-shadow-[2px_2px_0px_black] animate-pulse">
+          {t("problemHighlight")}
+        </span>
       </h2>
-      <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
+      <p className="text-sm md:text-lg text-gray-400 leading-relaxed md:leading-loose">
         {t("problemDesc")}
       </p>
     </section>

@@ -519,16 +519,18 @@
     "backToHome": "Retour à l'accueil"
   },
   "Landing": {
-    "problemTitle": "Ton cerveau veut de la ",
-    "problemHighlight": "Dopamine",
-    "problemDesc": "Les to-do lists classiques sont ennuyeuses. TodoQuest transforme tes corvées du quotidien en un RPG rétro. Gagne de l'XP, de l'Or, et affronte la procrastination !",
-    "step1Title": "1. Ajoute tes quêtes",
-    "step1Desc": "Vaisselle, sport, lecture... Transforme tes tâches en missions.",
-    "step2Title": "2. Bats le Boss",
-    "step2Desc": "Choisis la difficulté de la tâche. Plus c'est dur, plus la récompense est grande.",
+    "problemTitle": "Ton cerveau réclame de la",
+    "problemHighlight": "Dopamine.",
+    "readyTitle": "Prêt à commencer ta quête ?",
+    "problemDesc": "Les to-do lists classiques sont froides, ennuyeuses et finissent souvent aux oubliettes. TodoQuest transforme ton quotidien en un véritable RPG rétro. Gagne de l'XP, amasse de l'Or, et vaincs le redoutable monstre de la Procrastination à chaque fois que tu rayes une tâche !",
+    "step1Title": "1. Le Grimoire des Quêtes",
+    "step1Desc": "Vaisselle, séance de sport, lecture... Transforme tes corvées réelles en missions épiques. Plus d'excuses pour repousser à demain.",
+    "step2Title": "2. Affronte les Boss",
+    "step2Desc": "Des monstres envahissent ton camp ! Valide tes tâches pour leur infliger des dégâts avant la fin du chronomètre et pille leur butin.",
     "step3Title": "3. Monte en Niveau",
-    "step3Desc": "Gagne de l'XP et dépense ton or dans la boutique pour personnaliser ton héros.",
-    "socialTitle": "Le mur des Guildes",
+    "step3Desc": "Engrange de l'XP et dépense ton or dans la boutique secrète. Débloque des titres de noblesse, des cadres animés et des thèmes uniques.",
+    "socialTitle": "Le Mur des Guildes",
+    "socialSubtitle": "Rejoins les aventuriers qui ont déjà vaincu leur flemme.",
     "review1": "\"Cette app est vraiment amusante, c'est une idée brillante.\"",
     "author1": "- AsyaAimLive",
     "review2": "\"J'adore, la prise en main est super agréable.\"",
@@ -538,6 +540,7 @@
     "review4": "\"C'EST UNE SUPER IDÉE, c'est INCROYABLE.\"",
     "author4": "- Borkkito",
     "review5": "\"C'est plutôt cool, le style graphique est vraiment bien.\"",
-    "author5": "- Desperate_Sky9997"
+    "author5": "- Desperate_Sky9997",
+    "bottomCta": "Démarrer l'Aventure"
   }
 }
