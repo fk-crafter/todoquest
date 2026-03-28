@@ -37,7 +37,7 @@ export default function Hero() {
         TodoQuest
       </h1>
 
-      <p className="mt-4 text-base md:text-xl text-gray-200 drop-shadow-[2px_2px_0px_black] text-center max-w-2xl leading-relaxed bg-black/40 p-4 rounded-xl border-2 border-gray-700 backdrop-blur-sm">
+      <p className="mt-4 text-base md:text-xl text-gray-200 drop-shadow-[2px_2px_0px_black] text-center max-w-2xl leading-relaxed">
         {t("subtitle")}
       </p>
 
