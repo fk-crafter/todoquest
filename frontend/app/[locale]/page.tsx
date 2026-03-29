@@ -74,7 +74,7 @@ export default function Home() {
             </h2>
             <button
               onClick={handleStart}
-              className="px-8 py-4 text-sm md:text-xl cursor-pointer bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-lg border-4 border-black shadow-[6px_6px_0px_black] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[0px_0px_0px_black] transition-all flex items-center justify-center gap-3 font-press whitespace-nowrap"
+              className="px-4 py-4 text-sm md:text-xl cursor-pointer bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-lg border-4 border-black shadow-[6px_6px_0px_black] active:translate-x-[3px] active:translate-y-[3px] active:shadow-[0px_0px_0px_black] transition-all flex items-center justify-center gap-3 font-press whitespace-nowrap"
             >
               <Gamepad2 className="w-6 h-6 md:w-8 md:h-8" />
               {tLanding("bottomCta")}
