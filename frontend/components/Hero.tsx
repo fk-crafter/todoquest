@@ -5,18 +5,11 @@ import { Gamepad2, Rocket } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import InstallPWA from "@/components/InstallPWA";
-import { useEffect } from "react";
 
 export default function Hero() {
   const t = useTranslations("Hero");
   const router = useRouter();
   const { status } = useSession();
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/tasks");
-    }
-  }, [status, router]);
 
   const playSound = () => {
     const clickAudio = new Audio("/click-sound.wav");
