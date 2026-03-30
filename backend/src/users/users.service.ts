@@ -59,11 +59,37 @@ export class UsersService {
     ]);
 
     const now = new Date();
+
     if (
-      !user.monsterHp &&
+      user.monsterHp !== null &&
+      user.monsterEndTime &&
+      user.monsterEndTime < now
+    ) {
+      const cooldownHours = Math.floor(Math.random() * (72 - 24 + 1)) + 24;
+      const nextInvasion = new Date(
+        user.monsterEndTime.getTime() + cooldownHours * 60 * 60 * 1000,
+      );
+
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          monsterHp: null,
+          monsterMaxHp: null,
+          monsterEndTime: null,
+          nextInvasionTime: nextInvasion,
+        },
+      });
+
+      user.monsterHp = null;
+      user.nextInvasionTime = nextInvasion;
+    }
+
+    if (
+      user.monsterHp === null &&
       (!user.nextInvasionTime || user.nextInvasionTime <= now)
     ) {
       const newEndTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+
       await this.prisma.user.update({
         where: { id: userId },
         data: {
@@ -73,6 +99,7 @@ export class UsersService {
           nextInvasionTime: null,
         },
       });
+
       user.monsterHp = 100;
       user.monsterMaxHp = 100;
       user.monsterEndTime = newEndTime;
