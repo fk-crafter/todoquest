@@ -14,6 +14,7 @@ import {
   Coins,
   Plus,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -24,7 +25,6 @@ export default function AdminPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // État pour la modale d'ajout d'or
   const [selectedPlayer, setSelectedPlayer] = useState<{
     id: string;
     name: string;
@@ -60,14 +60,12 @@ export default function AdminPage() {
     enabled: !!session?.accessToken && session?.user?.role === "ADMIN",
   });
 
-  // Fonction pour envoyer l'or
   const handleGiveGold = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPlayer || !goldAmount || isNaN(Number(goldAmount))) return;
 
     setIsSubmitting(true);
     try {
-      // NOTE: Il faudra s'assurer que ton backend possède cette route
       await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/admin/${selectedPlayer.id}/gold`,
         {
@@ -80,7 +78,6 @@ export default function AdminPage() {
         },
       );
 
-      // Rafraîchir la liste
       queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
       setSelectedPlayer(null);
       setGoldAmount("");
@@ -104,17 +101,26 @@ export default function AdminPage() {
 
   return (
     <div className="p-2 md:p-6 max-w-[1400px] mx-auto font-press animate-fadeIn pb-24">
-      {/* HEADER ULTRA COMPACT */}
-      <div className="flex items-center gap-3 mb-6 border-b border-gray-800 pb-4">
-        <ShieldAlert className="w-6 h-6 md:w-8 md:h-8 text-red-500" />
-        <div>
-          <h1 className="text-lg md:text-xl font-bold text-white tracking-wide">
-            {t("title")}
-          </h1>
-          <p className="text-gray-400 text-[8px] md:text-[10px] mt-1">
-            {t("subtitle")}{" "}
-            <span className="text-yellow-400">[{users?.length || 0}]</span>
-          </p>
+      <div className="flex items-center gap-4 mb-6 border-b border-gray-800 pb-4">
+        <button
+          onClick={() => router.back()}
+          className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-white"
+          title="Retour"
+        >
+          <ArrowLeft className="w-5 h-5 md:w-6 md:h-6" />
+        </button>
+
+        <div className="flex items-center gap-3">
+          <ShieldAlert className="w-6 h-6 md:w-8 md:h-8 text-red-500" />
+          <div>
+            <h1 className="text-lg md:text-xl font-bold text-white tracking-wide">
+              {t("title")}
+            </h1>
+            <p className="text-gray-400 text-[8px] md:text-[10px] mt-1">
+              {t("subtitle")}{" "}
+              <span className="text-yellow-400">[{users?.length || 0}]</span>
+            </p>
+          </div>
         </div>
       </div>
 
@@ -124,9 +130,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* LISTE DES JOUEURS COMPACTE */}
       <div className="flex flex-col gap-2">
-        {/* En-tête (PC) - 12 Colonnes */}
         <div className="hidden lg:grid grid-cols-12 gap-2 px-3 py-1 text-[8px] text-gray-500 uppercase border-b border-gray-800/50">
           <div className="col-span-2">Joueur</div>
           <div className="col-span-3">Email</div>
@@ -143,7 +147,6 @@ export default function AdminPage() {
             key={u.id}
             className="flex flex-col lg:grid lg:grid-cols-12 lg:items-center gap-2 p-2 md:p-3 rounded border border-gray-800/50 bg-gray-900/20 hover:bg-gray-800/40 transition-all text-[10px] md:text-xs"
           >
-            {/* 1. Nom */}
             <div className="col-span-2 flex items-center gap-2">
               <div className="w-5 h-5 rounded bg-gray-800 flex items-center justify-center border border-gray-700 flex-shrink-0">
                 <User size={10} className="text-gray-400" />
@@ -153,13 +156,11 @@ export default function AdminPage() {
               </span>
             </div>
 
-            {/* 2. Email */}
             <div className="col-span-3 flex items-center gap-1 text-gray-400">
               <Mail size={10} className="hidden lg:block flex-shrink-0" />
               <span className="font-mono truncate">{u.email}</span>
             </div>
 
-            {/* 3. Stats */}
             <div className="col-span-2 flex items-center gap-1">
               <Trophy size={10} className="text-yellow-500 hidden lg:block" />
               <span className="text-yellow-400 font-bold whitespace-nowrap">
@@ -170,7 +171,6 @@ export default function AdminPage() {
               </span>
             </div>
 
-            {/* 4. Or */}
             <div className="col-span-1 flex items-center gap-1 text-yellow-400 font-bold">
               <Coins size={10} className="text-yellow-500" />
               <span className="lg:hidden text-gray-500 text-[8px] uppercase">
@@ -179,13 +179,11 @@ export default function AdminPage() {
               {u.gold || 0}
             </div>
 
-            {/* 5. Classe */}
             <div className="col-span-1 flex items-center gap-1 text-gray-300 capitalize">
               <Sword size={10} className="hidden lg:block text-gray-500" />
               {u.class?.toLowerCase() || "adv."}
             </div>
 
-            {/* 6. Role */}
             <div className="col-span-1 flex lg:justify-center">
               <span
                 className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${u.role === "ADMIN" ? "text-red-400 bg-red-500/10" : "text-blue-400 bg-blue-500/10"}`}
@@ -194,13 +192,11 @@ export default function AdminPage() {
               </span>
             </div>
 
-            {/* 7. Date */}
             <div className="col-span-1 flex items-center gap-1 text-[8px] text-gray-500">
               <Calendar size={10} className="hidden lg:block" />
               {new Date(u.createdAt).toLocaleDateString()}
             </div>
 
-            {/* 8. Action (Bouton Or) */}
             <div className="col-span-1 flex lg:justify-end mt-2 lg:mt-0">
               <button
                 onClick={() =>
@@ -216,7 +212,6 @@ export default function AdminPage() {
         ))}
       </div>
 
-      {/* MODALE D'AJOUT D'OR */}
       {selectedPlayer && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
           <div className="bg-gray-900 border-2 border-yellow-500/50 rounded-xl p-6 max-w-sm w-full relative animate-fadeIn">
