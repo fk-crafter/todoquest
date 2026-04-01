@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl";
 
 export default function ProgressPage() {
   const t = useTranslations("Progress");
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const { setMusicSource, isPlaying, toggleMusic } = useAudio();
 
@@ -20,7 +20,13 @@ export default function ProgressPage() {
     if (!isPlaying) {
       toggleMusic();
     }
-  }, []);
+  }, [setMusicSource, isPlaying, toggleMusic]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
 
   const { data: user } = useQuery({
     queryKey: ["profile"],
@@ -50,7 +56,7 @@ export default function ProgressPage() {
     router.push("/");
   };
 
-  if (!session) {
+  if (status === "loading" || !session) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white font-press">
         <h1 className="text-xl">{t("loading")}</h1>
