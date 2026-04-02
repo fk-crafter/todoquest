@@ -90,6 +90,22 @@
       }
     }
   },
+  "Verify": {
+    "status": {
+      "loading": "Vérification en cours...",
+      "success": {
+        "title": "Email Vérifié !",
+        "description": "Votre compte est maintenant actif.",
+        "redirect": "Redirection vers la connexion..."
+      },
+      "error": {
+        "title": "Échec de la vérification",
+        "description": "Le lien est invalide ou a expiré.",
+        "button": "Retour"
+      }
+    },
+    "fallback": "Chargement..."
+  },
   "Progress": {
     "loading": "Connexion requise...",
     "welcome": "Bienvenue, {name} !",

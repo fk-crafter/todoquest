@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
-import { Suspense } from "react";
+import { useTranslations } from "next-intl";
 
 function VerifyContent() {
+  const t = useTranslations("Verify");
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const router = useRouter();
 
   const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
+    "loading",
   );
 
   useEffect(() => {
@@ -45,7 +46,7 @@ function VerifyContent() {
         {status === "loading" && (
           <div className="flex flex-col items-center">
             <Loader2 className="w-16 h-16 text-blue-500 animate-spin mb-4" />
-            <h2 className="text-xl font-bold">Vérification en cours...</h2>
+            <h2 className="text-xl font-bold">{t("status.loading")}</h2>
           </div>
         )}
 
@@ -53,13 +54,13 @@ function VerifyContent() {
           <div className="flex flex-col items-center">
             <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
             <h2 className="text-2xl font-bold text-green-400 mb-2">
-              Email Vérifié !
+              {t("status.success.title")}
             </h2>
             <p className="text-gray-300 mb-4">
-              Votre compte est maintenant actif.
+              {t("status.success.description")}
             </p>
             <p className="text-sm text-gray-500">
-              Redirection vers la connexion...
+              {t("status.success.redirect")}
             </p>
           </div>
         )}
@@ -68,16 +69,16 @@ function VerifyContent() {
           <div className="flex flex-col items-center">
             <XCircle className="w-16 h-16 text-red-500 mb-4" />
             <h2 className="text-2xl font-bold text-red-400 mb-2">
-              Échec de la vérification
+              {t("status.error.title")}
             </h2>
             <p className="text-gray-300 mb-4">
-              Le lien est invalide ou a expiré.
+              {t("status.error.description")}
             </p>
             <button
               onClick={() => router.push("/register")}
               className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white"
             >
-              Retour
+              {t("status.error.button")}
             </button>
           </div>
         )}
@@ -87,8 +88,10 @@ function VerifyContent() {
 }
 
 export default function VerifyPage() {
+  const t = useTranslations("Verify");
+
   return (
-    <Suspense fallback={<div>Chargement...</div>}>
+    <Suspense fallback={<div>{t("fallback")}</div>}>
       <VerifyContent />
     </Suspense>
   );
