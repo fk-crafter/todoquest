@@ -556,5 +556,11 @@
     "review5": "\"It’s pretty cool, the art’s style good.\"",
     "author5": "- Desperate_Sky9997",
     "bottomCta": "Start the Adventure"
+  },
+  "Metadata": {
+    "title": "TodoQuest | Turn your life into an RPG",
+    "description": "The gamified productivity app. Earn XP, level up, and collect gear by completing your daily tasks.",
+    "ogDescription": "Stop procrastinating. Earn XP for every completed task!",
+    "twitterDescription": "Earn XP by completing your daily tasks."
   }
 }

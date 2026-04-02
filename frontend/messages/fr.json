@@ -558,5 +558,11 @@
     "review5": "\"C'est plutôt cool, le style graphique est vraiment bien.\"",
     "author5": "- Desperate_Sky9997",
     "bottomCta": "Démarrer l'Aventure"
+  },
+  "Metadata": {
+    "title": "TodoQuest | Transforme ta vie en RPG",
+    "description": "L'application de productivité gamifiée. Gagne de l'XP, monte de niveau et collectionne des équipements en accomplissant tes tâches quotidiennes.",
+    "ogDescription": "Arrête de procrastiner. Gagne de l'XP à chaque tâche accomplie !",
+    "twitterDescription": "Gagne de l'XP en accomplissant tes tâches quotidiennes."
   }
 }

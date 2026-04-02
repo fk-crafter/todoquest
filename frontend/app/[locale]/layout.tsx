@@ -9,7 +9,7 @@ import OnboardingGuard from "@/components/OnboardingGuard";
 import ThemeProvider from "@/components/ThemeProvider";
 import RegisterServiceWorker from "@/components/RegisterServiceWorker";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
 import { TutorialProvider } from "@/context/TutorialContext";
 
 const pressStart = Press_Start_2P({
@@ -26,58 +26,65 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://to-doquest.vercel.app"),
-  title: {
-    default: "TodoQuest | Transforme ta vie en RPG",
-    template: "%s | TodoQuest",
-  },
-  description:
-    "L'application de productivité gamifiée. Gagne de l'XP, monte de niveau et collectionne des équipements en accomplissant tes tâches quotidiennes.",
-  applicationName: "TodoQuest",
-  authors: [{ name: "FK-Crafter" }],
-  keywords: [
-    "todo list",
-    "rpg",
-    "gamification",
-    "productivité",
-    "jeu",
-    "tâches",
-  ],
-  manifest: "/manifest.json",
-  icons: {
-    icon: "/favicon.png",
-    apple: "/icon-192.png",
-  },
-  openGraph: {
-    title: "TodoQuest | Transforme ta vie en RPG",
-    description:
-      "Arrête de procrastiner. Gagne de l'XP à chaque tâche accomplie !",
-    url: "/",
-    siteName: "TodoQuest",
-    locale: "fr_FR",
-    type: "website",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "TodoQuest Aperçu",
-      },
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Metadata" });
+
+  return {
+    metadataBase: new URL("https://to-doquest.vercel.app"),
+    title: {
+      default: t("title"),
+      template: "%s | TodoQuest",
+    },
+    description: t("description"),
+    applicationName: "TodoQuest",
+    authors: [{ name: "FK-Crafter" }],
+    keywords: [
+      "todo list",
+      "rpg",
+      "gamification",
+      "productivité",
+      "jeu",
+      "tâches",
     ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "TodoQuest | Transforme ta vie en RPG",
-    description: "Gagne de l'XP en accomplissant tes tâches quotidiennes.",
-    images: ["/og-image.png"],
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "TodoQuest",
-  },
-};
+    manifest: "/manifest.json",
+    icons: {
+      icon: "/favicon.png",
+      apple: "/icon-192.png",
+    },
+    openGraph: {
+      title: t("title"),
+      description: t("ogDescription"),
+      url: "/",
+      siteName: "TodoQuest",
+      locale: locale === "fr" ? "fr_FR" : "en_US",
+      type: "website",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "TodoQuest Aperçu",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t("title"),
+      description: t("twitterDescription"),
+      images: ["/og-image.png"],
+    },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "black-translucent",
+      title: "TodoQuest",
+    },
+  };
+}
 
 export default async function RootLayout({
   children,
