@@ -21,13 +21,15 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Trophy, X, Pencil, Trash, Swords } from "lucide-react";
+import { Trophy, Trash, Swords } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import { useTutorial } from "@/context/TutorialContext";
 
 import TaskItem from "@/components/tasks/TaskItem";
 import TaskForm from "@/components/tasks/TaskForm";
 import StatsSection from "@/components/tasks/StatsSection";
+import TimeSpentModal from "@/components/tasks/TimeSpentModal";
+import EditTaskModal from "@/components/tasks/EditTaskModal";
 import {
   Task,
   TaskFormData,
@@ -437,121 +439,29 @@ export default function TasksPage() {
         </div>
       )}
 
-      {showTimeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-app-surface p-6 rounded-lg shadow-xl w-full max-w-sm border-2 border-app-border">
-            <h2 className="text-xl font-bold mb-4 text-app-accent">
-              {t("timeModal.title")}
-            </h2>
-            <div className="flex gap-2 mb-6">
-              {[
-                { l: t("timeModal.days"), v: daysInput, s: setDaysInput },
-                { l: t("timeModal.hours"), v: hoursInput, s: setHoursInput },
-                {
-                  l: t("timeModal.minutes"),
-                  v: minutesInput,
-                  s: setMinutesInput,
-                },
-              ].map((f, i) => (
-                <div key={i} className="flex-1">
-                  <label className="text-xs font-bold text-gray-400 uppercase">
-                    {f.l}
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={f.v}
-                    onChange={(e) => f.s(e.target.value)}
-                    className="w-full p-2 rounded border border-app-border bg-app-bg text-white text-center"
-                    placeholder="0"
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowTimeModal(false)}
-                className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 text-white"
-              >
-                {t("timeModal.cancel")}
-              </button>
-              <button
-                onClick={handleConfirmTime}
-                className="px-4 py-2 rounded bg-app-accent hover:opacity-80 text-app-bg font-bold"
-              >
-                {t("timeModal.confirm")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <TimeSpentModal
+        isOpen={showTimeModal}
+        onClose={() => setShowTimeModal(false)}
+        onConfirm={handleConfirmTime}
+        days={daysInput}
+        setDays={setDaysInput}
+        hours={hoursInput}
+        setHours={setHoursInput}
+        minutes={minutesInput}
+        setMinutes={setMinutesInput}
+      />
 
-      {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="bg-app-surface p-6 rounded-xl shadow-2xl w-full max-w-md border-2 border-app-border text-white relative">
-            <button
-              onClick={() => setShowEditModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white"
-            >
-              <X size={24} />
-            </button>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-app-accent">
-              <Pencil size={24} /> {t("editModal.title")}
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1 text-gray-300">
-                  {t("editModal.taskTitle")}
-                </label>
-                <input
-                  type="text"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full p-2 rounded bg-app-bg border border-app-border focus:border-app-accent outline-none text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1 text-gray-300">
-                  {t("editModal.description")}
-                </label>
-                <textarea
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  className="w-full p-2 rounded bg-app-bg border border-app-border focus:border-app-accent outline-none h-24 resize-none text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2 text-gray-300">
-                  {t("editModal.difficulty")}
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(["EASY", "MEDIUM", "HARD", "EPIC"] as Difficulty[]).map(
-                    (d) => (
-                      <button
-                        key={d}
-                        onClick={() => setEditDifficulty(d)}
-                        className={`py-2 px-2 rounded text-xs font-bold border transition-all ${
-                          editDifficulty === d
-                            ? "bg-app-accent text-app-bg border-app-accent"
-                            : "bg-app-bg border-app-border text-gray-400"
-                        }`}
-                      >
-                        {d}
-                      </button>
-                    ),
-                  )}
-                </div>
-              </div>
-              <button
-                onClick={saveEdit}
-                className="w-full py-3 mt-4 bg-app-accent hover:opacity-90 text-app-bg rounded font-bold shadow-lg transition-transform active:scale-95"
-              >
-                {t("editModal.save")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EditTaskModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSave={saveEdit}
+        title={editTitle}
+        setTitle={setEditTitle}
+        description={editDescription}
+        setDescription={setEditDescription}
+        difficulty={editDifficulty}
+        setDifficulty={setEditDifficulty}
+      />
 
       {showTutorial &&
         tutorialStep < tutorialMessages.length &&
