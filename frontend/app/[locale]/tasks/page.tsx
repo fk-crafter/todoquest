@@ -21,7 +21,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Trophy, Trash, Swords } from "lucide-react";
+import { Trash, Swords } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import { useTutorial } from "@/context/TutorialContext";
 
@@ -30,6 +30,9 @@ import TaskForm from "@/components/tasks/TaskForm";
 import StatsSection from "@/components/tasks/StatsSection";
 import TimeSpentModal from "@/components/tasks/TimeSpentModal";
 import EditTaskModal from "@/components/tasks/EditTaskModal";
+import LevelUpToast from "@/components/tasks/LevelUpToast";
+import AchievementToast from "@/components/tasks/AchievementToast";
+import MonsterAlertToast from "@/components/tasks/MonsterAlertToast";
 import {
   Task,
   TaskFormData,
@@ -401,43 +404,18 @@ export default function TasksPage() {
     <div className="flex min-h-screen">
       <Sidebar />
 
-      {achievementMessage && (
-        <div
-          className={`fixed left-1/2 transform -translate-x-1/2 z-50 bg-app-surface text-app-accent font-bold px-4 py-3 md:px-6 rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.5)] border-2 border-app-accent w-[90%] md:w-auto flex flex-col items-center gap-2 animate-bounce transition-all duration-300 ${
-            levelUpMessage ? "top-28 md:top-32" : "top-20"
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <Trophy className="text-app-accent" />
-            <span>{t("achievementUnlocked")}</span>
-          </div>
-          <p className="text-sm md:text-base text-white">
-            {achievementMessage.label}
-          </p>
-        </div>
-      )}
+      <LevelUpToast message={levelUpMessage} />
 
-      {levelUpMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-app-accent text-app-bg font-bold px-4 py-3 md:px-6 rounded-xl shadow-lg border-2 border-black w-[90%] md:w-auto text-center">
-          {levelUpMessage}
-        </div>
-      )}
+      <AchievementToast
+        message={achievementMessage?.label || null}
+        hasLevelUp={!!levelUpMessage}
+      />
 
-      {monsterMessage && (
-        <div
-          className={`fixed left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white font-bold px-4 py-3 md:px-6 rounded-xl shadow-[0_0_20px_rgba(34,197,94,0.5)] border-2 border-white w-[90%] md:w-auto text-center animate-bounce transition-all duration-300 ${
-            levelUpMessage && achievementMessage
-              ? "top-60 md:top-64"
-              : levelUpMessage
-                ? "top-28 md:top-32"
-                : achievementMessage
-                  ? "top-48 md:top-52"
-                  : "top-20"
-          }`}
-        >
-          {monsterMessage}
-        </div>
-      )}
+      <MonsterAlertToast
+        message={monsterMessage}
+        hasLevelUp={!!levelUpMessage}
+        hasAchievement={!!achievementMessage}
+      />
 
       <TimeSpentModal
         isOpen={showTimeModal}
