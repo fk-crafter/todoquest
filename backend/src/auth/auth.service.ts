@@ -52,7 +52,13 @@ export class AuthService {
       { expiresIn: '1d' },
     );
 
-    await this.mailService.sendVerificationEmail(user.email, verificationToken);
+    const locale = dto.locale || 'fr';
+
+    await this.mailService.sendVerificationEmail(
+      user.email,
+      verificationToken,
+      locale,
+    );
 
     return {
       message:
