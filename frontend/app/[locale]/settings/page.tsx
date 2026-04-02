@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Volume2, VolumeX, Trash2, LogOut, AlertTriangle } from "lucide-react";
@@ -11,14 +11,20 @@ import { useTranslations } from "next-intl";
 
 export default function SettingsPage() {
   const t = useTranslations("Settings");
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   const { isPlaying, toggleMusic, volume, setVolume } = useAudio();
 
-  const [notifications, setNotifications] = useState(false);
+  const [notifications] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -50,7 +56,7 @@ export default function SettingsPage() {
     }
   };
 
-  if (!session) {
+  if (status === "loading" || !session) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white font-press">
         <h1 className="text-xl">{t("loading")}</h1>
