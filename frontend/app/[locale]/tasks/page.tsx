@@ -33,6 +33,7 @@ import EditTaskModal from "@/components/tasks/EditTaskModal";
 import LevelUpToast from "@/components/tasks/LevelUpToast";
 import AchievementToast from "@/components/tasks/AchievementToast";
 import MonsterAlertToast from "@/components/tasks/MonsterAlertToast";
+import TutorialOverlay from "@/components/tasks/TutorialOverlay";
 import {
   Task,
   TaskFormData,
@@ -441,30 +442,16 @@ export default function TasksPage() {
         setDifficulty={setEditDifficulty}
       />
 
-      {showTutorial &&
-        tutorialStep < tutorialMessages.length &&
-        !isWaitingForTaskCreation &&
-        !isWaitingForTaskCompletion && (
-          <div className="fixed inset-0 bg-black/60 z-50 flex items-end gap-4 p-6 justify-center md:justify-start">
-            <div className="w-20 h-20 md:w-24 md:h-24 bg-[url('/tuto.png')] bg-contain bg-no-repeat flex-shrink-0" />
-            <div className="bg-app-surface text-white p-4 rounded-lg shadow-lg border-2 border-app-accent max-w-sm w-full">
-              <p className="mb-4">{tutorialMessages[tutorialStep]}</p>
-              <button
-                onClick={() => {
-                  playSound();
-                  if (isFinalStep) {
-                    endTutorial();
-                  } else {
-                    nextTutorialStep();
-                  }
-                }}
-                className="px-4 py-2 bg-app-accent text-app-bg font-bold rounded hover:opacity-80 cursor-pointer w-full md:w-auto"
-              >
-                {isFinalStep ? t("tutorial.finish") : t("tutorial.next")}
-              </button>
-            </div>
-          </div>
-        )}
+      <TutorialOverlay
+        showTutorial={showTutorial}
+        tutorialStep={tutorialStep}
+        tutorialMessages={tutorialMessages}
+        isWaitingForTaskCreation={isWaitingForTaskCreation}
+        isWaitingForTaskCompletion={isWaitingForTaskCompletion}
+        isFinalStep={isFinalStep}
+        onNext={nextTutorialStep}
+        onFinish={endTutorial}
+      />
 
       {monster && !showTutorial && (
         <button
