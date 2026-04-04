@@ -14,6 +14,7 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Polar } from '@polar-sh/sdk';
 import { Request } from 'express';
+import { Webhook } from 'standardwebhooks'; // Utilisation de la lib standard
 
 interface RequestWithUser {
   user: {
@@ -42,12 +43,6 @@ interface PolarWebhookEvent {
       metadata?: { goldAmount?: string };
     };
   };
-}
-
-// Cette interface permet de dire à ESLint que ces fonctions existent de façon "Safe"
-interface PolarWebhookHandler {
-  validate?: (p: string, s: string, sec: string) => PolarWebhookEvent;
-  validatePayload?: (p: string, s: string, sec: string) => PolarWebhookEvent;
 }
 
 @Controller('users')
@@ -84,11 +79,9 @@ export class UsersController {
         body.itemId,
         body.price,
       );
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new BadRequestException(error.message);
-      }
-      throw new BadRequestException("Erreur lors de l'achat");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Erreur achat';
+      throw new BadRequestException(msg);
     }
   }
 
@@ -104,11 +97,9 @@ export class UsersController {
         body.itemId,
         body.category,
       );
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new BadRequestException(error.message);
-      }
-      throw new BadRequestException("Erreur lors de l'équipement");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Erreur équipement';
+      throw new BadRequestException(msg);
     }
   }
 
@@ -123,13 +114,9 @@ export class UsersController {
   async claimDailyReward(@Req() req: RequestWithUser) {
     try {
       return await this.usersService.claimDailyReward(req.user.id);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new BadRequestException(error.message);
-      }
-      throw new BadRequestException(
-        'Erreur lors de la récupération de la récompense',
-      );
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Erreur récompense';
+      throw new BadRequestException(msg);
     }
   }
 
@@ -154,17 +141,14 @@ export class UsersController {
       if (!amount || amount <= 0) {
         throw new BadRequestException('Le montant doit être supérieur à 0');
       }
-
       return await this.usersService.addGoldToUserAdmin(
         req.user.id,
         targetUserId,
         amount,
       );
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new BadRequestException(error.message);
-      }
-      throw new BadRequestException("Erreur lors de l'ajout d'or");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Erreur or admin';
+      throw new BadRequestException(msg);
     }
   }
 
@@ -175,7 +159,6 @@ export class UsersController {
     @Req() req: RequestWithUser,
   ) {
     const userId = req.user.id;
-
     const polarProducts: Record<string, string | undefined> = {
       small: process.env.POLAR_PRODUCT_SMALL,
       medium: process.env.POLAR_PRODUCT_MEDIUM,
@@ -183,63 +166,39 @@ export class UsersController {
     };
 
     const polarProductId = polarProducts[body.packId];
-
     if (!polarProductId) {
-      throw new BadRequestException(
-        "Pack d'or invalide ou configuration manquante",
-      );
+      throw new BadRequestException("Pack d'or invalide");
     }
 
     try {
       const checkout = await this.polar.checkouts.create({
         products: [polarProductId],
         successUrl: `${process.env.FRONTEND_URL}/shop?success=true`,
-        metadata: {
-          userId: userId.toString(),
-        },
+        metadata: { userId: userId.toString() },
       });
-
       return { url: checkout.url };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erreur Polar Checkout:', error);
-      throw new BadRequestException(
-        "Erreur lors de l'initialisation du paiement",
-      );
+      throw new BadRequestException('Erreur initialisation paiement');
     }
   }
 
   @Post('webhook')
   async handleWebhook(@Req() req: RequestWithRawBody) {
     const rawBody = req.rawBody?.toString('utf8');
-    const signature = req.headers['webhook-signature'];
     const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
 
-    if (
-      !rawBody ||
-      !signature ||
-      typeof signature !== 'string' ||
-      !webhookSecret
-    ) {
-      throw new BadRequestException('Missing raw body, signature or secret');
+    if (!rawBody || !webhookSecret) {
+      throw new BadRequestException('Missing raw body or secret');
     }
 
     try {
-      const polarWebhooks = this.polar
-        .webhooks as unknown as PolarWebhookHandler;
-
-      const validateFn =
-        polarWebhooks.validate || polarWebhooks.validatePayload;
-
-      if (!validateFn) {
-        throw new Error('No validation method found on Polar SDK');
-      }
-
-      const event = validateFn.call(
-        this.polar.webhooks,
+      // Validation manuelle via standardwebhooks (ce que Polar utilise)
+      const wh = new Webhook(webhookSecret);
+      const event = wh.verify(
         rawBody,
-        signature,
-        webhookSecret,
-      );
+        req.headers as Record<string, string>,
+      ) as PolarWebhookEvent;
 
       if (event.type === 'order.created') {
         const order = event.data;
@@ -248,15 +207,16 @@ export class UsersController {
         const goldAmount = goldAmountStr ? parseInt(goldAmountStr, 10) : 0;
 
         if (typeof userId === 'string' && goldAmount > 0) {
-          console.log(`MAGIE : ${goldAmount} or pour ${userId}`);
+          console.log(`SUCCÈS : ${goldAmount} or pour ${userId}`);
           await this.usersService.addGoldAfterPayment(userId, goldAmount);
         }
       }
+
       return { received: true };
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Unknown error';
-      console.error('ERREUR TECHNIQUE WEBHOOK :', msg);
-      throw new BadRequestException(`Validation failed: ${msg}`);
+      console.error('ÉCHEC WEBHOOK :', msg);
+      throw new BadRequestException(`Invalid signature: ${msg}`);
     }
   }
 }
