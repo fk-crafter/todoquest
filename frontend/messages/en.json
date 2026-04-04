@@ -185,11 +185,20 @@
     },
     "treasury": {
       "title": "Treasury",
-      "goldBag": "Gold Bag",
-      "goldValue": "1,500",
-      "beginnerTip": "Perfect for beginners",
-      "buyGold": "$2.99",
-      "moreSoon": "More offers coming soon..."
+      "packs": {
+        "small": {
+          "name": "Gold Bag",
+          "desc": "Perfect for beginners"
+        },
+        "medium": {
+          "name": "Gold Chest",
+          "desc": "Smart choice (+200 Gold)"
+        },
+        "large": {
+          "name": "Dragon's Treasure",
+          "desc": "Best value (+1000 Gold)"
+        }
+      }
     },
     "categories": {
       "FRAME": "Avatar Frames 🖼️",

@@ -139,6 +139,37 @@ const SHOP_ITEMS: ShopItem[] = [
   },
 ];
 
+const GOLD_PACKS = [
+  {
+    id: "small",
+    amount: 500,
+    price: "2,99 €",
+    gradient: "from-yellow-900/40 to-yellow-900/10",
+    border: "border-yellow-600/50 hover:border-yellow-400",
+    glow: "bg-yellow-500/20 group-hover:bg-yellow-500/30",
+    button: "bg-yellow-500 hover:bg-yellow-400 text-black",
+  },
+  {
+    id: "medium",
+    amount: 1200,
+    price: "5,99 €",
+    gradient: "from-orange-900/40 to-orange-900/10",
+    border:
+      "border-orange-500/80 hover:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)]",
+    glow: "bg-orange-500/20 group-hover:bg-orange-500/40",
+    button: "bg-orange-500 hover:bg-orange-400 text-black",
+  },
+  {
+    id: "large",
+    amount: 3000,
+    price: "12,99 €",
+    gradient: "from-red-900/40 to-red-900/10",
+    border: "border-red-600/50 hover:border-red-400",
+    glow: "bg-red-500/20 group-hover:bg-red-500/30",
+    button: "bg-red-500 hover:bg-red-400 text-white",
+  },
+];
+
 export default function ShopPage() {
   const t = useTranslations("Shop");
   const tTasks = useTranslations("Tasks");
@@ -248,32 +279,35 @@ export default function ShopPage() {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-gradient-to-br from-yellow-900/40 to-yellow-900/10 border-2 border-yellow-600/50 rounded-lg p-4 flex items-center justify-between relative overflow-hidden group hover:border-yellow-400 transition-all">
-                <div className="absolute -right-6 -top-6 w-24 h-24 bg-yellow-500/20 rounded-full blur-xl group-hover:bg-yellow-500/30 transition-all"></div>
-
-                <div className="flex flex-col gap-1 z-10">
-                  <h3 className="font-bold text-yellow-100 text-sm">
-                    {t("treasury.goldBag")}
-                  </h3>
-                  <div className="flex items-center gap-2 text-yellow-400 font-bold text-xl">
-                    {t("treasury.goldValue")} <Coins size={20} />
-                  </div>
-                  <span className="text-[10px] text-yellow-200/70">
-                    {t("treasury.beginnerTip")}
-                  </span>
-                </div>
-
-                <button
-                  onClick={handleBuyGold}
-                  className="z-10 bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-1 text-sm cursor-pointer"
+              {GOLD_PACKS.map((pack) => (
+                <div
+                  key={pack.id}
+                  className={`bg-gradient-to-br ${pack.gradient} border-2 ${pack.border} rounded-lg p-4 flex items-center justify-between relative overflow-hidden group transition-all`}
                 >
-                  {t("treasury.buyGold")}
-                </button>
-              </div>
+                  <div
+                    className={`absolute -right-6 -top-6 w-24 h-24 rounded-full blur-xl transition-all ${pack.glow}`}
+                  ></div>
 
-              <div className="bg-gray-800/50 border-2 border-gray-700 border-dashed rounded-lg p-4 flex items-center justify-center text-gray-500 gap-2 opacity-50">
-                <Lock size={16} /> {t("treasury.moreSoon")}
-              </div>
+                  <div className="flex flex-col gap-1 z-10">
+                    <h3 className="font-bold text-yellow-100 text-sm">
+                      {t(`treasury.packs.${pack.id}.name` as any)}
+                    </h3>
+                    <div className="flex items-center gap-2 text-yellow-400 font-bold text-xl">
+                      {pack.amount} <Coins size={20} />
+                    </div>
+                    <span className="text-[10px] text-yellow-200/70">
+                      {t(`treasury.packs.${pack.id}.desc` as any)}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={handleBuyGold}
+                    className={`z-10 font-bold py-2 px-4 rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-1 text-sm cursor-pointer ${pack.button}`}
+                  >
+                    {pack.price}
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
 

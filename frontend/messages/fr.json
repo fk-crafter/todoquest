@@ -185,11 +185,20 @@
     },
     "treasury": {
       "title": "Trésorerie",
-      "goldBag": "Bourse d'Or",
-      "goldValue": "1 500",
-      "beginnerTip": "Idéal pour débuter",
-      "buyGold": "2,99 €",
-      "moreSoon": "Plus d'offres bientôt..."
+      "packs": {
+        "small": {
+          "name": "Bourse d'Or",
+          "desc": "Idéal pour débuter"
+        },
+        "medium": {
+          "name": "Coffre d'Or",
+          "desc": "Le choix malin (+200 Or)"
+        },
+        "large": {
+          "name": "Trésor du Dragon",
+          "desc": "Meilleure valeur (+1000 Or)"
+        }
+      }
     },
     "categories": {
       "FRAME": "Cadres d'Avatar 🖼️",
