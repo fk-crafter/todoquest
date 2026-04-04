@@ -290,4 +290,14 @@ export class UsersService {
       select: { id: true, name: true, gold: true },
     });
   }
+  async addGoldAfterPayment(userId: string, amount: number) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        gold: {
+          increment: amount,
+        },
+      },
+    });
+  }
 }

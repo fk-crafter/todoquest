@@ -13,6 +13,7 @@ import {
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Polar } from '@polar-sh/sdk';
+import { Request } from 'express';
 
 interface RequestWithUser {
   user: {
@@ -29,13 +30,23 @@ interface UpdateUserDto {
   class?: 'ADVENTURER' | 'ARCHER' | 'MAGE' | 'SWORDSMAN';
 }
 
+interface PolarWebhookEvent {
+  type: string;
+  data: {
+    metadata?: { userId?: string };
+    product: {
+      metadata?: { goldAmount?: string };
+    };
+  };
+}
+
 @Controller('users')
 export class UsersController {
   private polar: Polar;
 
   constructor(private readonly usersService: UsersService) {
     this.polar = new Polar({
-      accessToken: process.env.POLAR_ACCESS_TOKEN, // N'oublie pas de le mettre dans ton .env !
+      accessToken: process.env.POLAR_ACCESS_TOKEN,
     });
   }
 
@@ -185,6 +196,54 @@ export class UsersController {
       throw new BadRequestException(
         "Erreur lors de l'initialisation du paiement",
       );
+    }
+  }
+
+  @Post('webhook')
+  async handleWebhook(
+    @Req() req: Request,
+    @Body() body: Record<string, unknown>,
+  ) {
+    const signature = req.headers['polar-webhook-signature'];
+    const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
+
+    if (!signature || typeof signature !== 'string' || !webhookSecret) {
+      throw new BadRequestException('Missing signature or webhook secret');
+    }
+
+    try {
+      const webhookHandler = this.polar.webhooks as unknown as {
+        validatePayload: (
+          payload: string,
+          sig: string,
+          secret: string,
+        ) => PolarWebhookEvent;
+      };
+
+      const event = webhookHandler.validatePayload(
+        JSON.stringify(body),
+        signature,
+        webhookSecret,
+      );
+
+      if (event.type === 'order.created') {
+        const order = event.data;
+        const userId = order.metadata?.userId;
+        const goldAmountStr = order.product.metadata?.goldAmount;
+        const goldAmount = goldAmountStr ? parseInt(goldAmountStr, 10) : 0;
+
+        if (userId && goldAmount > 0) {
+          console.log(
+            `Paiement reçu ! Ajout de ${goldAmount} or à l'user ${userId}`,
+          );
+          await this.usersService.addGoldAfterPayment(userId, goldAmount);
+        }
+      }
+
+      return { received: true };
+    } catch (error) {
+      console.error('Erreur Webhook Polar:', error);
+      throw new BadRequestException('Webhook signature validation failed');
     }
   }
 }
