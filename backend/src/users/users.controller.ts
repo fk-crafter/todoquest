@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Polar } from '@polar-sh/sdk';
 
 interface RequestWithUser {
   user: {
@@ -30,7 +31,13 @@ interface UpdateUserDto {
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  private polar: Polar;
+
+  constructor(private readonly usersService: UsersService) {
+    this.polar = new Polar({
+      accessToken: process.env.POLAR_ACCESS_TOKEN, // N'oublie pas de le mettre dans ton .env !
+    });
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
@@ -138,6 +145,46 @@ export class UsersController {
         throw new BadRequestException(error.message);
       }
       throw new BadRequestException("Erreur lors de l'ajout d'or");
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('checkout')
+  async createCheckout(
+    @Body() body: { packId: string },
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user.id;
+
+    const polarProducts: Record<string, string | undefined> = {
+      small: process.env.POLAR_PRODUCT_SMALL,
+      medium: process.env.POLAR_PRODUCT_MEDIUM,
+      large: process.env.POLAR_PRODUCT_LARGE,
+    };
+
+    const polarProductId = polarProducts[body.packId];
+
+    if (!polarProductId) {
+      throw new BadRequestException(
+        "Pack d'or invalide ou configuration manquante",
+      );
+    }
+
+    try {
+      const checkout = await this.polar.checkouts.create({
+        products: [polarProductId],
+        successUrl: `${process.env.FRONTEND_URL}/shop?success=true`,
+        metadata: {
+          userId: userId.toString(),
+        },
+      });
+
+      return { url: checkout.url };
+    } catch (error) {
+      console.error('Erreur Polar Checkout:', error);
+      throw new BadRequestException(
+        "Erreur lors de l'initialisation du paiement",
+      );
     }
   }
 }
