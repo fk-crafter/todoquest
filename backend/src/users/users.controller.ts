@@ -204,8 +204,13 @@ export class UsersController {
     @Req() req: Request,
     @Body() body: Record<string, unknown>,
   ) {
+    console.log('WEBHOOK REÇU !');
+
     const signature = req.headers['polar-webhook-signature'];
     const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
+
+    console.log('Signature présente:', !!signature);
+    console.log('Secret présent:', !!webhookSecret);
 
     if (!signature || typeof signature !== 'string' || !webhookSecret) {
       throw new BadRequestException('Missing signature or webhook secret');
@@ -226,24 +231,29 @@ export class UsersController {
         webhookSecret,
       );
 
+      console.log('Événement validé:', event.type);
+
       if (event.type === 'order.created') {
         const order = event.data;
         const userId = order.metadata?.userId;
-        const goldAmountStr = order.product.metadata?.goldAmount;
-        const goldAmount = goldAmountStr ? parseInt(goldAmountStr, 10) : 0;
+        const productMetadata = order.product?.metadata;
+        const goldAmountStr = productMetadata?.goldAmount;
+        const goldAmount =
+          typeof goldAmountStr === 'string' ? parseInt(goldAmountStr, 10) : 0;
 
         if (userId && goldAmount > 0) {
-          console.log(
-            `Paiement reçu ! Ajout de ${goldAmount} or à l'user ${userId}`,
-          );
+          console.log(`Succès ! Ajout de ${goldAmount} or à ${userId}`);
           await this.usersService.addGoldAfterPayment(userId, goldAmount);
         }
       }
 
       return { received: true };
-    } catch (error) {
-      console.error('Erreur Webhook Polar:', error);
-      throw new BadRequestException('Webhook signature validation failed');
+    } catch (error: unknown) {
+      // On type l'erreur proprement pour ESLint
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      console.error('Erreur validation Webhook:', errorMessage);
+      throw new BadRequestException(`Webhook error: ${errorMessage}`);
     }
   }
 }
