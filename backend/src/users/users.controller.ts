@@ -207,17 +207,25 @@ export class UsersController {
       const timestamp = Array.isArray(webhookTimestamp)
         ? webhookTimestamp[0]
         : webhookTimestamp;
+      const signatureStr = Array.isArray(webhookSignature)
+        ? webhookSignature[0]
+        : webhookSignature;
 
+      const base64Secret = webhookSecret.startsWith('polar_whs_')
+        ? webhookSecret.slice(10)
+        : webhookSecret;
+
+      const secretKey = Buffer.from(base64Secret, 'base64');
       const msg = `${id}.${timestamp}.${rawBody}`;
 
-      const signatureParts = (webhookSignature as string).split(',');
+      const expectedHash = createHmac('sha256', secretKey)
+        .update(msg, 'utf8')
+        .digest('base64');
+
+      const signatureParts = signatureStr.split(',');
       const receivedHash =
         signatureParts.find((p) => p.startsWith('v1,'))?.replace('v1,', '') ||
         signatureParts[0].replace('v1,', '');
-
-      const expectedHash = createHmac('sha256', webhookSecret)
-        .update(msg)
-        .digest('base64');
 
       if (receivedHash !== expectedHash) {
         console.error('SIGNATURE NON VALIDE');
