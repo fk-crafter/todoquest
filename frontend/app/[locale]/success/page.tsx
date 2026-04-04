@@ -3,20 +3,14 @@
 import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 import Sidebar from "@/components/Sidebar";
-import RetroModal from "@/components/ui/RetroModal";
 import { useTranslations } from "next-intl";
-import {
-  Trophy,
-  Star,
-  Shield,
-  Sword,
-  Crown,
-  Lock,
-  Loader2,
-} from "lucide-react";
+import { Trophy, Star, Shield, Sword, Crown, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-
-type Difficulty = "ALL" | "EASY" | "MEDIUM" | "HARD" | "EPIC";
+import AchievementCard, {
+  Achievement,
+  AchievementDifficulty,
+} from "@/components/success/AchievementCard";
+import AchievementModal from "@/components/success/AchievementModal";
 
 interface Task {
   id: string;
@@ -24,22 +18,10 @@ interface Task {
   completed: boolean;
 }
 
-interface Achievement {
-  id: string;
-  category: Difficulty;
-  label: string;
-  desc: string;
-  condition: boolean;
-  progress: string;
-  progressPercent: number;
-  icon: React.ReactNode;
-  color: string;
-}
-
 export default function SuccessPage() {
   const t = useTranslations("Success");
   const { data: session } = useSession();
-  const [selectedTab, setSelectedTab] = useState<Difficulty>("ALL");
+  const [selectedTab, setSelectedTab] = useState<AchievementDifficulty>("ALL");
   const [selectedAchievement, setSelectedAchievement] =
     useState<Achievement | null>(null);
 
@@ -246,29 +228,29 @@ export default function SuccessPage() {
         </p>
 
         <div className="flex flex-wrap justify-center gap-2 mb-6 bg-gray-800 p-2 rounded-lg shadow-md border border-gray-700 w-full md:w-auto md:mb-8">
-          {(["ALL", "EASY", "MEDIUM", "HARD", "EPIC"] as Difficulty[]).map(
-            (diff) => (
-              <button
-                key={diff}
-                onClick={() => setSelectedTab(diff)}
-                className={`flex-1 md:flex-none px-2 py-2 md:px-3 md:py-1.5 rounded-md text-[10px] md:text-xs font-bold transition-all ${
-                  selectedTab === diff
-                    ? diff === "EASY"
-                      ? "bg-green-600 text-white shadow-lg scale-105"
-                      : diff === "MEDIUM"
-                        ? "bg-yellow-600 text-white shadow-lg scale-105"
-                        : diff === "HARD"
-                          ? "bg-orange-600 text-white shadow-lg scale-105"
-                          : diff === "EPIC"
-                            ? "bg-purple-600 text-white shadow-lg scale-105"
-                            : "bg-blue-600 text-white shadow-lg scale-105"
-                    : "bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white"
-                }`}
-              >
-                {t(`tabs.${diff}` as any)}
-              </button>
-            ),
-          )}
+          {(
+            ["ALL", "EASY", "MEDIUM", "HARD", "EPIC"] as AchievementDifficulty[]
+          ).map((diff) => (
+            <button
+              key={diff}
+              onClick={() => setSelectedTab(diff)}
+              className={`flex-1 md:flex-none px-2 py-2 md:px-3 md:py-1.5 rounded-md text-[10px] md:text-xs font-bold transition-all ${
+                selectedTab === diff
+                  ? diff === "EASY"
+                    ? "bg-green-600 text-white shadow-lg scale-105"
+                    : diff === "MEDIUM"
+                      ? "bg-yellow-600 text-white shadow-lg scale-105"
+                      : diff === "HARD"
+                        ? "bg-orange-600 text-white shadow-lg scale-105"
+                        : diff === "EPIC"
+                          ? "bg-purple-600 text-white shadow-lg scale-105"
+                          : "bg-blue-600 text-white shadow-lg scale-105"
+                  : "bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white"
+              }`}
+            >
+              {t(`tabs.${diff}` as any)}
+            </button>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 gap-3 w-full max-w-4xl md:grid-cols-2 md:gap-4 pb-10">
@@ -286,130 +268,10 @@ export default function SuccessPage() {
         )}
       </div>
 
-      <RetroModal
-        isOpen={!!selectedAchievement}
+      <AchievementModal
+        achievement={selectedAchievement}
         onClose={() => setSelectedAchievement(null)}
-        title={t("modal.title")}
-        type={selectedAchievement?.condition ? "success" : "default"}
-      >
-        <div className="flex flex-col items-center gap-6 text-center">
-          {selectedAchievement && (
-            <>
-              <div
-                className={`p-6 rounded-full border-4 shadow-xl ${
-                  selectedAchievement.condition
-                    ? "bg-gray-700 border-yellow-500"
-                    : "bg-gray-800 border-gray-600 opacity-50"
-                }`}
-              >
-                <div className={`${selectedAchievement.color} scale-[2.5]`}>
-                  {selectedAchievement.icon}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-bold text-white mb-2">
-                  {selectedAchievement.label}
-                </h3>
-                <p className="text-gray-400 text-sm">
-                  {selectedAchievement.desc}
-                </p>
-              </div>
-
-              <div className="w-full bg-gray-700 h-4 rounded-full overflow-hidden border border-gray-600">
-                <div
-                  className={`h-full transition-all duration-1000 ${
-                    selectedAchievement.condition
-                      ? "bg-green-500"
-                      : "bg-blue-500"
-                  }`}
-                  style={{ width: `${selectedAchievement.progressPercent}%` }}
-                ></div>
-              </div>
-              <p className="font-bold text-yellow-400">
-                {selectedAchievement.progress}
-              </p>
-
-              {selectedAchievement.condition ? (
-                <span className="text-green-400 font-bold border border-green-500 px-3 py-1 rounded bg-green-900/20">
-                  {t("modal.completed")}
-                </span>
-              ) : (
-                <span className="text-gray-500 font-bold border border-gray-600 px-3 py-1 rounded bg-gray-900/20">
-                  {t("modal.locked")}
-                </span>
-              )}
-            </>
-          )}
-        </div>
-      </RetroModal>
-    </div>
-  );
-}
-
-function AchievementCard({
-  achievement,
-  onClick,
-}: {
-  achievement: Achievement;
-  onClick: () => void;
-}) {
-  return (
-    <div
-      onClick={onClick}
-      className={`relative p-3 md:p-4 rounded-xl border-2 flex items-center gap-3 md:gap-4 transition-all duration-300 cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${
-        achievement.condition
-          ? achievement.category === "EPIC"
-            ? "bg-purple-900/30 border-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:bg-purple-900/40"
-            : achievement.category === "HARD"
-              ? "bg-orange-900/30 border-orange-500 text-white hover:bg-orange-900/40"
-              : achievement.category === "MEDIUM"
-                ? "bg-yellow-900/30 border-yellow-500 text-white hover:bg-yellow-900/40"
-                : achievement.category === "EASY"
-                  ? "bg-green-900/30 border-green-500 text-white hover:bg-green-900/40"
-                  : "bg-blue-900/30 border-blue-500 text-white hover:bg-blue-900/40"
-          : "bg-gray-800 border-gray-700 text-gray-500 grayscale opacity-70 hover:opacity-90"
-      }`}
-    >
-      <div
-        className={`p-2 md:p-3 rounded-full flex-shrink-0 ${
-          achievement.condition ? "bg-black/20" : "bg-gray-700"
-        }`}
-      >
-        {achievement.condition ? (
-          <div className={achievement.color}>{achievement.icon}</div>
-        ) : (
-          <Lock className="w-5 h-5 md:w-6 md:h-6" />
-        )}
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <h3 className="font-bold text-xs md:text-sm flex items-center gap-2 truncate pr-2 uppercase">
-          {achievement.label}
-        </h3>
-        <p className="text-[10px] md:text-xs opacity-80 truncate">
-          {achievement.desc}
-        </p>
-
-        <div className="mt-2 w-full bg-black/40 h-1.5 rounded-full overflow-hidden">
-          <div
-            className={`h-full transition-all duration-500 ${
-              achievement.condition ? "bg-white" : "bg-gray-600"
-            }`}
-            style={{
-              width: `${achievement.progressPercent}%`,
-            }}
-          ></div>
-        </div>
-      </div>
-
-      {achievement.condition && (
-        <div className="absolute top-2 right-2">
-          <span className="text-[8px] bg-white/20 px-1.5 py-0.5 rounded-full font-bold">
-            OK
-          </span>
-        </div>
-      )}
+      />
     </div>
   );
 }
