@@ -193,12 +193,17 @@ export class UsersController {
     }
 
     try {
-      // Validation manuelle via standardwebhooks (ce que Polar utilise)
-      const wh = new Webhook(webhookSecret);
-      const event = wh.verify(
-        rawBody,
-        req.headers as Record<string, string>,
-      ) as PolarWebhookEvent;
+      const cleanSecret = webhookSecret.trim();
+
+      const wh = new Webhook(cleanSecret);
+
+      const event = wh.verify(rawBody, {
+        'webhook-id': req.headers['webhook-id'] as string,
+        'webhook-timestamp': req.headers['webhook-timestamp'] as string,
+        'webhook-signature': req.headers['webhook-signature'] as string,
+      }) as PolarWebhookEvent;
+
+      console.log('WEBHOOK VALIDÉ AVEC SUCCÈS !');
 
       if (event.type === 'order.created') {
         const order = event.data;
@@ -207,7 +212,7 @@ export class UsersController {
         const goldAmount = goldAmountStr ? parseInt(goldAmountStr, 10) : 0;
 
         if (typeof userId === 'string' && goldAmount > 0) {
-          console.log(`SUCCÈS : ${goldAmount} or pour ${userId}`);
+          console.log(`MAGIE : ${goldAmount} or pour ${userId}`);
           await this.usersService.addGoldAfterPayment(userId, goldAmount);
         }
       }
