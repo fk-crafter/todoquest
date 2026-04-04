@@ -214,25 +214,25 @@ export class UsersController {
       const base64Secret = webhookSecret.startsWith('polar_whs_')
         ? webhookSecret.slice(10)
         : webhookSecret;
-
       const secretKey = Buffer.from(base64Secret, 'base64');
-      const msg = `${id}.${timestamp}.${rawBody}`;
 
+      const msg = `${id}.${timestamp}.${rawBody}`;
       const expectedHash = createHmac('sha256', secretKey)
         .update(msg, 'utf8')
         .digest('base64');
 
-      const signatureParts = signatureStr.split(',');
-      const receivedHash =
-        signatureParts.find((p) => p.startsWith('v1,'))?.replace('v1,', '') ||
-        signatureParts[0].replace('v1,', '');
+      const signatures = signatureStr.split(' ');
+      const v1Signature = signatures.find((s) => s.startsWith('v1,'));
+      const receivedHash = v1Signature ? v1Signature.substring(3) : '';
 
-      if (receivedHash !== expectedHash) {
-        console.error('SIGNATURE NON VALIDE');
+      if (!receivedHash || receivedHash !== expectedHash) {
+        console.error(
+          `SIGNATURE INVALIDE. Reçu: ${receivedHash} | Attendu: ${expectedHash}`,
+        );
         throw new Error('Invalid signature');
       }
 
-      const event = JSON.parse(rawBody) as PolarWebhookEvent;
+      const event = JSON.parse(rawBody) as unknown as PolarWebhookEvent;
       console.log('WEBHOOK POLAR VALIDÉ :', event.type);
 
       if (event.type === 'order.created') {
