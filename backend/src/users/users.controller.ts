@@ -211,13 +211,9 @@ export class UsersController {
         ? webhookSignature[0]
         : webhookSignature;
 
-      const base64Secret = webhookSecret.startsWith('polar_whs_')
-        ? webhookSecret.slice(10)
-        : webhookSecret;
-      const secretKey = Buffer.from(base64Secret, 'base64');
-
       const msg = `${id}.${timestamp}.${rawBody}`;
-      const expectedHash = createHmac('sha256', secretKey)
+
+      const expectedHash = createHmac('sha256', webhookSecret)
         .update(msg, 'utf8')
         .digest('base64');
 
