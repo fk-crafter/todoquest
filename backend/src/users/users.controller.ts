@@ -218,19 +218,19 @@ export class UsersController {
     }
 
     try {
+      // On définit l'interface avec .validate au lieu de .validatePayload
       const webhookHandler = this.polar.webhooks as unknown as {
-        validatePayload: (
+        validate: (
           payload: string,
           sig: string,
           secret: string,
         ) => PolarWebhookEvent;
       };
 
-      const event = webhookHandler.validatePayload(
-        rawBody,
-        signature,
-        webhookSecret,
-      );
+      // On appelle .validate
+      const event = webhookHandler.validate(rawBody, signature, webhookSecret);
+
+      console.log('Événement validé avec succès:', event.type);
 
       if (event.type === 'order.created') {
         const order = event.data;
@@ -244,10 +244,10 @@ export class UsersController {
         }
       }
       return { received: true };
-    } catch (error: unknown) {
+    } catch (error) {
       const msg = error instanceof Error ? error.message : 'Unknown error';
       console.error('ERREUR TECHNIQUE WEBHOOK :', msg);
-      throw new BadRequestException('Invalid signature');
+      throw new BadRequestException(`Invalid signature: ${msg}`);
     }
   }
 }
