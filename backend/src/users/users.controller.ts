@@ -44,6 +44,12 @@ interface PolarWebhookEvent {
   };
 }
 
+// Cette interface permet de dire à ESLint que ces fonctions existent de façon "Safe"
+interface PolarWebhookHandler {
+  validate?: (p: string, s: string, sec: string) => PolarWebhookEvent;
+  validatePayload?: (p: string, s: string, sec: string) => PolarWebhookEvent;
+}
+
 @Controller('users')
 export class UsersController {
   private polar: Polar;
@@ -218,19 +224,22 @@ export class UsersController {
     }
 
     try {
-      // On définit l'interface avec .validate au lieu de .validatePayload
-      const webhookHandler = this.polar.webhooks as unknown as {
-        validate: (
-          payload: string,
-          sig: string,
-          secret: string,
-        ) => PolarWebhookEvent;
-      };
+      const polarWebhooks = this.polar
+        .webhooks as unknown as PolarWebhookHandler;
 
-      // On appelle .validate
-      const event = webhookHandler.validate(rawBody, signature, webhookSecret);
+      const validateFn =
+        polarWebhooks.validate || polarWebhooks.validatePayload;
 
-      console.log('Événement validé avec succès:', event.type);
+      if (!validateFn) {
+        throw new Error('No validation method found on Polar SDK');
+      }
+
+      const event = validateFn.call(
+        this.polar.webhooks,
+        rawBody,
+        signature,
+        webhookSecret,
+      );
 
       if (event.type === 'order.created') {
         const order = event.data;
@@ -239,15 +248,15 @@ export class UsersController {
         const goldAmount = goldAmountStr ? parseInt(goldAmountStr, 10) : 0;
 
         if (typeof userId === 'string' && goldAmount > 0) {
-          console.log(`SUCCÈS : ${goldAmount} or pour ${userId}`);
+          console.log(`MAGIE : ${goldAmount} or pour ${userId}`);
           await this.usersService.addGoldAfterPayment(userId, goldAmount);
         }
       }
       return { received: true };
-    } catch (error) {
+    } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Unknown error';
       console.error('ERREUR TECHNIQUE WEBHOOK :', msg);
-      throw new BadRequestException(`Invalid signature: ${msg}`);
+      throw new BadRequestException(`Validation failed: ${msg}`);
     }
   }
 }
