@@ -14,7 +14,7 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Polar } from '@polar-sh/sdk';
 import { Request } from 'express';
-import { Webhook } from 'standardwebhooks'; // Utilisation de la lib standard
+import { createHmac } from 'crypto';
 
 interface RequestWithUser {
   user: {
@@ -188,22 +188,44 @@ export class UsersController {
     const rawBody = req.rawBody?.toString('utf8');
     const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
 
-    if (!rawBody || !webhookSecret) {
-      throw new BadRequestException('Missing raw body or secret');
+    const webhookId = req.headers['webhook-id'];
+    const webhookTimestamp = req.headers['webhook-timestamp'];
+    const webhookSignature = req.headers['webhook-signature'];
+
+    if (
+      !rawBody ||
+      !webhookSecret ||
+      !webhookId ||
+      !webhookTimestamp ||
+      !webhookSignature
+    ) {
+      throw new BadRequestException('Missing webhook data or secret');
     }
 
     try {
-      const cleanSecret = webhookSecret.trim();
+      const id = Array.isArray(webhookId) ? webhookId[0] : webhookId;
+      const timestamp = Array.isArray(webhookTimestamp)
+        ? webhookTimestamp[0]
+        : webhookTimestamp;
 
-      const wh = new Webhook(cleanSecret);
+      const msg = `${id}.${timestamp}.${rawBody}`;
 
-      const event = wh.verify(rawBody, {
-        'webhook-id': req.headers['webhook-id'] as string,
-        'webhook-timestamp': req.headers['webhook-timestamp'] as string,
-        'webhook-signature': req.headers['webhook-signature'] as string,
-      }) as PolarWebhookEvent;
+      const signatureParts = (webhookSignature as string).split(',');
+      const receivedHash =
+        signatureParts.find((p) => p.startsWith('v1,'))?.replace('v1,', '') ||
+        signatureParts[0].replace('v1,', '');
 
-      console.log('WEBHOOK VALIDÉ AVEC SUCCÈS !');
+      const expectedHash = createHmac('sha256', webhookSecret)
+        .update(msg)
+        .digest('base64');
+
+      if (receivedHash !== expectedHash) {
+        console.error('SIGNATURE NON VALIDE');
+        throw new Error('Invalid signature');
+      }
+
+      const event = JSON.parse(rawBody) as PolarWebhookEvent;
+      console.log('WEBHOOK POLAR VALIDÉ :', event.type);
 
       if (event.type === 'order.created') {
         const order = event.data;
@@ -212,7 +234,7 @@ export class UsersController {
         const goldAmount = goldAmountStr ? parseInt(goldAmountStr, 10) : 0;
 
         if (typeof userId === 'string' && goldAmount > 0) {
-          console.log(`MAGIE : ${goldAmount} or pour ${userId}`);
+          console.log(`SUCCÈS : ${goldAmount} or crédité à ${userId}`);
           await this.usersService.addGoldAfterPayment(userId, goldAmount);
         }
       }
@@ -221,7 +243,7 @@ export class UsersController {
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Unknown error';
       console.error('ÉCHEC WEBHOOK :', msg);
-      throw new BadRequestException(`Invalid signature: ${msg}`);
+      throw new BadRequestException(`Webhook verification failed: ${msg}`);
     }
   }
 }
