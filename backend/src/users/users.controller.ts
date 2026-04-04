@@ -22,6 +22,10 @@ interface RequestWithUser {
   };
 }
 
+interface RequestWithRawBody extends Request {
+  rawBody?: Buffer;
+}
+
 interface UpdateUserDto {
   name?: string;
   gender?: string;
@@ -199,26 +203,18 @@ export class UsersController {
   }
 
   @Post('webhook')
-  async handleWebhook(
-    @Req() req: Request,
-    @Body() body: Record<string, unknown>,
-  ) {
-    console.log('--- NOUVEAU WEBHOOK ---');
-    console.log('Headers complets:', JSON.stringify(req.headers));
-
-    const signature =
-      req.headers['webhook-signature'] ||
-      req.headers['polar-webhook-signature'] ||
-      req.get('webhook-signature');
-
+  async handleWebhook(@Req() req: RequestWithRawBody) {
+    const rawBody = req.rawBody?.toString('utf8');
+    const signature = req.headers['webhook-signature'];
     const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
 
-    console.log('Signature trouvée:', signature);
-    console.log('Secret présent:', !!webhookSecret);
-
-    if (!signature || typeof signature !== 'string' || !webhookSecret) {
-      console.error('Échec : Signature ou Secret manquant');
-      throw new BadRequestException('Missing signature or webhook secret');
+    if (
+      !rawBody ||
+      !signature ||
+      typeof signature !== 'string' ||
+      !webhookSecret
+    ) {
+      throw new BadRequestException('Missing raw body, signature or secret');
     }
 
     try {
@@ -231,12 +227,10 @@ export class UsersController {
       };
 
       const event = webhookHandler.validatePayload(
-        JSON.stringify(body),
+        rawBody,
         signature,
         webhookSecret,
       );
-
-      console.log('Événement validé avec succès:', event.type);
 
       if (event.type === 'order.created') {
         const order = event.data;
@@ -244,18 +238,16 @@ export class UsersController {
         const goldAmountStr = order.product.metadata?.goldAmount;
         const goldAmount = goldAmountStr ? parseInt(goldAmountStr, 10) : 0;
 
-        if (userId && goldAmount > 0) {
-          console.log(`CRÉDIT : Ajout de ${goldAmount} or à l'user ${userId}`);
+        if (typeof userId === 'string' && goldAmount > 0) {
+          console.log(`SUCCÈS : ${goldAmount} or pour ${userId}`);
           await this.usersService.addGoldAfterPayment(userId, goldAmount);
         }
       }
-
       return { received: true };
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      console.error('Erreur technique Webhook:', errorMessage);
-      throw new BadRequestException(`Webhook error: ${errorMessage}`);
+      const msg = error instanceof Error ? error.message : 'Unknown error';
+      console.error('ERREUR TECHNIQUE WEBHOOK :', msg);
+      throw new BadRequestException('Invalid signature');
     }
   }
 }
