@@ -188,15 +188,18 @@
       "packs": {
         "small": {
           "name": "Bourse d'Or",
-          "desc": "Idéal pour débuter"
+          "desc": "Idéal pour débuter",
+          "price": "2,99 $"
         },
         "medium": {
           "name": "Coffre d'Or",
-          "desc": "Le choix malin (+200 Or)"
+          "desc": "Le choix malin (+200 Or)",
+          "price": "5,99 $"
         },
         "large": {
           "name": "Trésor du Dragon",
-          "desc": "Meilleure valeur (+1000 Or)"
+          "desc": "Meilleure valeur (+1000 Or)",
+          "price": "12,99 $"
         }
       }
     },

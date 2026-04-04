@@ -188,15 +188,18 @@
       "packs": {
         "small": {
           "name": "Gold Bag",
-          "desc": "Perfect for beginners"
+          "desc": "Perfect for beginners",
+          "price": "$2.99"
         },
         "medium": {
           "name": "Gold Chest",
-          "desc": "Smart choice (+200 Gold)"
+          "desc": "Smart choice (+200 Gold)",
+          "price": "$5.99"
         },
         "large": {
           "name": "Dragon's Treasure",
-          "desc": "Best value (+1000 Gold)"
+          "desc": "Best value (+1000 Gold)",
+          "price": "$12.99"
         }
       }
     },

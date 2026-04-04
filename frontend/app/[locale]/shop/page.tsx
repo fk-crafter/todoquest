@@ -27,7 +27,6 @@ import {
   Hexagon,
   Gem,
   Loader2,
-  CreditCard,
   AlertCircle,
 } from "lucide-react";
 
@@ -143,7 +142,6 @@ const GOLD_PACKS = [
   {
     id: "small",
     amount: 500,
-    price: "2,99 €",
     gradient: "from-yellow-900/40 to-yellow-900/10",
     border: "border-yellow-600/50 hover:border-yellow-400",
     glow: "bg-yellow-500/20 group-hover:bg-yellow-500/30",
@@ -152,7 +150,6 @@ const GOLD_PACKS = [
   {
     id: "medium",
     amount: 1200,
-    price: "5,99 €",
     gradient: "from-orange-900/40 to-orange-900/10",
     border:
       "border-orange-500/80 hover:border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)]",
@@ -162,7 +159,6 @@ const GOLD_PACKS = [
   {
     id: "large",
     amount: 3000,
-    price: "12,99 €",
     gradient: "from-red-900/40 to-red-900/10",
     border: "border-red-600/50 hover:border-red-400",
     glow: "bg-red-500/20 group-hover:bg-red-500/30",
@@ -179,8 +175,8 @@ export default function ShopPage() {
 
   const [itemToBuy, setItemToBuy] = useState<ShopItem | null>(null);
   const [successItem, setSuccessItem] = useState<ShopItem | null>(null);
-  const [showComingSoon, setShowComingSoon] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState<string | null>(null);
 
   const fetchProfile = async () => {
     const res = await fetch(
@@ -247,8 +243,37 @@ export default function ShopPage() {
     }
   };
 
-  const handleBuyGold = () => {
-    setShowComingSoon(true);
+  const handleBuyGold = async (packId: string) => {
+    if (!session?.accessToken) return;
+    setIsRedirecting(packId);
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/checkout`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+          body: JSON.stringify({ packId }),
+        },
+      );
+
+      if (!res.ok) throw new Error("Erreur lors de la création du paiement");
+
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error(error);
+      setErrorMessage(
+        "Impossible de joindre la boutique. Réessayez plus tard.",
+      );
+      setIsRedirecting(null);
+    }
   };
 
   return (
@@ -301,10 +326,19 @@ export default function ShopPage() {
                   </div>
 
                   <button
-                    onClick={handleBuyGold}
-                    className={`z-10 font-bold py-2 px-4 rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-1 text-sm cursor-pointer ${pack.button}`}
+                    onClick={() => handleBuyGold(pack.id)}
+                    disabled={!!isRedirecting}
+                    className={`z-10 font-bold py-2 px-4 rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-1 text-sm cursor-pointer ${
+                      pack.button
+                    } ${
+                      isRedirecting === pack.id ? "opacity-70 cursor-wait" : ""
+                    }`}
                   >
-                    {pack.price}
+                    {isRedirecting === pack.id ? (
+                      <Loader2 className="animate-spin" size={16} />
+                    ) : (
+                      t(`treasury.packs.${pack.id}.price` as any)
+                    )}
                   </button>
                 </div>
               ))}
@@ -473,22 +507,6 @@ export default function ShopPage() {
               color={successItem.color}
             />
           )}
-        </div>
-      </RetroModal>
-
-      <RetroModal
-        isOpen={showComingSoon}
-        onClose={() => setShowComingSoon(false)}
-        title={t("modals.comingSoon.title")}
-      >
-        <div className="text-center space-y-4">
-          <div className="flex justify-center">
-            <CreditCard size={48} className="text-gray-500" />
-          </div>
-          <p>{t("modals.comingSoon.message")}</p>
-          <p className="text-sm text-gray-500">
-            {t("modals.comingSoon.subMessage")}
-          </p>
         </div>
       </RetroModal>
 
