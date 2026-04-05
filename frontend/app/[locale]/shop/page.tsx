@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import Sidebar from "@/components/Sidebar";
 import RetroModal from "@/components/ui/RetroModal";
@@ -33,11 +33,13 @@ import {
 type ShopItem = {
   id: string;
   name: string;
-  category: string;
+  category: "FRAME" | "TITLE" | "THEME";
   price: number;
   icon: React.ElementType;
   color: string;
 };
+
+type ValidTranslationKey = Parameters<ReturnType<typeof useTranslations>>[0];
 
 const SHOP_ITEMS: ShopItem[] = [
   {
@@ -198,6 +200,14 @@ export default function ShopPage() {
   const gold = user?.gold || 0;
   const userInventory: string[] = user?.inventory || [];
 
+  const groupedItems = useMemo(() => {
+    return {
+      FRAME: SHOP_ITEMS.filter((i) => i.category === "FRAME"),
+      TITLE: SHOP_ITEMS.filter((i) => i.category === "TITLE"),
+      THEME: SHOP_ITEMS.filter((i) => i.category === "THEME"),
+    };
+  }, []);
+
   const buyMutation = useMutation({
     mutationFn: async (item: ShopItem) => {
       const res = await fetch(
@@ -208,10 +218,7 @@ export default function ShopPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${session?.accessToken}`,
           },
-          body: JSON.stringify({
-            itemId: item.id,
-            price: item.price,
-          }),
+          body: JSON.stringify({ itemId: item.id, price: item.price }),
         },
       );
 
@@ -225,22 +232,15 @@ export default function ShopPage() {
       setItemToBuy(null);
       setSuccessItem(item);
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       setItemToBuy(null);
       setErrorMessage(error.message);
     },
   });
 
   const handleRequestBuy = (item: ShopItem) => {
-    if (!session?.accessToken) return;
-    if (gold < item.price) return;
+    if (!session?.accessToken || gold < item.price) return;
     setItemToBuy(item);
-  };
-
-  const confirmBuy = () => {
-    if (itemToBuy) {
-      buyMutation.mutate(itemToBuy);
-    }
   };
 
   const handleBuyGold = async (packId: string) => {
@@ -261,14 +261,9 @@ export default function ShopPage() {
       );
 
       if (!res.ok) throw new Error("Erreur lors de la création du paiement");
-
       const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
+      if (data.url) window.location.href = data.url;
     } catch (error) {
-      console.error(error);
       setErrorMessage(
         "Impossible de joindre la boutique. Réessayez plus tard.",
       );
@@ -291,7 +286,7 @@ export default function ShopPage() {
 
           <div className="bg-gray-900 px-3 py-1 rounded-lg border-2 border-yellow-500 flex items-center gap-2 shadow-[0_0_10px_rgba(234,179,8,0.3)]">
             <span className="text-yellow-400 text-lg font-bold">
-              {isLoading ? t("header.loading") : gold}
+              {isLoading ? "..." : gold}
             </span>
             <Coins className="text-yellow-500" size={18} />
           </div>
@@ -312,32 +307,33 @@ export default function ShopPage() {
                   <div
                     className={`absolute -right-6 -top-6 w-24 h-24 rounded-full blur-xl transition-all ${pack.glow}`}
                   ></div>
-
                   <div className="flex flex-col gap-1 z-10">
                     <h3 className="font-bold text-yellow-100 text-sm">
-                      {t(`treasury.packs.${pack.id}.name` as any)}
+                      {t(
+                        `treasury.packs.${pack.id}.name` as ValidTranslationKey,
+                      )}
                     </h3>
                     <div className="flex items-center gap-2 text-yellow-400 font-bold text-xl">
                       {pack.amount} <Coins size={20} />
                     </div>
                     <span className="text-[10px] text-yellow-200/70">
-                      {t(`treasury.packs.${pack.id}.desc` as any)}
+                      {t(
+                        `treasury.packs.${pack.id}.desc` as ValidTranslationKey,
+                      )}
                     </span>
                   </div>
 
                   <button
                     onClick={() => handleBuyGold(pack.id)}
                     disabled={!!isRedirecting}
-                    className={`z-10 font-bold py-2 px-4 rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-1 text-sm cursor-pointer ${
-                      pack.button
-                    } ${
-                      isRedirecting === pack.id ? "opacity-70 cursor-wait" : ""
-                    }`}
+                    className={`z-10 font-bold py-2 px-4 rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-1 text-sm cursor-pointer ${pack.button} ${isRedirecting === pack.id ? "opacity-70 cursor-wait" : ""}`}
                   >
                     {isRedirecting === pack.id ? (
                       <Loader2 className="animate-spin" size={16} />
                     ) : (
-                      t(`treasury.packs.${pack.id}.price` as any)
+                      t(
+                        `treasury.packs.${pack.id}.price` as ValidTranslationKey,
+                      )
                     )}
                   </button>
                 </div>
@@ -345,78 +341,72 @@ export default function ShopPage() {
             </div>
           </div>
 
-          {(["FRAME", "TITLE", "THEME"] as const).map((catKey) => {
-            const items = SHOP_ITEMS.filter((item) => item.category === catKey);
-            if (items.length === 0) return null;
+          {(Object.keys(groupedItems) as Array<keyof typeof groupedItems>).map(
+            (catKey) => {
+              const items = groupedItems[catKey];
+              if (items.length === 0) return null;
 
-            return (
-              <div key={catKey}>
-                <h2 className="text-lg text-gray-400 mb-3 border-b border-gray-700 pb-1 uppercase tracking-wider">
-                  {t(`categories.${catKey}` as any)}
-                </h2>
+              return (
+                <div key={catKey}>
+                  <h2 className="text-lg text-gray-400 mb-3 border-b border-gray-700 pb-1 uppercase tracking-wider">
+                    {t(`categories.${catKey}` as ValidTranslationKey)}
+                  </h2>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {items.map((item) => {
-                    const isOwned = userInventory.includes(item.id);
-                    const canBuy = gold >= item.price;
-                    const IconComponent = item.icon;
-                    const isProcessing =
-                      buyMutation.isPending &&
-                      buyMutation.variables?.id === item.id;
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {items.map((item) => {
+                      const isOwned = userInventory.includes(item.id);
+                      const canBuy = gold >= item.price;
+                      const IconComponent = item.icon;
+                      const isProcessing =
+                        buyMutation.isPending &&
+                        buyMutation.variables?.id === item.id;
 
-                    return (
-                      <div
-                        key={item.id}
-                        className={`bg-gray-800 border-2 rounded-lg p-3 flex flex-col items-center gap-2 transition-all group relative ${
-                          isOwned
-                            ? "border-green-600/50"
-                            : "border-gray-600 hover:border-blue-500 hover:bg-gray-750"
-                        }`}
-                      >
-                        <div className="w-12 h-12 bg-gray-700 rounded-md flex items-center justify-center border border-gray-600 group-hover:scale-105 transition-transform">
-                          <IconComponent size={28} className={item.color} />
-                        </div>
-
-                        <div className="text-center w-full">
-                          <h3 className="text-xs md:text-sm font-bold text-white truncate w-full">
-                            {t(`items.${item.id}` as any)}
-                          </h3>
-                        </div>
-
-                        <button
-                          onClick={() => !isOwned && handleRequestBuy(item)}
-                          disabled={isOwned || !canBuy || buyMutation.isPending}
-                          className={`w-full py-1.5 px-2 rounded text-xs font-bold border-b-2 active:border-b-0 active:translate-y-0.5 transition-all flex items-center justify-center gap-1 mt-auto ${
-                            isOwned
-                              ? "bg-green-700 text-white border-green-900 cursor-default"
-                              : canBuy
-                                ? "bg-yellow-500 hover:bg-yellow-400 text-black border-yellow-700 cursor-pointer"
-                                : "bg-gray-600 text-gray-400 border-gray-700 cursor-not-allowed"
-                          }`}
+                      return (
+                        <div
+                          key={item.id}
+                          className={`bg-gray-800 border-2 rounded-lg p-3 flex flex-col items-center gap-2 transition-all group relative ${isOwned ? "border-green-600/50" : "border-gray-600 hover:border-blue-500 hover:bg-gray-750"}`}
                         >
-                          {isProcessing ? (
-                            <Loader2 className="animate-spin" size={12} />
-                          ) : isOwned ? (
-                            <>
-                              <Check size={12} /> {t("actions.owned")}
-                            </>
-                          ) : canBuy ? (
-                            <>
-                              {item.price} <Coins size={12} />
-                            </>
-                          ) : (
-                            <>
-                              <Lock size={12} /> {item.price}
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    );
-                  })}
+                          <div className="w-12 h-12 bg-gray-700 rounded-md flex items-center justify-center border border-gray-600 group-hover:scale-105 transition-transform">
+                            <IconComponent size={28} className={item.color} />
+                          </div>
+
+                          <div className="text-center w-full">
+                            <h3 className="text-xs md:text-sm font-bold text-white truncate w-full">
+                              {t(`items.${item.id}` as ValidTranslationKey)}
+                            </h3>
+                          </div>
+
+                          <button
+                            onClick={() => !isOwned && handleRequestBuy(item)}
+                            disabled={
+                              isOwned || !canBuy || buyMutation.isPending
+                            }
+                            className={`w-full py-1.5 px-2 rounded text-xs font-bold border-b-2 active:border-b-0 active:translate-y-0.5 transition-all flex items-center justify-center gap-1 mt-auto ${isOwned ? "bg-green-700 text-white border-green-900 cursor-default" : canBuy ? "bg-yellow-500 hover:bg-yellow-400 text-black border-yellow-700 cursor-pointer" : "bg-gray-600 text-gray-400 border-gray-700 cursor-not-allowed"}`}
+                          >
+                            {isProcessing ? (
+                              <Loader2 className="animate-spin" size={12} />
+                            ) : isOwned ? (
+                              <>
+                                <Check size={12} /> {t("actions.owned")}
+                              </>
+                            ) : canBuy ? (
+                              <>
+                                {item.price} <Coins size={12} />
+                              </>
+                            ) : (
+                              <>
+                                <Lock size={12} /> {item.price}
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            },
+          )}
         </div>
       </main>
 
@@ -451,7 +441,7 @@ export default function ShopPage() {
               {t("actions.cancel")}
             </button>
             <button
-              onClick={confirmBuy}
+              onClick={() => itemToBuy && buyMutation.mutate(itemToBuy)}
               disabled={buyMutation.isPending}
               className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded flex items-center gap-2"
             >
@@ -471,7 +461,7 @@ export default function ShopPage() {
               </div>
               <p>
                 {t("modals.confirm.question", {
-                  name: t(`items.${itemToBuy.id}` as any),
+                  name: t(`items.${itemToBuy.id}` as ValidTranslationKey),
                 })}
               </p>
               <p className="text-yellow-400 font-bold text-xl flex items-center gap-2">
@@ -501,7 +491,7 @@ export default function ShopPage() {
             <SharePreview
               title={t("modals.success.shareTitle")}
               message={t("modals.success.shareMessage", {
-                name: t(`items.${successItem.id}` as any),
+                name: t(`items.${successItem.id}` as ValidTranslationKey),
               })}
               icon={successItem.icon}
               color={successItem.color}
