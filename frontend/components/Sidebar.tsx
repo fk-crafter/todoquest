@@ -109,9 +109,7 @@ export default function Sidebar() {
       } catch (e) {
         throw new Error("Erreur inattendue du serveur.");
       }
-      throw new Error(
-        errorData.message || "Erreur lors de la récupération",
-      );
+      throw new Error(errorData.message || "Erreur lors de la récupération");
     }
 
     await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
@@ -143,7 +141,10 @@ export default function Sidebar() {
       )}
 
       {showDailyReward && user && (
-        <DailyRewardModal onClaim={handleClaimReward} />
+        <DailyRewardModal
+          currentStreak={user?.streakCount || 0}
+          onClaim={handleClaimReward}
+        />
       )}
 
       <button
@@ -225,7 +226,9 @@ export default function Sidebar() {
                       pathname === `/en${item.href}` ||
                       pathname === `/fr${item.href}`;
                     const isShopAndTutorialStep =
-                      isTutorialActive && item.href === "/shop" && tutorialStep === 6;
+                      isTutorialActive &&
+                      item.href === "/shop" &&
+                      tutorialStep === 6;
                     return (
                       <Link
                         key={item.href}

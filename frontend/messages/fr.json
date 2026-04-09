@@ -535,9 +535,11 @@
   "DailyReward": {
     "title": "Récompense du Jour !",
     "description": "Félicitations Aventurier ! Voici ton or quotidien pour t'aider dans tes quêtes.",
-    "amount": "+25 Or",
+    "baseAmount": "+25 Or",
+    "milestoneXP": "+150 XP",
+    "streak": "🔥 Combo : {days} Jours",
     "claim": "Récupérer le trésor",
-    "success": "Or ajouté à ta bourse !",
+    "success": "Butin ajouté à ta bourse !",
     "error": "Impossible d'ouvrir le coffre.",
     "close": "Fermer"
   },
