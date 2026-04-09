@@ -38,6 +38,7 @@ export class UsersService {
         equippedFrame: true,
         equippedTitle: true,
         lastRewardClaimedAt: true,
+        streakCount: true, // On le retourne aussi au front pour l'affichage !
         monsterHp: true,
         monsterMaxHp: true,
         monsterEndTime: true,
@@ -212,7 +213,13 @@ export class UsersService {
   async claimDailyReward(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { gold: true, lastRewardClaimedAt: true, createdAt: true },
+      select: {
+        gold: true,
+        xp: true,
+        streakCount: true,
+        lastRewardClaimedAt: true,
+        createdAt: true,
+      },
     });
 
     if (!user) throw new NotFoundException('Utilisateur introuvable');
@@ -231,30 +238,56 @@ export class UsersService {
       );
     }
 
+    let newStreak = 1;
+
     if (user.lastRewardClaimedAt) {
       const lastClaim = new Date(user.lastRewardClaimedAt);
 
-      const isSameDay =
-        lastClaim.getFullYear() === now.getFullYear() &&
-        lastClaim.getMonth() === now.getMonth() &&
-        lastClaim.getDate() === now.getDate();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const lastClaimDay = new Date(
+        lastClaim.getFullYear(),
+        lastClaim.getMonth(),
+        lastClaim.getDate(),
+      );
 
-      if (isSameDay) {
+      const diffTime = today.getTime() - lastClaimDay.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) {
         throw new BadRequestException(
-          "Tu as déjà récupéré ton or aujourd'hui ! Reviens demain.",
+          "Tu as déjà récupéré ta récompense aujourd'hui ! Reviens demain.",
         );
+      } else if (diffDays === 1) {
+        newStreak = (user.streakCount || 0) + 1;
+      } else {
+        newStreak = 1;
       }
     }
 
-    const rewardAmount = 25;
+    const baseGold = 25;
+    const baseXp = 50;
+
+    const finalGold = baseGold;
+    let finalXp = baseXp;
+
+    if (newStreak > 0 && newStreak % 3 === 0) {
+      finalXp += 150;
+    }
 
     return this.prisma.user.update({
       where: { id: userId },
       data: {
-        gold: { increment: rewardAmount },
+        gold: { increment: finalGold },
+        xp: { increment: finalXp },
+        streakCount: newStreak,
         lastRewardClaimedAt: now,
       },
-      select: { gold: true, lastRewardClaimedAt: true },
+      select: {
+        gold: true,
+        xp: true,
+        streakCount: true,
+        lastRewardClaimedAt: true,
+      },
     });
   }
 
@@ -290,6 +323,7 @@ export class UsersService {
       select: { id: true, name: true, gold: true },
     });
   }
+
   async addGoldAfterPayment(userId: string, amount: number) {
     return this.prisma.user.update({
       where: { id: userId },

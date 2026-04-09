@@ -50,6 +50,9 @@ model User {
   equippedTheme String?
   equippedFrame String?
   equippedTitle String?
+
+  streakCount       Int       @default(0)
+  lastDailyRewardAt DateTime?
 }
 
 model Task {
