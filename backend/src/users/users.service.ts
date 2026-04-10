@@ -265,13 +265,11 @@ export class UsersService {
     }
 
     const baseGold = 25;
-    const baseXp = 50;
-
     const finalGold = baseGold;
-    let finalXp = baseXp;
+    let finalXp = 0;
 
     if (newStreak > 0 && newStreak % 3 === 0) {
-      finalXp += 150;
+      finalXp = 150;
     }
 
     return this.prisma.user.update({
