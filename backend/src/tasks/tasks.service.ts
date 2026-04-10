@@ -188,6 +188,8 @@ export class TasksService {
       newXP = 0;
     }
 
+    const newGold = Math.max(0, user.gold - 10);
+
     await this.prisma.$transaction([
       this.prisma.task.delete({ where: { id: taskId } }),
 
@@ -196,7 +198,7 @@ export class TasksService {
         data: {
           xp: newXP,
           level: newLevel,
-          gold: { decrement: 10 },
+          gold: newGold,
         },
       }),
     ]);
