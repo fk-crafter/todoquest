@@ -204,11 +204,14 @@
       }
     },
     "categories": {
+      "POTION": "Consommables 🧪",
       "FRAME": "Cadres d'Avatar 🖼️",
       "TITLE": "Titres Rares 👑",
       "THEME": "Thèmes Visuels 🎨"
     },
     "items": {
+      "potion_freeze": "Gel de Série (Protège ton Combo)",
+      "potion_dxp": "Potion Double XP (24h)",
       "frame_gold": "Cadre Doré",
       "frame_fire": "Enflammé",
       "frame_neon": "Néon Bleu",
@@ -536,7 +539,6 @@
     "title": "Récompense du Jour !",
     "description": "Félicitations Aventurier ! Voici ton or quotidien pour t'aider dans tes quêtes.",
     "baseAmount": "+25 Or",
-    "milestoneXP": "+150 XP",
     "streak": "🔥 Combo : {days} Jours",
     "claim": "Récupérer le trésor",
     "success": "Butin ajouté à ta bourse !",

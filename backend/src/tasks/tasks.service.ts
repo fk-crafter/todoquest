@@ -60,7 +60,12 @@ export class TasksService {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('Utilisateur introuvable');
 
-    const xpGained = this.calculateXpGain(task.difficulty);
+    let xpGained = this.calculateXpGain(task.difficulty);
+
+    const now = new Date();
+    if (user.doubleXpUntil && new Date(user.doubleXpUntil) > now) {
+      xpGained *= 2;
+    }
 
     let newXP = user.xp + xpGained;
     let newLevel = user.level;
@@ -80,7 +85,6 @@ export class TasksService {
       nextInvasionTime?: Date | null;
     } = {};
     let monsterResult = null;
-    const now = new Date();
 
     if (
       user.monsterHp &&

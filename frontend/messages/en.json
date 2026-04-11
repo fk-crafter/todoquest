@@ -204,11 +204,14 @@
       }
     },
     "categories": {
+      "POTION": "Consumables 🧪",
       "FRAME": "Avatar Frames 🖼️",
       "TITLE": "Rare Titles 👑",
       "THEME": "Visual Themes 🎨"
     },
     "items": {
+      "potion_freeze": "Streak Freeze (Protects Combo)",
+      "potion_dxp": "Double XP Potion (24h)",
       "frame_gold": "Golden Frame",
       "frame_fire": "Aflame",
       "frame_neon": "Blue Neon",
@@ -534,7 +537,6 @@
     "title": "Daily Reward!",
     "description": "Congratulations Adventurer! Here is your daily gold to help you on your quests.",
     "baseAmount": "+25 Gold",
-    "milestoneXP": "+150 XP",
     "streak": "🔥 Streak: {days} Days",
     "claim": "Claim Treasure",
     "success": "Loot added to your purse!",

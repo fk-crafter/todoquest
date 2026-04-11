@@ -38,7 +38,9 @@ export class UsersService {
         equippedFrame: true,
         equippedTitle: true,
         lastRewardClaimedAt: true,
-        streakCount: true, // On le retourne aussi au front pour l'affichage !
+        streakCount: true,
+        streakFreezes: true, // Ajouté pour le front
+        doubleXpUntil: true, // Ajouté pour le front
         monsterHp: true,
         monsterMaxHp: true,
         monsterEndTime: true,
@@ -139,6 +141,36 @@ export class UsersService {
     if (user.gold < price) {
       throw new BadRequestException("Pas assez d'or !");
     }
+
+    if (itemId === 'potion_freeze') {
+      return this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          gold: { decrement: price },
+          streakFreezes: { increment: 1 },
+        },
+      });
+    }
+
+    if (itemId === 'potion_dxp') {
+      const now = new Date();
+      const currentUntil = user.doubleXpUntil
+        ? new Date(user.doubleXpUntil)
+        : null;
+      const newUntil =
+        currentUntil && currentUntil > now
+          ? new Date(currentUntil.getTime() + 24 * 60 * 60 * 1000)
+          : new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+      return this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          gold: { decrement: price },
+          doubleXpUntil: newUntil,
+        },
+      });
+    }
+
     const inventory = user.inventory || [];
 
     if (inventory.includes(itemId)) {
@@ -217,6 +249,7 @@ export class UsersService {
         gold: true,
         xp: true,
         streakCount: true,
+        streakFreezes: true,
         lastRewardClaimedAt: true,
         createdAt: true,
       },
@@ -239,7 +272,7 @@ export class UsersService {
     }
 
     let newStreak = 1;
-
+    let usedFreeze = false;
     if (user.lastRewardClaimedAt) {
       const lastClaim = new Date(user.lastRewardClaimedAt);
 
@@ -260,7 +293,12 @@ export class UsersService {
       } else if (diffDays === 1) {
         newStreak = (user.streakCount || 0) + 1;
       } else {
-        newStreak = 1;
+        if (user.streakFreezes > 0) {
+          newStreak = user.streakCount || 1;
+          usedFreeze = true;
+        } else {
+          newStreak = 1;
+        }
       }
     }
 
@@ -279,12 +317,14 @@ export class UsersService {
         xp: { increment: finalXp },
         streakCount: newStreak,
         lastRewardClaimedAt: now,
+        ...(usedFreeze ? { streakFreezes: { decrement: 1 } } : {}),
       },
       select: {
         gold: true,
         xp: true,
         streakCount: true,
         lastRewardClaimedAt: true,
+        streakFreezes: true,
       },
     });
   }
