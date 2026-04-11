@@ -28,12 +28,14 @@ import {
   Gem,
   Loader2,
   AlertCircle,
+  Snowflake,
+  FlaskConical,
 } from "lucide-react";
 
 type ShopItem = {
   id: string;
   name: string;
-  category: "FRAME" | "TITLE" | "THEME";
+  category: "POTION" | "FRAME" | "TITLE" | "THEME";
   price: number;
   icon: React.ElementType;
   color: string;
@@ -42,6 +44,22 @@ type ShopItem = {
 type ValidTranslationKey = Parameters<ReturnType<typeof useTranslations>>[0];
 
 const SHOP_ITEMS: ShopItem[] = [
+  {
+    id: "potion_freeze",
+    name: "potion_freeze",
+    category: "POTION",
+    price: 100,
+    icon: Snowflake,
+    color: "text-blue-300 drop-shadow-[0_0_8px_rgba(147,197,253,0.8)]",
+  },
+  {
+    id: "potion_dxp",
+    name: "potion_dxp",
+    category: "POTION",
+    price: 300,
+    icon: FlaskConical,
+    color: "text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.8)]",
+  },
   {
     id: "frame_gold",
     name: "frame_gold",
@@ -202,6 +220,7 @@ export default function ShopPage() {
 
   const groupedItems = useMemo(() => {
     return {
+      POTION: SHOP_ITEMS.filter((i) => i.category === "POTION"),
       FRAME: SHOP_ITEMS.filter((i) => i.category === "FRAME"),
       TITLE: SHOP_ITEMS.filter((i) => i.category === "TITLE"),
       THEME: SHOP_ITEMS.filter((i) => i.category === "THEME"),
@@ -354,7 +373,10 @@ export default function ShopPage() {
 
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {items.map((item) => {
-                      const isOwned = userInventory.includes(item.id);
+                      const isOwned =
+                        item.category === "POTION"
+                          ? false
+                          : userInventory.includes(item.id);
                       const canBuy = gold >= item.price;
                       const IconComponent = item.icon;
                       const isProcessing =
@@ -371,7 +393,7 @@ export default function ShopPage() {
                           </div>
 
                           <div className="text-center w-full">
-                            <h3 className="text-xs md:text-sm font-bold text-white truncate w-full">
+                            <h3 className="text-[10px] md:text-xs font-bold text-white w-full break-words leading-tight">
                               {t(`items.${item.id}` as ValidTranslationKey)}
                             </h3>
                           </div>
