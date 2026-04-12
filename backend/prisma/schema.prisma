@@ -15,66 +15,67 @@ enum GameClass {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String?  
-  isVerified    Boolean   @default(false)
-  name      String?
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  password            String?  
+  isVerified          Boolean   @default(false)
+  name                String?
 
-  image     String?
+  image               String?
   
-  gender       String?  @default("adventurer") 
-  isOnboarded  Boolean  @default(false)
+  gender              String?   @default("adventurer") 
+  isOnboarded         Boolean   @default(false)
 
-  role       Role     @default(USER)
-  xp         Int      @default(0)
-  level      Int      @default(1)
+  role                Role      @default(USER)
+  xp                  Int       @default(0)
+  level               Int       @default(1)
 
-  class      GameClass @default(ADVENTURER)
+  class               GameClass @default(ADVENTURER)
 
-  gold       Int      @default(0)
+  gold                Int       @default(0)
   lastRewardClaimedAt DateTime?
   
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
   
-  tasks      Task[]
+  tasks               Task[]
 
-  inventory String[]
+  inventory           String[]
 
-  monsterHp        Int?
-  monsterMaxHp     Int?
-  monsterEndTime   DateTime?
-  nextInvasionTime DateTime?
+  monsterHp           Int?
+  monsterMaxHp        Int?
+  monsterEndTime      DateTime?
+  nextInvasionTime    DateTime?
 
-  equippedTheme String?
-  equippedFrame String?
-  equippedTitle String?
+  equippedTheme       String?
+  equippedFrame       String?
+  equippedTitle       String?
 
-  streakCount       Int       @default(0)
-  lastDailyRewardAt DateTime?
+  streakCount         Int       @default(0)
+  lastDailyRewardAt   DateTime?
 
-  streakFreezes   Int       @default(0)
-  doubleXpUntil   DateTime?
+  streakFreezes       Int       @default(0)
+  doubleXpUntil       DateTime?
+  doubleXpPotions     Int       @default(0) 
 }
 
 model Task {
-  id          String    @id @default(uuid())
+  id          String     @id @default(uuid())
   title       String
   description String?
-  xp          Int       @default(10)
+  xp          Int        @default(10)
   gainedXp    Int?  
   
-  completed   Boolean   @default(false)
+  completed   Boolean    @default(false)
   completedAt DateTime?
   timeSpent   Int?      
   
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   difficulty  Difficulty @default(EASY)
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String
 }
 

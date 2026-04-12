@@ -39,8 +39,9 @@ export class UsersService {
         equippedTitle: true,
         lastRewardClaimedAt: true,
         streakCount: true,
-        streakFreezes: true, // Ajouté pour le front
-        doubleXpUntil: true, // Ajouté pour le front
+        streakFreezes: true,
+        doubleXpPotions: true,
+        doubleXpUntil: true,
         monsterHp: true,
         monsterMaxHp: true,
         monsterEndTime: true,
@@ -153,20 +154,11 @@ export class UsersService {
     }
 
     if (itemId === 'potion_dxp') {
-      const now = new Date();
-      const currentUntil = user.doubleXpUntil
-        ? new Date(user.doubleXpUntil)
-        : null;
-      const newUntil =
-        currentUntil && currentUntil > now
-          ? new Date(currentUntil.getTime() + 24 * 60 * 60 * 1000)
-          : new Date(now.getTime() + 24 * 60 * 60 * 1000);
-
       return this.prisma.user.update({
         where: { id: userId },
         data: {
           gold: { decrement: price },
-          doubleXpUntil: newUntil,
+          doubleXpPotions: { increment: 1 },
         },
       });
     }
@@ -182,6 +174,37 @@ export class UsersService {
       data: {
         gold: { decrement: price },
         inventory: { push: itemId },
+      },
+    });
+  }
+
+  async useDoubleXpPotion(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) throw new NotFoundException('Utilisateur introuvable');
+
+    if (user.doubleXpPotions <= 0) {
+      throw new BadRequestException('Tu ne possèdes pas de Potion Double XP !');
+    }
+
+    const now = new Date();
+    const currentUntil = user.doubleXpUntil
+      ? new Date(user.doubleXpUntil)
+      : null;
+    const newUntil =
+      currentUntil && currentUntil > now
+        ? new Date(currentUntil.getTime() + 24 * 60 * 60 * 1000)
+        : new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        doubleXpPotions: { decrement: 1 },
+        doubleXpUntil: newUntil,
+      },
+      select: {
+        doubleXpPotions: true,
+        doubleXpUntil: true,
       },
     });
   }
