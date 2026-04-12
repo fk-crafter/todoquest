@@ -73,6 +73,7 @@
         "theme_forest": "Forêt",
         "theme_cyber": "Cyberpunk"
       },
+
       "titles": {
         "default": "Rang de Niveau",
         "title_rich": "Le Bourgeois",
@@ -87,6 +88,23 @@
         "frame_fire": "Enflammé",
         "frame_neon": "Néon Bleu",
         "frame_emerald": "Émeraude"
+      }
+    },
+    "inventory": {
+      "title": "🎒 Ma Sacoche",
+      "freeze": {
+        "name": "Gel de Série",
+        "desc": "Te sauve en cas d'oubli."
+      },
+      "dxp": {
+        "name": "Double XP",
+        "desc": "+100% XP pendant 24h",
+        "active": "Actif",
+        "drink": "BOIRE",
+        "remaining": "Restant : {time}"
+      },
+      "alerts": {
+        "dxpActivated": "Potion activée ! 24h de Double XP !"
       }
     }
   },

@@ -88,6 +88,23 @@
         "frame_neon": "Blue Neon",
         "frame_emerald": "Emerald"
       }
+    },
+    "inventory": {
+      "title": "🎒 My Satchel",
+      "freeze": {
+        "name": "Streak Freeze",
+        "desc": "Saves you if you forget."
+      },
+      "dxp": {
+        "name": "Double XP",
+        "desc": "+100% XP for 24h",
+        "active": "Active",
+        "drink": "DRINK",
+        "remaining": "Left: {time}"
+      },
+      "alerts": {
+        "dxpActivated": "Potion activated! 24h of Double XP!"
+      }
     }
   },
   "Verify": {

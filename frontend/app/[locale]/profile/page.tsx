@@ -83,6 +83,7 @@ export default function ProfilePage() {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState("");
+  const [dxpTimeLeft, setDxpTimeLeft] = useState<string | null>(null);
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["profile"],
@@ -102,6 +103,31 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user?.name) setNewName(user.name);
   }, [user]);
+
+  useEffect(() => {
+    if (!user?.doubleXpUntil) return;
+
+    const until = new Date(user.doubleXpUntil);
+
+    const updateTimer = () => {
+      const now = new Date();
+      const diff = until.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setDxpTimeLeft(null);
+        return;
+      }
+
+      const h = Math.floor(diff / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      setDxpTimeLeft(`${h}h ${m}m`);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 60000);
+
+    return () => clearInterval(interval);
+  }, [user?.doubleXpUntil]);
 
   const equipMutation = useMutation({
     mutationFn: async ({
@@ -168,7 +194,7 @@ export default function ProfilePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      alert("Potion activée ! 24h de Double XP !");
+      alert(t("inventory.alerts.dxpActivated"));
     },
     onError: (err: any) => alert(err.message),
   });
@@ -393,7 +419,7 @@ export default function ProfilePage() {
           {(streakFreezes > 0 || dxpPotions > 0 || isDxpActive) && (
             <div className="bg-gray-800 p-6 rounded-xl border border-yellow-900/50 shadow-lg">
               <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
-                🎒 Ma Sacoche
+                {t("inventory.title")}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {streakFreezes > 0 && (
@@ -404,10 +430,10 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <p className="font-bold text-blue-300 text-sm">
-                          Gel de Série
+                          {t("inventory.freeze.name")}
                         </p>
                         <p className="text-[10px] text-gray-400">
-                          Te sauve en cas d'oubli.
+                          {t("inventory.freeze.desc")}
                         </p>
                       </div>
                     </div>
@@ -432,15 +458,15 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <p className="font-bold text-purple-300 text-sm">
-                          Double XP
+                          {t("inventory.dxp.name")}
                         </p>
                         {isDxpActive ? (
                           <p className="text-[10px] text-purple-400 flex items-center gap-1">
-                            <Clock size={10} /> Actif
+                            <Clock size={10} /> {t("inventory.dxp.active")}
                           </p>
                         ) : (
                           <p className="text-[10px] text-gray-400">
-                            +100% XP pendant 24h
+                            {t("inventory.dxp.desc")}
                           </p>
                         )}
                       </div>
@@ -455,12 +481,14 @@ export default function ProfilePage() {
                         {usePotionMutation.isPending ? (
                           <Loader2 className="animate-spin" size={16} />
                         ) : (
-                          "BOIRE"
+                          t("inventory.dxp.drink")
                         )}
                       </button>
                     ) : (
-                      <span className="text-purple-400 font-bold text-xs uppercase bg-purple-900/50 px-3 py-1 rounded">
-                        En cours
+                      <span className="text-purple-400 font-bold text-xs uppercase bg-purple-900/50 px-3 py-1 rounded text-center min-w-[90px]">
+                        {dxpTimeLeft
+                          ? t("inventory.dxp.remaining", { time: dxpTimeLeft })
+                          : "..."}
                       </span>
                     )}
                   </div>
