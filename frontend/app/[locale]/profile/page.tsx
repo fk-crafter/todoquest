@@ -445,27 +445,35 @@ export default function ProfilePage() {
 
                 {(dxpPotions > 0 || isDxpActive) && (
                   <div
-                    className={`bg-gray-900 border p-4 rounded-lg flex items-center justify-between ${isDxpActive ? "border-purple-500 animate-pulse" : "border-purple-900"}`}
+                    className={`bg-gray-900 border p-3 rounded-lg flex flex-wrap items-center justify-between gap-3 ${
+                      isDxpActive
+                        ? "border-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.3)]"
+                        : "border-purple-900"
+                    }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-purple-900/50 rounded-lg border border-purple-700 relative">
-                        <FlaskConical className="text-purple-400" size={24} />
+                    <div className="flex items-center gap-3 flex-1 min-w-[150px]">
+                      <div className="p-2 bg-purple-900/50 rounded-lg border border-purple-700 relative shrink-0">
+                        <FlaskConical
+                          className={`text-purple-400 ${isDxpActive ? "animate-pulse" : ""}`}
+                          size={24}
+                        />
                         {!isDxpActive && (
                           <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">
                             {dxpPotions}
                           </span>
                         )}
                       </div>
-                      <div>
-                        <p className="font-bold text-purple-300 text-sm">
+                      <div className="min-w-0">
+                        <p className="font-bold text-purple-300 text-sm truncate">
                           {t("inventory.dxp.name")}
                         </p>
                         {isDxpActive ? (
-                          <p className="text-[10px] text-purple-400 flex items-center gap-1">
-                            <Clock size={10} /> {t("inventory.dxp.active")}
+                          <p className="text-[10px] text-purple-400 flex items-center gap-1 mt-1">
+                            <Clock size={10} className="shrink-0" />{" "}
+                            {t("inventory.dxp.active")}
                           </p>
                         ) : (
-                          <p className="text-[10px] text-gray-400">
+                          <p className="text-[9px] md:text-[10px] text-gray-400 leading-tight mt-1">
                             {t("inventory.dxp.desc")}
                           </p>
                         )}
@@ -476,20 +484,23 @@ export default function ProfilePage() {
                       <button
                         onClick={() => usePotionMutation.mutate()}
                         disabled={usePotionMutation.isPending}
-                        className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors"
+                        className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors shrink-0"
                       >
                         {usePotionMutation.isPending ? (
-                          <Loader2 className="animate-spin" size={16} />
+                          <Loader2 className="animate-spin mx-auto" size={14} />
                         ) : (
                           t("inventory.dxp.drink")
                         )}
                       </button>
                     ) : (
-                      <span className="text-purple-400 font-bold text-xs uppercase bg-purple-900/50 px-3 py-1 rounded text-center min-w-[90px]">
-                        {dxpTimeLeft
-                          ? t("inventory.dxp.remaining", { time: dxpTimeLeft })
-                          : "..."}
-                      </span>
+                      <div className="bg-purple-900/40 border border-purple-500/50 px-3 py-1.5 rounded-lg text-center shrink-0">
+                        <p className="text-[8px] text-purple-300 uppercase opacity-80 mb-0.5">
+                          {t("inventory.dxp.timeLeftLabel")}
+                        </p>
+                        <p className="text-purple-400 font-bold text-[10px] md:text-xs tracking-wider">
+                          {dxpTimeLeft || "..."}
+                        </p>
+                      </div>
                     )}
                   </div>
                 )}

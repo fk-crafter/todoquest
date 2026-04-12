@@ -101,7 +101,8 @@
         "desc": "+100% XP pendant 24h",
         "active": "Actif",
         "drink": "BOIRE",
-        "remaining": "Restant : {time}"
+        "remaining": "Restant : {time}",
+        "timeLeftLabel": "RESTANT"
       },
       "alerts": {
         "dxpActivated": "Potion activée ! 24h de Double XP !"

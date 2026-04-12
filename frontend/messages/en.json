@@ -100,7 +100,8 @@
         "desc": "+100% XP for 24h",
         "active": "Active",
         "drink": "DRINK",
-        "remaining": "Left: {time}"
+        "remaining": "Left: {time}",
+        "timeLeftLabel": "TIME LEFT"
       },
       "alerts": {
         "dxpActivated": "Potion activated! 24h of Double XP!"
