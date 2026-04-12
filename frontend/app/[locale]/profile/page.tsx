@@ -24,6 +24,9 @@ import {
   Ghost,
   Sparkles,
   Loader2,
+  Snowflake,
+  FlaskConical,
+  Clock,
 } from "lucide-react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -149,6 +152,27 @@ export default function ProfilePage() {
     onError: () => alert(t("errors.updateName")),
   });
 
+  const usePotionMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/use-dxp`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+        },
+      );
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      alert("Potion activée ! 24h de Double XP !");
+    },
+    onError: (err: any) => alert(err.message),
+  });
+
   if (!session)
     return (
       <div className="text-center mt-20 text-white">
@@ -210,6 +234,13 @@ export default function ProfilePage() {
         return t("classes.unknown");
     }
   })();
+
+  const streakFreezes = user?.streakFreezes || 0;
+  const dxpPotions = user?.doubleXpPotions || 0;
+
+  const now = new Date();
+  const dxpUntil = user?.doubleXpUntil ? new Date(user?.doubleXpUntil) : null;
+  const isDxpActive = dxpUntil && dxpUntil > now;
 
   return (
     <div className="min-h-screen flex bg-gray-900 text-white font-press">
@@ -358,6 +389,85 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
+
+          {(streakFreezes > 0 || dxpPotions > 0 || isDxpActive) && (
+            <div className="bg-gray-800 p-6 rounded-xl border border-yellow-900/50 shadow-lg">
+              <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+                🎒 Ma Sacoche
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {streakFreezes > 0 && (
+                  <div className="bg-gray-900 border border-blue-900 p-4 rounded-lg flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-900/50 rounded-lg border border-blue-700">
+                        <Snowflake className="text-blue-400" size={24} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-blue-300 text-sm">
+                          Gel de Série
+                        </p>
+                        <p className="text-[10px] text-gray-400">
+                          Te sauve en cas d'oubli.
+                        </p>
+                      </div>
+                    </div>
+                    <span className="bg-blue-800 text-blue-100 font-bold px-3 py-1 rounded-full text-sm">
+                      x{streakFreezes}
+                    </span>
+                  </div>
+                )}
+
+                {(dxpPotions > 0 || isDxpActive) && (
+                  <div
+                    className={`bg-gray-900 border p-4 rounded-lg flex items-center justify-between ${isDxpActive ? "border-purple-500 animate-pulse" : "border-purple-900"}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-purple-900/50 rounded-lg border border-purple-700 relative">
+                        <FlaskConical className="text-purple-400" size={24} />
+                        {!isDxpActive && (
+                          <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">
+                            {dxpPotions}
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-bold text-purple-300 text-sm">
+                          Double XP
+                        </p>
+                        {isDxpActive ? (
+                          <p className="text-[10px] text-purple-400 flex items-center gap-1">
+                            <Clock size={10} /> Actif
+                          </p>
+                        ) : (
+                          <p className="text-[10px] text-gray-400">
+                            +100% XP pendant 24h
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {!isDxpActive ? (
+                      <button
+                        onClick={() => usePotionMutation.mutate()}
+                        disabled={usePotionMutation.isPending}
+                        className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors"
+                      >
+                        {usePotionMutation.isPending ? (
+                          <Loader2 className="animate-spin" size={16} />
+                        ) : (
+                          "BOIRE"
+                        )}
+                      </button>
+                    ) : (
+                      <span className="text-purple-400 font-bold text-xs uppercase bg-purple-900/50 px-3 py-1 rounded">
+                        En cours
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
             <div className="md:col-span-2">
