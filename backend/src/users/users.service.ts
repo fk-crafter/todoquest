@@ -265,7 +265,7 @@ export class UsersService {
     });
   }
 
-  async claimDailyReward(userId: string) {
+  async claimDailyReward(userId: string, useFreeze: boolean = false) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -296,9 +296,9 @@ export class UsersService {
 
     let newStreak = 1;
     let usedFreeze = false;
+
     if (user.lastRewardClaimedAt) {
       const lastClaim = new Date(user.lastRewardClaimedAt);
-
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const lastClaimDay = new Date(
         lastClaim.getFullYear(),
@@ -316,7 +316,12 @@ export class UsersService {
       } else if (diffDays === 1) {
         newStreak = (user.streakCount || 0) + 1;
       } else {
-        if (user.streakFreezes > 0) {
+        if (useFreeze) {
+          if (user.streakFreezes <= 0) {
+            throw new BadRequestException(
+              "Tu n'as pas de Gel de Série en stock !",
+            );
+          }
           newStreak = user.streakCount || 1;
           usedFreeze = true;
         } else {

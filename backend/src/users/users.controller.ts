@@ -111,9 +111,15 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Post('daily-reward')
-  async claimDailyReward(@Req() req: RequestWithUser) {
+  async claimDailyReward(
+    @Req() req: RequestWithUser,
+    @Body() body: { useFreeze?: boolean },
+  ) {
     try {
-      return await this.usersService.claimDailyReward(req.user.id);
+      return await this.usersService.claimDailyReward(
+        req.user.id,
+        body?.useFreeze,
+      );
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Erreur récompense';
       throw new BadRequestException(msg);
