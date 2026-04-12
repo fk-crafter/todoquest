@@ -33,6 +33,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const { isTutorialActive, tutorialStep } = useTutorial();
+  const [hasMissedDay, setHasMissedDay] = useState(false);
 
   const fetchUserData = async () => {
     if (!session?.accessToken) return null;
@@ -102,6 +103,79 @@ export default function Sidebar() {
       },
     );
 
+    useEffect(() => {
+      if (user) {
+        const level = user.level || 1;
+        const currentClass = user.class || "ADVENTURER";
+
+        if (level >= 20 && currentClass === "ADVENTURER") {
+          setShowClassModal(true);
+        }
+
+        const now = new Date();
+        if (user.lastRewardClaimedAt) {
+          const lastClaim = new Date(user.lastRewardClaimedAt);
+          const today = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+          );
+          const lastClaimDay = new Date(
+            lastClaim.getFullYear(),
+            lastClaim.getMonth(),
+            lastClaim.getDate(),
+          );
+
+          const diffTime = today.getTime() - lastClaimDay.getTime();
+          const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays > 0) {
+            setShowDailyReward(true);
+            setHasMissedDay(diffDays > 1);
+          }
+        } else {
+          const createdAt = new Date(user.createdAt);
+          const isRegistrationDay =
+            createdAt.getFullYear() === now.getFullYear() &&
+            createdAt.getMonth() === now.getMonth() &&
+            createdAt.getDate() === now.getDate();
+
+          if (!isRegistrationDay) {
+            setShowDailyReward(true);
+            setHasMissedDay(false);
+          }
+        }
+      }
+    }, [user]);
+
+    const handleClaimReward = async (useFreeze: boolean = false) => {
+      if (!session?.accessToken) throw new Error("Non autorisé");
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/daily-reward`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ useFreeze }),
+        },
+      );
+
+      if (!res.ok) {
+        let errorData;
+        try {
+          errorData = await res.json();
+        } catch (e) {
+          throw new Error("Erreur inattendue du serveur.");
+        }
+        throw new Error(errorData.message || "Erreur lors de la récupération");
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+    };
+
     if (!res.ok) {
       let errorData;
       try {
@@ -143,6 +217,8 @@ export default function Sidebar() {
       {showDailyReward && user && (
         <DailyRewardModal
           currentStreak={user?.streakCount || 0}
+          availableFreezes={user?.streakFreezes || 0}
+          hasMissedDay={hasMissedDay}
           onClaim={handleClaimReward}
         />
       )}
