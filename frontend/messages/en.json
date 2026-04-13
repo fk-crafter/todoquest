@@ -559,8 +559,18 @@
     "claim": "Claim Treasure",
     "success": "Loot added to your purse!",
     "error": "Could not open the chest.",
-    "close": "Close"
+    "close": "Close",
+    "danger": {
+      "title": "ATTENTION !",
+      "description": "You missed a day of adventure! Your <highlight>{streak}-day</highlight> combo is about to break.",
+      "useFreeze": "UTILISER UN GEL (Reste: {count})",
+      "noFreeze": "Tu n'as pas de Gel en stock...",
+      "loseStreak": "TANT PIS, JE PERDS LE COMBO",
+      "saved": "Combo sauvé !",
+      "lost": "Combo perdu..."
+    }
   },
+
   "NotFound": {
     "title": "Page Not Found",
     "message": "Oops! The page you're looking for seems to have gotten lost in the digital cosmos. Maybe it's on another quest?",

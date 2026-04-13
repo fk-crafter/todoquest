@@ -562,7 +562,16 @@
     "claim": "Récupérer le trésor",
     "success": "Butin ajouté à ta bourse !",
     "error": "Impossible d'ouvrir le coffre.",
-    "close": "Fermer"
+    "close": "Fermer",
+    "danger": {
+      "title": "ATTENTION !",
+      "description": "Tu as raté un jour d'aventure ! Ton combo de <highlight>{streak} jours</highlight> est sur le point d'être brisé.",
+      "useFreeze": "UTILISER UN GEL (Reste: {count})",
+      "noFreeze": "Tu n'as pas de Gel en stock...",
+      "loseStreak": "TANT PIS, JE PERDS LE COMBO",
+      "saved": "Combo sauvé !",
+      "lost": "Combo perdu..."
+    }
   },
   "NotFound": {
     "title": "Page Introuvable",

@@ -8,7 +8,6 @@ import {
   Sparkles,
   X,
   Flame,
-  ArrowUpCircle,
   AlertTriangle,
   Snowflake,
 } from "lucide-react";
@@ -31,28 +30,28 @@ export default function DailyRewardModal({
   const [isClaiming, setIsClaiming] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 
-  const [showDangerScreen, setShowDangerScreen] = useState(
-    hasMissedDay && currentStreak > 0,
-  );
+  const showDangerScreen = hasMissedDay && currentStreak > 0;
 
   const expectedStreak = showDangerScreen ? currentStreak : currentStreak + 1;
-  const isMilestone = expectedStreak % 3 === 0;
 
   const handleClaim = async (useFreeze: boolean) => {
     setIsClaiming(true);
     try {
       await onClaim(useFreeze);
       if (useFreeze) {
-        toast.success("Combo sauvé !", { icon: "❄️" });
+        toast.success(t("danger.saved"), { icon: "❄️" });
       } else if (showDangerScreen) {
-        toast("Combo perdu...", { icon: "💔" });
+        toast(t("danger.lost"), { icon: "💔" });
       } else {
         toast.success(t("success"), { icon: "🪙" });
       }
       setTimeout(() => setIsVisible(false), 500);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : t("error");
-      if (errorMessage.includes("déjà récupéré")) {
+      if (
+        errorMessage.includes("déjà récupéré") ||
+        errorMessage.includes("already claimed")
+      ) {
         toast.error(errorMessage);
         setTimeout(() => setIsVisible(false), 800);
       } else {
@@ -80,15 +79,16 @@ export default function DailyRewardModal({
           </div>
 
           <h2 className="text-xl md:text-2xl text-red-500 mb-2 tracking-wider">
-            ATTENTION !
+            {t("danger.title")}
           </h2>
 
           <p className="text-gray-300 mb-6 text-xs leading-relaxed">
-            Tu as raté un jour d'aventure ! Ton combo de{" "}
-            <span className="text-orange-500 font-bold">
-              {currentStreak} jours
-            </span>{" "}
-            est sur le point d'être brisé.
+            {t.rich("danger.description", {
+              streak: currentStreak,
+              highlight: (chunks) => (
+                <span className="text-orange-500 font-bold">{chunks}</span>
+              ),
+            })}
           </p>
 
           <div className="flex flex-col gap-3 w-full">
@@ -102,28 +102,26 @@ export default function DailyRewardModal({
                   <Loader2 className="animate-spin w-5 h-5" />
                 ) : (
                   <>
-                    <Snowflake size={18} /> UTILISER UN GEL (Reste:{" "}
-                    {availableFreezes})
+                    <Snowflake size={18} />{" "}
+                    {t("danger.useFreeze", { count: availableFreezes })}
                   </>
                 )}
               </button>
             ) : (
               <p className="text-xs text-blue-400 mb-2">
-                Tu n'as pas de Gel en stock...
+                {t("danger.noFreeze")}
               </p>
             )}
 
             <button
-              onClick={() => {
-                handleClaim(false);
-              }}
+              onClick={() => handleClaim(false)}
               disabled={isClaiming}
               className="w-full bg-gray-700 hover:bg-red-900/50 text-gray-300 font-bold py-3 px-4 rounded-xl border-b-4 border-gray-800 active:border-b-0 active:translate-y-1 transition-all text-xs"
             >
               {isClaiming ? (
                 <Loader2 className="animate-spin w-4 h-4" />
               ) : (
-                "TANT PIS, JE PERDS LE COMBO"
+                t("danger.loseStreak")
               )}
             </button>
           </div>
@@ -161,21 +159,12 @@ export default function DailyRewardModal({
           </p>
 
           <div className="flex gap-2 justify-center mb-6">
-            <div className="bg-black/50 border-2 border-yellow-600 rounded-lg py-3 px-4 flex-1 flex flex-col items-center gap-1 shadow-inner">
+            <div className="bg-black/50 border-2 border-yellow-600 rounded-lg py-3 flex flex-col items-center gap-1 shadow-inner px-8">
               <Coins size={16} className="text-yellow-500" />
               <span className="text-yellow-400 text-sm md:text-base">
                 {t("baseAmount")}
               </span>
             </div>
-
-            {isMilestone && (
-              <div className="bg-black/50 border-2 border-blue-500 rounded-lg py-3 px-4 flex-1 flex flex-col items-center gap-1 shadow-[0_0_15px_rgba(59,130,246,0.4)] animate-pulse">
-                <ArrowUpCircle size={16} className="text-blue-400" />
-                <span className="text-blue-400 text-sm md:text-base">
-                  {t("milestoneXP")}
-                </span>
-              </div>
-            )}
           </div>
 
           <button
