@@ -130,6 +130,7 @@ export default function DailyRewardModal({
         <div className="relative bg-gray-900 border-4 border-yellow-500 rounded-2xl p-6 md:p-8 max-w-sm w-full text-center shadow-[0_0_30px_rgba(234,179,8,0.3)] animate-in zoom-in-95 duration-300">
           <button
             onClick={() => setIsVisible(false)}
+            disabled={isClaiming}
             className="absolute top-3 right-3 text-gray-500 hover:text-white hover:bg-gray-700 rounded-full p-1 transition-colors"
             aria-label={t("close")}
           >
