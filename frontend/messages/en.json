@@ -599,7 +599,19 @@
     "author4": "- Borkkito",
     "review5": "\"It’s pretty cool, the art’s style good.\"",
     "author5": "- Desperate_Sky9997",
-    "bottomCta": "Start the Adventure"
+    "bottomCta": "Start the Adventure",
+    "faq": {
+      "title": "The Question Tavern",
+      "subtitle": "Everything you need to know before starting your quest.",
+      "q1": "Is TodoQuest free?",
+      "a1": "Yes! The main adventure is 100% free. You can complete quests, fight bosses, and level up without spending a single copper coin. The shop offers optional cosmetics to support the project.",
+      "q2": "How is it different from a normal to-do list?",
+      "a2": "Dopamine! Instead of just crossing out text, every task gives you XP and Gold. You get a real sense of progression, combos to maintain, and bosses to defeat. It's a game where you are the hero.",
+      "q3": "Can I play with my friends?",
+      "a3": "It's in the works! The Guild system will arrive soon, allowing you to form a party of adventurers and take on raid bosses together.",
+      "q4": "Can I use it on my phone?",
+      "a4": "Absolutely. TodoQuest works perfectly on mobile. You can even install it on your home screen to always have it in your pocket like a real app!"
+    }
   },
   "Metadata": {
     "title": "TodoQuest | Turn your life into an RPG",

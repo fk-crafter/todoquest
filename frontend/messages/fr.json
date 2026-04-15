@@ -601,7 +601,19 @@
     "author4": "- Borkkito",
     "review5": "\"C'est plutôt cool, le style graphique est vraiment bien.\"",
     "author5": "- Desperate_Sky9997",
-    "bottomCta": "Démarrer l'Aventure"
+    "bottomCta": "Démarrer l'Aventure",
+    "faq": {
+      "title": "La Taverne aux Questions",
+      "subtitle": "Tout ce que tu dois savoir avant de partir en quête.",
+      "q1": "Est-ce que TodoQuest est gratuit ?",
+      "a1": "Oui ! L'aventure principale est 100% gratuite. Tu peux accomplir des quêtes, combattre des boss et monter en niveau sans débourser une seule pièce de cuivre. La boutique propose des cosmétiques optionnels pour soutenir le projet.",
+      "q2": "Quelle est la différence avec une to-do list normale ?",
+      "a2": "La dopamine ! Au lieu de simplement rayer du texte, chaque tâche te donne de l'XP et de l'Or. Tu as un vrai sentiment de progression, des combos à maintenir et des boss à vaincre. C'est un jeu dont tu es le héros.",
+      "q3": "Puis-je jouer avec mes amis ?",
+      "a3": "C'est dans les cartons ! Le système de Guildes arrivera bientôt pour te permettre de former un groupe d'aventuriers et d'affronter des boss de raid tous ensemble.",
+      "q4": "Est-ce que je peux l'utiliser sur mon téléphone ?",
+      "a4": "Absolument. TodoQuest fonctionne parfaitement sur mobile. Tu peux même l'installer sur ton écran d'accueil pour l'avoir toujours dans ta poche comme une vraie application !"
+    }
   },
   "Metadata": {
     "title": "TodoQuest | Transforme ta vie en RPG",

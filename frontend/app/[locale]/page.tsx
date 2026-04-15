@@ -13,6 +13,7 @@ import Hero from "@/components/Hero";
 import ProblemSection from "@/components/ProblemSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import SocialProofSection from "@/components/SocialProofSection";
+import FaqSection from "@/components/FaqSection";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -67,6 +68,7 @@ export default function Home() {
           <ProblemSection />
           <HowItWorksSection />
           <SocialProofSection />
+          <FaqSection />
 
           <section className="reveal-section flex flex-col items-center justify-center text-center py-12 border-t border-gray-800 px-4">
             <h2 className="text-xl md:text-3xl font-bold mb-8 text-white font-press">
