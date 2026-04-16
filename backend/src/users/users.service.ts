@@ -64,6 +64,8 @@ export class UsersService {
 
     const now = new Date();
 
+    let monsterFled = null;
+
     if (
       user.monsterHp !== null &&
       user.monsterEndTime &&
@@ -71,8 +73,11 @@ export class UsersService {
     ) {
       const cooldownHours = Math.floor(Math.random() * (72 - 24 + 1)) + 24;
       const nextInvasion = new Date(
-        user.monsterEndTime.getTime() + cooldownHours * 60 * 60 * 1000,
+        now.getTime() + cooldownHours * 60 * 60 * 1000,
       );
+
+      const goldStolen = Math.floor(Math.random() * (100 - 20 + 1)) + 20;
+      const actualGoldStolen = Math.min(user.gold, goldStolen);
 
       await this.prisma.user.update({
         where: { id: userId },
@@ -81,11 +86,14 @@ export class UsersService {
           monsterMaxHp: null,
           monsterEndTime: null,
           nextInvasionTime: nextInvasion,
+          gold: { decrement: actualGoldStolen },
         },
       });
 
       user.monsterHp = null;
       user.nextInvasionTime = nextInvasion;
+      user.gold -= actualGoldStolen;
+      monsterFled = { stolenGold: actualGoldStolen };
     }
 
     if (
@@ -112,6 +120,7 @@ export class UsersService {
 
     return {
       ...user,
+      monsterFled,
       stats: {
         totalTasks,
         completedTasks,

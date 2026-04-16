@@ -78,6 +78,7 @@ export class TasksService {
     }
 
     let extraGold = 10;
+    let goldStolen = 0;
     let monsterUpdate: {
       monsterHp?: number | null;
       monsterMaxHp?: number | null;
@@ -114,17 +115,31 @@ export class TasksService {
         monsterUpdate = { monsterHp: newHp };
         monsterResult = { type: 'DAMAGED', damage: dmg, hpLeft: newHp };
       }
-    } else if (user.monsterEndTime && user.monsterEndTime < now) {
+    } else if (
+      user.monsterEndTime &&
+      user.monsterEndTime < now &&
+      user.monsterHp &&
+      user.monsterHp > 0
+    ) {
+      goldStolen = Math.floor(Math.random() * (100 - 20 + 1)) + 20;
+
+      const actualGoldStolen = Math.min(user.gold, goldStolen);
+
       const cooldownHours = Math.floor(Math.random() * (72 - 24 + 1)) + 24;
       const nextInvasion = new Date(
         Date.now() + cooldownHours * 60 * 60 * 1000,
       );
+
       monsterUpdate = {
         monsterHp: null,
         monsterMaxHp: null,
         monsterEndTime: null,
         nextInvasionTime: nextInvasion,
       };
+
+      monsterResult = { type: 'FLED', stolenGold: actualGoldStolen };
+
+      extraGold -= actualGoldStolen;
     }
 
     const [updatedTask, updatedUser] = await this.prisma.$transaction([

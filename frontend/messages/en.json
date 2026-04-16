@@ -421,7 +421,9 @@
       "hp": "HP",
       "timeLeft": "Time left:",
       "victory": "Monster defeated! You win!",
-      "close": "Close"
+      "close": "Close",
+      "fled": "The monster fled...",
+      "stolen": "It stole {gold} Gold from your camp!"
     }
   },
   "Sidebar": {

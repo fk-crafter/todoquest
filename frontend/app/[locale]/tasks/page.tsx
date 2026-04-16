@@ -35,6 +35,7 @@ import AchievementToast from "@/components/tasks/AchievementToast";
 import MonsterAlertToast from "@/components/tasks/MonsterAlertToast";
 import TutorialOverlay from "@/components/tasks/TutorialOverlay";
 import CompletedTasksList from "@/components/tasks/CompletedTasksList";
+import MonsterFledToast from "@/components/tasks/MonsterFledToast";
 import {
   Task,
   TaskFormData,
@@ -93,12 +94,8 @@ export default function TasksPage() {
       if (diff <= 0) {
         setMonster(null);
         localStorage.removeItem("todoquest_monster");
-        const cooldown =
-          Math.floor(Math.random() * (72 - 24 + 1) + 24) * 60 * 60 * 1000;
-        localStorage.setItem(
-          "todoquest_next_invasion",
-          (Date.now() + cooldown).toString(),
-        );
+
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
       } else {
         const h = Math.floor(diff / (1000 * 60 * 60));
         const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -106,7 +103,7 @@ export default function TasksPage() {
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [monster]);
+  }, [monster, queryClient]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -418,6 +415,8 @@ export default function TasksPage() {
         hasLevelUp={!!levelUpMessage}
         hasAchievement={!!achievementMessage}
       />
+
+      <MonsterFledToast stolenGold={user?.monsterFled?.stolenGold} />
 
       <TimeSpentModal
         isOpen={showTimeModal}

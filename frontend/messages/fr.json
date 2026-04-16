@@ -424,7 +424,9 @@
       "hp": "PV",
       "timeLeft": "Temps restant :",
       "victory": "Monstre vaincu ! Vous avez gagné !",
-      "close": "Fermer"
+      "close": "Fermer",
+      "fled": "Le monstre s'est enfui...",
+      "stolen": "Il a volé {gold} Or de votre campement !"
     }
   },
   "Sidebar": {
