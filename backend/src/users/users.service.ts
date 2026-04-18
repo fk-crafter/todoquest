@@ -280,6 +280,7 @@ export class UsersService {
       select: {
         gold: true,
         xp: true,
+        level: true,
         streakCount: true,
         streakFreezes: true,
         lastRewardClaimedAt: true,
@@ -347,11 +348,23 @@ export class UsersService {
       finalXp = 150;
     }
 
+    let newXP = user.xp + finalXp;
+    let newLevel = user.level || 1;
+
+    const getXpCap = (lvl: number) => lvl * 25;
+    let xpCap = getXpCap(newLevel);
+
+    while (newXP >= xpCap) {
+      newXP -= xpCap;
+      newLevel++;
+      xpCap = getXpCap(newLevel);
+    }
     return this.prisma.user.update({
       where: { id: userId },
       data: {
         gold: { increment: finalGold },
-        xp: { increment: finalXp },
+        xp: newXP,
+        level: newLevel,
         streakCount: newStreak,
         lastRewardClaimedAt: now,
         ...(usedFreeze ? { streakFreezes: { decrement: 1 } } : {}),
@@ -359,6 +372,7 @@ export class UsersService {
       select: {
         gold: true,
         xp: true,
+        level: true,
         streakCount: true,
         lastRewardClaimedAt: true,
         streakFreezes: true,
