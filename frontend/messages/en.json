@@ -415,7 +415,7 @@
       "level": "Level {level}"
     },
     "Monster": {
-      "invasion": "An invasion is in progress!",
+      "invasion": "INVASION!",
       "title": "Goblin Thief",
       "description": "This monster is patrolling around your camp. Complete tasks to deal damage to it!",
       "hp": "HP",

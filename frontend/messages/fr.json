@@ -418,7 +418,7 @@
       "level": "Niveau {level}"
     },
     "Monster": {
-      "invasion": "Une invasion est en cours !",
+      "invasion": "INVASION !",
       "title": "Gobelin Voleur",
       "description": "Ce monstre rôde autour de votre camp. Accomplissez des tâches pour lui infliger des dégâts !",
       "hp": "PV",
