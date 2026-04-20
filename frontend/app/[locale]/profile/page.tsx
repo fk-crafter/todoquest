@@ -6,11 +6,6 @@ import Sidebar from "@/components/Sidebar";
 import {
   Shield,
   Sword,
-  Scroll,
-  Trophy,
-  Pencil,
-  Check,
-  X,
   Moon,
   Mountain,
   Trees,
@@ -23,13 +18,13 @@ import {
   Hexagon,
   Ghost,
   Sparkles,
-  Loader2,
-  Snowflake,
-  FlaskConical,
-  Clock,
 } from "lucide-react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+
+import ProfileCard from "@/components/profile/ProfileCard";
+import InventorySection from "@/components/profile/InventorySection";
+import CustomizationSection from "@/components/profile/CustomizationSection";
 
 const THEMES_METADATA: Record<string, any> = {
   default: { icon: Moon, color: "text-gray-400" },
@@ -266,7 +261,7 @@ export default function ProfilePage() {
 
   const now = new Date();
   const dxpUntil = user?.doubleXpUntil ? new Date(user?.doubleXpUntil) : null;
-  const isDxpActive = dxpUntil && dxpUntil > now;
+  const isDxpActive = dxpUntil !== null && dxpUntil > now;
 
   return (
     <div className="min-h-screen flex bg-gray-900 text-white font-press">
@@ -278,235 +273,34 @@ export default function ProfilePage() {
         </h1>
 
         <div className="w-full max-w-2xl flex flex-col gap-6">
-          <div className="bg-gray-800 border-4 border-gray-600 rounded-xl p-6 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2" />
+          <ProfileCard
+            user={user}
+            currentName={currentName}
+            avatarUrl={avatarUrl}
+            level={level}
+            xp={xp}
+            xpToNextLevel={xpToNextLevel}
+            xpProgressPercent={xpProgressPercent}
+            tasksCreated={tasksCreated}
+            tasksCompleted={tasksCompleted}
+            successRate={successRate}
+            displayTitle={displayTitle}
+            displayClassName={displayClassName}
+            currentFrameData={currentFrameData}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            newName={newName}
+            setNewName={setNewName}
+            updateNameMutation={updateNameMutation}
+          />
 
-            <div className="flex flex-col md:flex-row gap-8 items-center md:items-start z-10 relative">
-              <div className="flex flex-col items-center gap-4">
-                <div
-                  className={`w-32 h-32 md:w-40 md:h-40 bg-gray-700 rounded-full border-4 overflow-hidden flex items-center justify-center relative transition-all duration-300 ${currentFrameData.style}`}
-                >
-                  <img
-                    src={avatarUrl}
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
-                    style={{ imageRendering: "pixelated" }}
-                    onError={(e) => {
-                      e.currentTarget.src = "/char-male.png";
-                    }}
-                  />
-                </div>
-
-                <div className="text-center w-full flex flex-col items-center">
-                  {isEditing ? (
-                    <div className="flex items-center gap-2 mt-1">
-                      <input
-                        type="text"
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                        className="bg-gray-700 text-white px-2 py-1 rounded border border-gray-500 focus:border-yellow-400 outline-none w-32 text-center"
-                        autoFocus
-                      />
-                      <button
-                        onClick={() => updateNameMutation.mutate(newName)}
-                        disabled={updateNameMutation.isPending}
-                        className="p-1 bg-green-600 rounded text-white"
-                      >
-                        {updateNameMutation.isPending ? (
-                          <Loader2 className="animate-spin" size={16} />
-                        ) : (
-                          <Check size={16} />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsEditing(false);
-                          setNewName(currentName);
-                        }}
-                        className="p-1 bg-red-600 rounded text-white"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 group relative">
-                      <h2 className="text-xl font-bold text-white break-all">
-                        {currentName}
-                      </h2>
-                      <button
-                        onClick={() => setIsEditing(true)}
-                        className="text-gray-400 hover:text-yellow-400 opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                    </div>
-                  )}
-
-                  <span
-                    className={`text-xs px-3 py-1 rounded-full border mt-2 inline-block ${
-                      equippedTitleId !== "default"
-                        ? "bg-yellow-900/50 text-yellow-300 border-yellow-500"
-                        : "bg-blue-900 text-blue-300 border-blue-500"
-                    }`}
-                  >
-                    {displayTitle}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex-1 w-full space-y-6">
-                <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
-                  <div className="flex justify-between items-end mb-2">
-                    <span className="text-yellow-400 font-bold text-lg">
-                      {t("ui.level", { level })}
-                    </span>
-                    <span className="text-gray-400 text-xs">
-                      {t("ui.xp", { xp, xpToNextLevel })}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden border border-gray-600">
-                    <div
-                      className="bg-gradient-to-r from-yellow-600 to-yellow-400 h-full transition-all duration-1000 ease-out"
-                      style={{ width: `${xpProgressPercent}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <StatCard
-                    icon={Scroll}
-                    label={t("ui.stats.quests")}
-                    value={tasksCreated}
-                    color="text-blue-400"
-                  />
-                  <StatCard
-                    icon={Sword}
-                    label={t("ui.stats.completed")}
-                    value={tasksCompleted}
-                    color="text-green-400"
-                  />
-                  <StatCard
-                    icon={Trophy}
-                    label={t("ui.stats.efficiency")}
-                    value={`${successRate}%`}
-                    color="text-purple-400"
-                  />
-
-                  <div
-                    className={`bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600 ${
-                      userClass === "ADVENTURER"
-                        ? "opacity-70"
-                        : "border-yellow-500 bg-gray-800"
-                    }`}
-                  >
-                    <div className="p-2 bg-gray-800 rounded text-red-400">
-                      <Shield size={20} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 uppercase">
-                        {t("ui.stats.class")}
-                      </p>
-                      <p className="font-bold text-sm text-yellow-400 capitalize">
-                        {displayClassName}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {(streakFreezes > 0 || dxpPotions > 0 || isDxpActive) && (
-            <div className="bg-gray-800 p-6 rounded-xl border border-yellow-900/50 shadow-lg">
-              <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
-                {t("inventory.title")}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {streakFreezes > 0 && (
-                  <div className="bg-gray-900 border border-blue-900 p-4 rounded-lg flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-900/50 rounded-lg border border-blue-700">
-                        <Snowflake className="text-blue-400" size={24} />
-                      </div>
-                      <div>
-                        <p className="font-bold text-blue-300 text-sm">
-                          {t("inventory.freeze.name")}
-                        </p>
-                        <p className="text-[10px] text-gray-400">
-                          {t("inventory.freeze.desc")}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="bg-blue-800 text-blue-100 font-bold px-3 py-1 rounded-full text-sm">
-                      x{streakFreezes}
-                    </span>
-                  </div>
-                )}
-
-                {(dxpPotions > 0 || isDxpActive) && (
-                  <div
-                    className={`bg-gray-900 border p-3 rounded-lg flex flex-wrap items-center justify-between gap-3 ${
-                      isDxpActive
-                        ? "border-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.3)]"
-                        : "border-purple-900"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-[150px]">
-                      <div className="p-2 bg-purple-900/50 rounded-lg border border-purple-700 relative shrink-0">
-                        <FlaskConical
-                          className={`text-purple-400 ${isDxpActive ? "animate-pulse" : ""}`}
-                          size={24}
-                        />
-                        {!isDxpActive && (
-                          <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">
-                            {dxpPotions}
-                          </span>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-bold text-purple-300 text-sm truncate">
-                          {t("inventory.dxp.name")}
-                        </p>
-                        {isDxpActive ? (
-                          <p className="text-[10px] text-purple-400 flex items-center gap-1 mt-1">
-                            <Clock size={10} className="shrink-0" />{" "}
-                            {t("inventory.dxp.active")}
-                          </p>
-                        ) : (
-                          <p className="text-[9px] md:text-[10px] text-gray-400 leading-tight mt-1">
-                            {t("inventory.dxp.desc")}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {!isDxpActive ? (
-                      <button
-                        onClick={() => usePotionMutation.mutate()}
-                        disabled={usePotionMutation.isPending}
-                        className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors shrink-0"
-                      >
-                        {usePotionMutation.isPending ? (
-                          <Loader2 className="animate-spin mx-auto" size={14} />
-                        ) : (
-                          t("inventory.dxp.drink")
-                        )}
-                      </button>
-                    ) : (
-                      <div className="bg-purple-900/40 border border-purple-500/50 px-3 py-1.5 rounded-lg text-center shrink-0">
-                        <p className="text-[8px] text-purple-300 uppercase opacity-80 mb-0.5">
-                          {t("inventory.dxp.timeLeftLabel")}
-                        </p>
-                        <p className="text-purple-400 font-bold text-[10px] md:text-xs tracking-wider">
-                          {dxpTimeLeft || "..."}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+          <InventorySection
+            streakFreezes={streakFreezes}
+            dxpPotions={dxpPotions}
+            isDxpActive={isDxpActive}
+            dxpTimeLeft={dxpTimeLeft}
+            usePotionMutation={usePotionMutation}
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
             <div className="md:col-span-2">
@@ -552,106 +346,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </main>
-    </div>
-  );
-}
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  color,
-}: {
-  icon: any;
-  label: string;
-  value: string | number;
-  color: string;
-}) {
-  return (
-    <div className="bg-gray-700 p-3 rounded-lg flex items-center gap-3 border border-gray-600">
-      <div className={`p-2 bg-gray-800 rounded ${color}`}>
-        <Icon size={20} />
-      </div>
-      <div>
-        <p className="text-[10px] text-gray-400 uppercase">{label}</p>
-        <p className="font-bold text-lg">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function CustomizationSection({
-  title,
-  category,
-  equippedId,
-  inventory,
-  metadata,
-  metadataKey,
-  onEquip,
-  isLoading,
-}: {
-  title: string;
-  category: string;
-  equippedId: string;
-  inventory: string[];
-  metadata: Record<string, any>;
-  metadataKey: string;
-  onEquip: (id: string) => void;
-  isLoading: boolean;
-}) {
-  const t = useTranslations("Profile");
-
-  const prefix = category.toLowerCase() + "_";
-  const ownedItems = inventory.filter((id: string) => id.startsWith(prefix));
-  const allItems = ["default", ...ownedItems];
-
-  return (
-    <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg h-full">
-      <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
-        {title}
-      </h2>
-
-      <div
-        className={`grid grid-cols-2 ${
-          category === "FRAME" ? "md:grid-cols-4" : ""
-        } gap-4`}
-      >
-        {allItems.map((itemId) => {
-          const meta = metadata[itemId] || {
-            icon: Star,
-            color: "text-white",
-          };
-          const isEquipped = equippedId === itemId;
-          const Icon = meta.icon;
-
-          return (
-            <div
-              key={itemId}
-              className={`p-3 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${
-                isEquipped
-                  ? "border-green-500 bg-gray-700 scale-105"
-                  : "border-gray-600 bg-gray-900 opacity-70 hover:opacity-100"
-              }`}
-            >
-              <Icon size={28} className={meta.color} />
-              <span className="font-bold text-[10px] text-center truncate w-full">
-                {t(`metadata.${metadataKey}.${itemId}` as any)}
-              </span>
-              <button
-                onClick={() => onEquip(itemId)}
-                disabled={isEquipped || isLoading}
-                className={`px-3 py-1 rounded text-[10px] font-bold uppercase w-full ${
-                  isEquipped
-                    ? "bg-green-600 text-white cursor-default"
-                    : "bg-gray-600 hover:bg-blue-600 text-white"
-                }`}
-              >
-                {isEquipped ? t("ui.actions.equipped") : t("ui.actions.choose")}
-              </button>
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 }

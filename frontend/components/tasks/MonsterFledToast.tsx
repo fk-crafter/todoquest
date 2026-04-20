@@ -21,7 +21,6 @@ export default function MonsterFledToast({
       const timer = setTimeout(() => setIsVisible(false), 5000);
       return () => clearTimeout(timer);
     }
-    // On a supprimé le "else" ici !
   }, [stolenGold]);
 
   if (!isVisible) return null;
