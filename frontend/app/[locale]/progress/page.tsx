@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, LogOut, Trophy, Star } from "lucide-react";
@@ -13,14 +13,21 @@ export default function ProgressPage() {
   const t = useTranslations("Progress");
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { setMusicSource, isPlaying, toggleMusic } = useAudio();
+  const { setMusicSource } = useAudio();
+
+  const isMounted = useRef(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     setMusicSource("/tasks.wav");
-    if (!isPlaying) {
-      toggleMusic();
-    }
-  }, [setMusicSource, isPlaying, toggleMusic]);
+  }, [setMusicSource]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -52,14 +59,25 @@ export default function ProgressPage() {
   };
 
   const handleLogout = async () => {
-    await signOut({ redirect: false });
-    router.push("/");
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    playSound();
+
+    try {
+      await signOut({ redirect: false });
+      if (isMounted.current) {
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Logout error", error);
+      if (isMounted.current) setIsLoggingOut(false);
+    }
   };
 
   if (status === "loading" || !session) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white font-press">
-        <h1 className="text-xl">{t("loading")}</h1>
+        <h1 className="text-xl animate-pulse">{t("loading")}</h1>
       </div>
     );
   }
@@ -68,7 +86,7 @@ export default function ProgressPage() {
     <div className="min-h-screen flex bg-gray-900 text-white font-press">
       <Sidebar />
 
-      <main className="flex-1 p-4 md:p-8 flex flex-col items-center justify-center">
+      <main className="flex-1 p-4 md:p-8 flex flex-col items-center justify-center animate-in fade-in duration-300">
         <div className="bg-gray-800 border-4 border-gray-600 p-8 rounded-xl shadow-2xl max-w-lg w-full text-center">
           <h1 className="text-2xl md:text-3xl font-bold mb-8 text-yellow-400">
             {t("welcome", { name: session.user?.name ?? t("loading") })}{" "}
@@ -103,13 +121,12 @@ export default function ProgressPage() {
             </button>
 
             <button
-              onClick={() => {
-                playSound();
-                handleLogout();
-              }}
-              className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white py-4 rounded font-bold shadow-[0_4px_0_rgb(0,0,0,0.5)] active:shadow-none active:translate-y-1 transition-all"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white py-4 rounded font-bold shadow-[0_4px_0_rgb(0,0,0,0.5)] active:shadow-none active:translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 disabled:active:shadow-[0_4px_0_rgb(0,0,0,0.5)]"
             >
-              {t("buttons.logout")} <LogOut size={20} />
+              {isLoggingOut ? t("loading") : t("buttons.logout")}{" "}
+              <LogOut size={20} />
             </button>
           </div>
         </div>
