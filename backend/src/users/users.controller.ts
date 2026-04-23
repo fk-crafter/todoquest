@@ -266,4 +266,10 @@ export class UsersController {
     }
     return this.usersService.searchUserByTag(query);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('fix-tags')
+  async fixTags() {
+    return this.usersService.generateMissingTags();
+  }
 }

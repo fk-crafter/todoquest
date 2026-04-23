@@ -456,4 +456,35 @@ export class UsersService {
 
     return user;
   }
+
+  async generateMissingTags() {
+    const usersWithoutTag = await this.prisma.user.findMany({
+      where: { userTag: null },
+    });
+
+    let count = 0;
+
+    for (const user of usersWithoutTag) {
+      let tag = '';
+      let isUnique = false;
+
+      while (!isUnique) {
+        tag = Math.floor(1000 + Math.random() * 9000).toString();
+        const existingUser = await this.prisma.user.findFirst({
+          where: { name: user.name, userTag: tag },
+        });
+        if (!existingUser) isUnique = true;
+      }
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { userTag: tag },
+      });
+      count++;
+    }
+
+    return {
+      message: `${count} tags ont été générés pour les anciens comptes !`,
+    };
+  }
 }
