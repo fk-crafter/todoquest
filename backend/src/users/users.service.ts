@@ -423,4 +423,37 @@ export class UsersService {
       },
     });
   }
+
+  async searchUserByTag(searchQuery: string) {
+    if (!searchQuery.includes('#')) {
+      throw new BadRequestException('Format invalide. Utilisez Pseudo#1234');
+    }
+
+    const [name, tag] = searchQuery.split('#');
+
+    if (!name || !tag) {
+      throw new BadRequestException('Format invalide. Utilisez Pseudo#1234');
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        name: { equals: name, mode: 'insensitive' },
+        userTag: tag,
+      },
+      select: {
+        id: true,
+        name: true,
+        userTag: true,
+        level: true,
+        class: true,
+        image: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Aventurier introuvable.');
+    }
+
+    return user;
+  }
 }

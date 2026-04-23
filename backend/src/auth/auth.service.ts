@@ -33,10 +33,11 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-
+    const userTag = await this.generateUniqueUserTag(dto.name);
     const user = await this.prisma.user.create({
       data: {
         name: dto.name,
+        userTag: userTag,
         email: dto.email,
         password: hashedPassword,
         xp: 0,
@@ -133,10 +134,12 @@ export class AuthService {
     });
 
     if (!user) {
+      const userTag = await this.generateUniqueUserTag(dto.name);
       user = await this.prisma.user.create({
         data: {
           email: dto.email,
           name: dto.name,
+          userTag: userTag,
           password: null,
           xp: 0,
           level: 1,
@@ -149,5 +152,18 @@ export class AuthService {
     }
 
     return this.generateToken(user);
+  }
+
+  private async generateUniqueUserTag(name: string): Promise<string> {
+    let tag: string = '';
+    let isUnique = false;
+    while (!isUnique) {
+      tag = Math.floor(1000 + Math.random() * 9000).toString();
+      const existingUser = await this.prisma.user.findFirst({
+        where: { name, userTag: tag },
+      });
+      if (!existingUser) isUnique = true;
+    }
+    return tag;
   }
 }

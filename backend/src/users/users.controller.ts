@@ -9,6 +9,7 @@ import {
   BadRequestException,
   Delete,
   Param,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -255,5 +256,14 @@ export class UsersController {
       console.error('ÉCHEC WEBHOOK :', msg);
       throw new BadRequestException(`Webhook verification failed: ${msg}`);
     }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('search')
+  async searchUser(@Query('q') query: string) {
+    if (!query) {
+      throw new BadRequestException('Veuillez entrer un pseudo.');
+    }
+    return this.usersService.searchUserByTag(query);
   }
 }

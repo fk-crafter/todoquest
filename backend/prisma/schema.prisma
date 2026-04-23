@@ -57,6 +57,10 @@ model User {
   streakFreezes       Int       @default(0)
   doubleXpUntil       DateTime?
   doubleXpPotions     Int       @default(0) 
+
+  userTag          String?
+  sentRequests     Friendship[] @relation("SentRequests")
+  receivedRequests Friendship[] @relation("ReceivedRequests")
 }
 
 model Task {
@@ -89,4 +93,24 @@ enum Difficulty {
 enum Role {
   USER
   ADMIN
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+model Friendship {
+  id          String           @id @default(uuid())
+  requesterId String
+  addresseeId String
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  requester   User @relation("SentRequests", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee   User @relation("ReceivedRequests", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
 }
