@@ -622,5 +622,25 @@
     "description": "L'application de productivité gamifiée. Gagne de l'XP, monte de niveau et collectionne des équipements en accomplissant tes tâches quotidiennes.",
     "ogDescription": "Arrête de procrastiner. Gagne de l'XP à chaque tâche accomplie !",
     "twitterDescription": "Gagne de l'XP en accomplissant tes tâches quotidiennes."
+  },
+  "Friends": {
+    "title": "La Taverne",
+    "search": "Rechercher",
+    "myFriends": "Mes Amis",
+    "requests": "Demandes",
+    "searchPlaceholder": "Ex: Arthur#1234",
+    "searchBtn": "Chercher",
+    "noResults": "Aucun aventurier trouvé.",
+    "addFriend": "Ajouter",
+    "requestSent": "Demande envoyée !",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "remove": "Retirer",
+    "noFriends": "Tu n'as pas encore d'amis. Cherche des aventuriers !",
+    "noRequests": "Aucune demande en attente.",
+    "level": "Niv",
+    "errors": {
+      "fetch": "Erreur lors du chargement."
+    }
   }
 }
