@@ -16,6 +16,7 @@ import {
   Trophy,
   ShoppingBag,
   ShieldAlert,
+  Users,
 } from "lucide-react";
 import ClassSelectionModal from "./ClassSelectionModal";
 import DailyRewardModal from "./DailyRewardModal";
@@ -131,6 +132,7 @@ export default function Sidebar() {
     { name: t("nav.profile"), href: "/profile", icon: ScrollText },
     { name: t("nav.shop"), href: "/shop", icon: ShoppingBag },
     { name: t("nav.success"), href: "/success", icon: Trophy },
+    { name: t("nav.friends"), href: "/friends", icon: Users },
     { name: t("nav.settings"), href: "/settings", icon: Settings2 },
   ];
 

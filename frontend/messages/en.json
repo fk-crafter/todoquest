@@ -435,7 +435,8 @@
       "profile": "Hero Sheet",
       "shop": "Shop",
       "success": "Achievements",
-      "settings": "Sanctuary of Settings"
+      "settings": "Sanctuary of Settings",
+      "friends": "The Tavern"
     },
     "back": "Back",
     "classes": {
@@ -620,5 +621,25 @@
     "description": "The gamified productivity app. Earn XP, level up, and collect gear by completing your daily tasks.",
     "ogDescription": "Stop procrastinating. Earn XP for every completed task!",
     "twitterDescription": "Earn XP by completing your daily tasks."
+  },
+  "Friends": {
+    "title": "The Tavern",
+    "search": "Search",
+    "myFriends": "My Friends",
+    "requests": "Requests",
+    "searchPlaceholder": "Ex: Arthur#1234",
+    "searchBtn": "Search",
+    "noResults": "No adventurer found.",
+    "addFriend": "Add",
+    "requestSent": "Request sent!",
+    "accept": "Accept",
+    "decline": "Decline",
+    "remove": "Remove",
+    "noFriends": "You don't have any friends yet. Search for adventurers!",
+    "noRequests": "No pending requests.",
+    "level": "Lvl",
+    "errors": {
+      "fetch": "Error while loading."
+    }
   }
 }
