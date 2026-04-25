@@ -272,4 +272,10 @@ export class UsersController {
   async fixTags() {
     return this.usersService.generateMissingTags();
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('public/:id')
+  async getPublicProfile(@Param('id') id: string) {
+    return this.usersService.getPublicProfile(id);
+  }
 }

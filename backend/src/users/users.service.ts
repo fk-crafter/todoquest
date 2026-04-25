@@ -487,4 +487,32 @@ export class UsersService {
       message: `${count} tags ont été générés pour les anciens comptes !`,
     };
   }
+
+  async getPublicProfile(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        userTag: true,
+        level: true,
+        class: true,
+        gender: true,
+        image: true,
+        xp: true,
+        equippedTheme: true,
+        equippedFrame: true,
+        equippedTitle: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) throw new NotFoundException('Aventurier introuvable');
+
+    const completedTasks = await this.prisma.task.count({
+      where: { userId, completed: true },
+    });
+
+    return { ...user, stats: { completedTasks } };
+  }
 }
