@@ -15,6 +15,7 @@ import {
   Loader2,
   UserMinus,
 } from "lucide-react";
+import FriendProfileModal from "@/components/friends/FriendProfileModal";
 
 export default function FriendsPage() {
   const t = useTranslations("Friends");
@@ -27,6 +28,7 @@ export default function FriendsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState<any>(null);
   const [searchError, setSearchError] = useState("");
+  const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
 
   const { data: friends = [], isLoading: loadingFriends } = useQuery({
     queryKey: ["friends"],
@@ -205,8 +207,10 @@ export default function FriendsPage() {
               friends.map((f: any) => (
                 <div
                   key={f.friendshipId}
-                  className="bg-gray-800 border-2 border-gray-700 p-4 rounded-lg flex items-center justify-between"
+                  onClick={() => setSelectedFriendId(f.friend.id)}
+                  className="bg-gray-800 border-2 border-gray-700 hover:border-yellow-500 hover:bg-gray-750 p-4 rounded-lg flex items-center justify-between cursor-pointer transition-all"
                 >
+                  {" "}
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-gray-700 rounded-full border border-gray-600 overflow-hidden">
                       <img
@@ -229,7 +233,10 @@ export default function FriendsPage() {
                     </div>
                   </div>
                   <button
-                    onClick={() => removeMutation.mutate(f.friendshipId)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeMutation.mutate(f.friendshipId);
+                    }}
                     className="p-2 bg-red-900/50 hover:bg-red-600 border border-red-800 text-white rounded transition-colors"
                     title={t("remove")}
                   >
@@ -364,6 +371,12 @@ export default function FriendsPage() {
               </div>
             )}
           </div>
+        )}
+        {selectedFriendId && (
+          <FriendProfileModal
+            friendId={selectedFriendId}
+            onClose={() => setSelectedFriendId(null)}
+          />
         )}
       </main>
     </div>

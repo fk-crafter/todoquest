@@ -640,6 +640,11 @@
     "level": "Lvl",
     "errors": {
       "fetch": "Error while loading."
+    },
+    "profileModal": {
+      "tasksCompleted": "Completed Quests",
+      "memberSince": "Member since",
+      "close": "Close"
     }
   }
 }
