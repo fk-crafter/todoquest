@@ -46,6 +46,7 @@ export class UsersService {
         monsterMaxHp: true,
         monsterEndTime: true,
         nextInvasionTime: true,
+        monsterSenderName: true,
       },
     });
 
@@ -87,35 +88,66 @@ export class UsersService {
           monsterEndTime: null,
           nextInvasionTime: nextInvasion,
           gold: { decrement: actualGoldStolen },
+          monsterSenderName: null,
         },
       });
 
       user.monsterHp = null;
       user.nextInvasionTime = nextInvasion;
       user.gold -= actualGoldStolen;
+      user.monsterSenderName = null;
       monsterFled = { stolenGold: actualGoldStolen };
     }
 
-    if (
-      user.monsterHp === null &&
-      (!user.nextInvasionTime || user.nextInvasionTime <= now)
-    ) {
-      const newEndTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
-
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          monsterHp: 100,
-          monsterMaxHp: 100,
-          monsterEndTime: newEndTime,
-          nextInvasionTime: null,
-        },
+    if (user.monsterHp === null) {
+      const pendingInvasion = await this.prisma.pendingInvasion.findFirst({
+        where: { targetId: userId },
+        orderBy: { createdAt: 'asc' },
       });
 
-      user.monsterHp = 100;
-      user.monsterMaxHp = 100;
-      user.monsterEndTime = newEndTime;
-      user.nextInvasionTime = null;
+      if (pendingInvasion) {
+        const newEndTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            monsterHp: 100,
+            monsterMaxHp: 100,
+            monsterEndTime: newEndTime,
+            nextInvasionTime: null,
+            monsterSenderName: pendingInvasion.senderName,
+          },
+        });
+
+        await this.prisma.pendingInvasion.delete({
+          where: { id: pendingInvasion.id },
+        });
+
+        user.monsterHp = 100;
+        user.monsterMaxHp = 100;
+        user.monsterEndTime = newEndTime;
+        user.nextInvasionTime = null;
+        user.monsterSenderName = pendingInvasion.senderName;
+      } else if (!user.nextInvasionTime || user.nextInvasionTime <= now) {
+        const newEndTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            monsterHp: 100,
+            monsterMaxHp: 100,
+            monsterEndTime: newEndTime,
+            nextInvasionTime: null,
+            monsterSenderName: null,
+          },
+        });
+
+        user.monsterHp = 100;
+        user.monsterMaxHp = 100;
+        user.monsterEndTime = newEndTime;
+        user.nextInvasionTime = null;
+        user.monsterSenderName = null;
+      }
     }
 
     return {
@@ -514,5 +546,63 @@ export class UsersService {
     });
 
     return { ...user, stats: { completedTasks } };
+  }
+
+  async sendInvasion(senderId: string, targetId: string) {
+    const INVASION_PRICE = 200;
+
+    const sender = await this.prisma.user.findUnique({
+      where: { id: senderId },
+    });
+    const target = await this.prisma.user.findUnique({
+      where: { id: targetId },
+    });
+
+    if (!sender || !target) throw new NotFoundException('Joueur introuvable');
+    if (sender.gold < INVASION_PRICE)
+      throw new BadRequestException(
+        "Pas assez d'or pour invoquer un monstre !",
+      );
+
+    await this.prisma.user.update({
+      where: { id: senderId },
+      data: { gold: { decrement: INVASION_PRICE } },
+    });
+
+    const now = new Date();
+    const hasActiveMonster =
+      target.monsterHp !== null &&
+      target.monsterEndTime &&
+      target.monsterEndTime > now;
+
+    // On sécurise le nom de l'attaquant au cas où il serait null en base
+    const attackerName = sender.name || 'Un Inconnu';
+
+    if (hasActiveMonster) {
+      await this.prisma.pendingInvasion.create({
+        data: { targetId, senderName: attackerName }, // <-- CORRECTION ICI
+      });
+      return {
+        message:
+          "Ton ami combat déjà un monstre ! Ton invasion a été placée en file d'attente.",
+      };
+    }
+
+    const newEndTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+    await this.prisma.user.update({
+      where: { id: targetId },
+      data: {
+        monsterHp: 100,
+        monsterMaxHp: 100,
+        monsterEndTime: newEndTime,
+        nextInvasionTime: null,
+        monsterSenderName: attackerName, // <-- ET CORRECTION ICI
+      },
+    });
+
+    return {
+      message:
+        'Invasion envoyée ! Ton ami vient de se faire attaquer par surprise !',
+    };
   }
 }

@@ -47,6 +47,9 @@ model User {
   monsterEndTime      DateTime?
   nextInvasionTime    DateTime?
 
+  monsterSenderName String?
+  pendingInvasions  PendingInvasion[] @relation("TargetInvasions")
+
   equippedTheme       String?
   equippedFrame       String?
   equippedTitle       String?
@@ -113,4 +116,13 @@ model Friendship {
   addressee   User @relation("ReceivedRequests", fields: [addresseeId], references: [id], onDelete: Cascade)
 
   @@unique([requesterId, addresseeId])
+}
+
+model PendingInvasion {
+  id          String   @id @default(uuid())
+  targetId    String
+  senderName  String   // Le pseudo de l'ami qui a envoyé le monstre
+  createdAt   DateTime @default(now())
+
+  target      User     @relation("TargetInvasions", fields: [targetId], references: [id], onDelete: Cascade)
 }

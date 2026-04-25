@@ -278,4 +278,16 @@ export class UsersController {
   async getPublicProfile(@Param('id') id: string) {
     return this.usersService.getPublicProfile(id);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('invasion')
+  async sendInvasion(
+    @Req() req: RequestWithUser,
+    @Body('targetId') targetId: string,
+  ) {
+    if (!targetId) {
+      throw new BadRequestException('Veuillez sélectionner une victime.');
+    }
+    return this.usersService.sendInvasion(req.user.id, targetId);
+  }
 }
