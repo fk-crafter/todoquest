@@ -9,6 +9,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useTutorial } from "@/context/TutorialContext";
 import { Coins, Gem, Loader2, AlertCircle } from "lucide-react";
+import InvasionModal from "@/components/shop/InvasionModal";
 
 import { SHOP_ITEMS, GOLD_PACKS, ShopItem } from "@/components/shop/constants";
 import ShopHeader from "@/components/shop/ShopHeader";
@@ -28,6 +29,7 @@ export default function ShopPage() {
   const [successItem, setSuccessItem] = useState<ShopItem | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isRedirecting, setIsRedirecting] = useState<string | null>(null);
+  const [showInvasionModal, setShowInvasionModal] = useState(false);
 
   const fetchProfile = async () => {
     const res = await fetch(
@@ -89,6 +91,11 @@ export default function ShopPage() {
   });
 
   const handleRequestBuy = (item: ShopItem) => {
+    if (item.id === "invasion") {
+      setShowInvasionModal(true);
+      return;
+    }
+
     if (!session?.accessToken || gold < item.price) return;
     setItemToBuy(item);
   };
@@ -284,6 +291,14 @@ export default function ShopPage() {
           <p>{errorMessage}</p>
         </div>
       </RetroModal>
+      {showInvasionModal && (
+        <InvasionModal
+          onClose={() => setShowInvasionModal(false)}
+          onSuccess={() =>
+            queryClient.invalidateQueries({ queryKey: ["profile"] })
+          }
+        />
+      )}
     </div>
   );
 }

@@ -467,6 +467,7 @@ export default function TasksPage() {
         onClose={() => setShowMonsterModal(false)}
         monster={monster}
         timeLeftStr={timeLeftStr}
+        senderName={user?.monsterSenderName}
       />
 
       <main className="w-full p-4 md:p-6 mt-12 md:mt-12 mb-16 md:mb-0 relative z-10">

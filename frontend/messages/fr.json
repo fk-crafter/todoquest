@@ -231,6 +231,7 @@
     "items": {
       "potion_freeze": "Gel de Série (Protège ton Combo)",
       "potion_dxp": "Potion Double XP (24h)",
+      "invasion": "Parchemin d'Invasion",
       "frame_gold": "Cadre Doré",
       "frame_fire": "Enflammé",
       "frame_neon": "Néon Bleu",
@@ -243,6 +244,18 @@
       "theme_magma": "Magma",
       "theme_forest": "Forêt",
       "theme_cyber": "Cyberpunk"
+    },
+    "invasion": {
+      "name": "Parchemin d'Invasion",
+      "description": "Envoie un monstre attaquer un ami par surprise !",
+      "buy": "Acheter (200 Or)"
+    },
+    "invasionModal": {
+      "title": "Choisir une victime",
+      "empty": "Tu n'as pas encore d'amis à attaquer !",
+      "send": "Envoyer l'Invasion ⚔️",
+      "cancel": "Annuler",
+      "success": "Invasion envoyée avec succès !"
     },
     "actions": {
       "owned": "POSSÉDÉ",
@@ -426,7 +439,8 @@
       "victory": "Monstre vaincu ! Vous avez gagné !",
       "close": "Fermer",
       "fled": "Le monstre s'est enfui...",
-      "stolen": "Il a volé {gold} Or de votre campement !"
+      "stolen": "Il a volé {gold} Or de votre campement !",
+      "monsterWarning": "⚠️ INVASION DE {name} ⚠️"
     }
   },
   "Sidebar": {

@@ -230,6 +230,7 @@
     "items": {
       "potion_freeze": "Streak Freeze (Protects Combo)",
       "potion_dxp": "Double XP Potion (24h)",
+      "invasion": "Invasion Scroll",
       "frame_gold": "Golden Frame",
       "frame_fire": "Aflame",
       "frame_neon": "Blue Neon",
@@ -242,6 +243,18 @@
       "theme_magma": "Magma",
       "theme_forest": "Forest",
       "theme_cyber": "Cyberpunk"
+    },
+    "invasion": {
+      "name": "Invasion Scroll",
+      "description": "Send a monster to attack a friend by surprise!",
+      "buy": "Buy (200 Gold)"
+    },
+    "invasionModal": {
+      "title": "Choose a victim",
+      "empty": "You don't have any friends to attack yet!",
+      "send": "Send Invasion ⚔️",
+      "cancel": "Cancel",
+      "success": "Invasion sent successfully!"
     },
     "actions": {
       "owned": "OWNED",
@@ -423,7 +436,8 @@
       "victory": "Monster defeated! You win!",
       "close": "Close",
       "fled": "The monster fled...",
-      "stolen": "It stole {gold} Gold from your camp!"
+      "stolen": "It stole {gold} Gold from your camp!",
+      "monsterWarning": "⚠️ INVASION FROM {name} ⚠️"
     }
   },
   "Sidebar": {

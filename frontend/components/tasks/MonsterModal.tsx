@@ -7,6 +7,7 @@ interface MonsterModalProps {
   onClose: () => void;
   monster: { hp: number; maxHp: number } | null;
   timeLeftStr: string;
+  senderName?: string | null;
 }
 
 export default function MonsterModal({
@@ -14,6 +15,7 @@ export default function MonsterModal({
   onClose,
   monster,
   timeLeftStr,
+  senderName,
 }: MonsterModalProps) {
   const t = useTranslations("Tasks");
 
@@ -47,7 +49,10 @@ export default function MonsterModal({
         </button>
 
         <h2 className="text-xl font-bold mb-1 text-red-500 animate-pulse">
-          ⚠️ {t("Monster.invasion") || "Invasion !"} ⚠️
+          {" "}
+          {senderName
+            ? t("Monster.monsterWarning", { name: senderName })
+            : t("Monster.invasion") || "Invasion !"}{" "}
         </h2>
         <h3 className="text-lg text-white mb-4">
           {t("Monster.title") || "Gobelin"}

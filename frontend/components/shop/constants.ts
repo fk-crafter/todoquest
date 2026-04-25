@@ -13,6 +13,7 @@ import {
   Hexagon,
   Snowflake,
   FlaskConical,
+  Skull,
 } from "lucide-react";
 
 export type ShopItem = {
@@ -40,6 +41,14 @@ export const SHOP_ITEMS: ShopItem[] = [
     price: 300,
     icon: FlaskConical,
     color: "text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.8)]",
+  },
+  {
+    id: "invasion",
+    name: "invasion",
+    category: "POTION",
+    price: 200,
+    icon: Skull,
+    color: "text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]",
   },
   {
     id: "frame_gold",
