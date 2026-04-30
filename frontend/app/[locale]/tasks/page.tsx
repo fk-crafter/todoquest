@@ -89,20 +89,28 @@ export default function TasksPage() {
 
   useEffect(() => {
     if (!monster) return;
-    const interval = setInterval(() => {
+    let interval: NodeJS.Timeout;
+
+    const updateTimer = () => {
       const diff = monster.endTime - Date.now();
       if (diff <= 0) {
         setMonster(null);
         localStorage.removeItem("todoquest_monster");
-
+        if (interval) clearInterval(interval);
         queryClient.invalidateQueries({ queryKey: ["profile"] });
       } else {
         const h = Math.floor(diff / (1000 * 60 * 60));
         const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         setTimeLeftStr(`${h}h ${m}m`);
       }
-    }, 1000);
-    return () => clearInterval(interval);
+    };
+
+    updateTimer();
+    interval = setInterval(updateTimer, 1000);
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [monster, queryClient]);
 
   const sensors = useSensors(
