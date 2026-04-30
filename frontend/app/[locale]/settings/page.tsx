@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Volume2, VolumeX, Trash2, LogOut, AlertTriangle } from "lucide-react";
@@ -21,15 +21,6 @@ export default function SettingsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const isMounted = useRef(true);
-
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/");
@@ -41,12 +32,10 @@ export default function SettingsPage() {
     setIsLoggingOut(true);
     try {
       await signOut({ redirect: false });
-      if (isMounted.current) {
-        router.push("/");
-      }
+      router.push("/");
     } catch (error) {
       console.error("Erreur logout", error);
-      if (isMounted.current) setIsLoggingOut(false);
+      setIsLoggingOut(false);
     }
   };
 
@@ -65,22 +54,16 @@ export default function SettingsPage() {
 
       if (res.ok) {
         await signOut({ redirect: false });
-        if (isMounted.current) {
-          router.push("/");
-        }
+        router.push("/");
       } else {
         alert(t("deleteModal.error"));
-        if (isMounted.current) {
-          setIsDeleting(false);
-          setShowDeleteModal(false);
-        }
-      }
-    } catch (error) {
-      console.error("Erreur delete account", error);
-      if (isMounted.current) {
         setIsDeleting(false);
         setShowDeleteModal(false);
       }
+    } catch (error) {
+      console.error("Erreur delete account", error);
+      setIsDeleting(false);
+      setShowDeleteModal(false);
     }
   };
 
