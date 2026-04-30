@@ -103,6 +103,7 @@ export default function ProfilePage() {
     if (!user?.doubleXpUntil) return;
 
     const until = new Date(user.doubleXpUntil);
+    let interval: NodeJS.Timeout;
 
     const updateTimer = () => {
       const now = new Date();
@@ -110,6 +111,8 @@ export default function ProfilePage() {
 
       if (diff <= 0) {
         setDxpTimeLeft(null);
+        if (interval) clearInterval(interval);
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
         return;
       }
 
@@ -119,10 +122,12 @@ export default function ProfilePage() {
     };
 
     updateTimer();
-    const interval = setInterval(updateTimer, 60000);
+    interval = setInterval(updateTimer, 60000);
 
-    return () => clearInterval(interval);
-  }, [user?.doubleXpUntil]);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [user?.doubleXpUntil, queryClient]);
 
   const equipMutation = useMutation({
     mutationFn: async ({
