@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, LogOut, Trophy, Star } from "lucide-react";
@@ -15,15 +15,7 @@ export default function ProgressPage() {
   const router = useRouter();
   const { setMusicSource } = useAudio();
 
-  const isMounted = useRef(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
 
   useEffect(() => {
     setMusicSource("/tasks.wav");
@@ -65,12 +57,10 @@ export default function ProgressPage() {
 
     try {
       await signOut({ redirect: false });
-      if (isMounted.current) {
-        router.push("/");
-      }
+      router.push("/");
     } catch (error) {
       console.error("Logout error", error);
-      if (isMounted.current) setIsLoggingOut(false);
+      setIsLoggingOut(false);
     }
   };
 
