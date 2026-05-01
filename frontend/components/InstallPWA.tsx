@@ -23,7 +23,10 @@ export default function InstallPWA() {
         setIsInstalled(false);
       }
     };
-    setTimeout(checkStandalone, 500);
+
+    const timer = setTimeout(checkStandalone, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   if (isInstalled) return null;
