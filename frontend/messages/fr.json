@@ -294,10 +294,10 @@
     },
     "tabs": {
       "ALL": "Général",
-      "EASY": "EASY",
-      "MEDIUM": "MEDIUM",
-      "HARD": "HARD",
-      "EPIC": "EPIC"
+      "EASY": "FACILE",
+      "MEDIUM": "MOYEN",
+      "HARD": "DIFFICILE",
+      "EPIC": "EPIQUE"
     },
     "empty": "Aucun succès dans cette catégorie.",
     "modal": {
