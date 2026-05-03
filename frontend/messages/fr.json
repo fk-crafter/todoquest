@@ -398,7 +398,8 @@
       "todo": "À faire",
       "noTodo": "Aucune tâche en cours.",
       "completed": "Tâches complétées",
-      "noCompleted": "Aucune tâche complétée pour l'instant."
+      "noCompleted": "Aucune tâche complétée pour l'instant.",
+      "peacefulVillage": "Le village est en paix... pour l'instant."
     },
     "taskForm": {
       "titlePlaceholder": "Titre de la tâche",

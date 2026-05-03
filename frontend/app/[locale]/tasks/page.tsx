@@ -511,7 +511,7 @@ export default function TasksPage() {
                     {t("main.noTodo")}
                   </p>
                   <p className="text-xs text-gray-500 italic">
-                    Le village est en paix... pour l'instant.
+                    {t("main.peacefulVillage")}
                   </p>
                 </div>
               ) : (

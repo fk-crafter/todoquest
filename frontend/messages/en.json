@@ -395,7 +395,8 @@
       "todo": "To Do",
       "noTodo": "No pending quests.",
       "completed": "Completed Quests",
-      "noCompleted": "No completed quests yet."
+      "noCompleted": "No completed quests yet.",
+      "peacefulVillage": "The village is at peace... for now."
     },
     "taskForm": {
       "titlePlaceholder": "Task Title",
