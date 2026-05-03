@@ -504,11 +504,16 @@ export default function TasksPage() {
                   <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-app-accent"></div>
                 </div>
               )}
-              <h2 className="text-xl font-semibold mb-2 text-white mt-2">
-                {t("main.todo")}
-              </h2>
               {incompleteTasks.length === 0 ? (
-                <p className="text-gray-400">{t("main.noTodo")}</p>
+                <div className="flex flex-col items-center justify-center py-10 px-4 bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-700 text-center mt-4">
+                  <div className="w-24 h-24 mb-3 opacity-70 bg-[url('/sleeping-hero.png')] bg-contain bg-center bg-no-repeat drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]"></div>
+                  <p className="text-gray-300 font-bold mb-2">
+                    {t("main.noTodo")}
+                  </p>
+                  <p className="text-xs text-gray-500 italic">
+                    Le village est en paix... pour l'instant.
+                  </p>
+                </div>
               ) : (
                 <DndContext
                   sensors={sensors}
