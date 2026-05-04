@@ -511,7 +511,7 @@ export default function TasksPage() {
                     {t("main.noTodo")}
                   </p>
                   <p className="text-xs text-gray-500 italic">
-                    {t("main.peacefulVillage")}
+                    {t("main.peacefulVillge")}
                   </p>
                 </div>
               ) : (
